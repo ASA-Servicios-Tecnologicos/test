@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ota-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ota-backend
+  template:
+    metadata:
+      labels:
+        app: ota-backend
+    spec:
+      containers:
+        - env:
+            - name: CTNAME
+              value: ota-backend
+            - name: APP_ID
+              value: myapp
+            - name: PORT
+              value: '3080'
+            - name: LOG_LEVEL
+              value: debug
+            - name: REQUEST_LIMIT
+              value: 100kb
+            - name: SESSION_SECRET
+              value: mySecret
+            - name: SWAGGER_API_SPEC
+              value: /spec
+            - name: ENVIRONMENT
+              value: production
+            - name: BRAND
+              value: NBLUE
+            - name: BRANDPT
+              value: NBLPT
+            - name: SESSION_TOKEN_URL
+              value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+            - name: CLIEND_ID
+              value: tecnoturis-integration
+            - name: CLIEND_SECRET
+              value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+            - name: REDIS_TTL
+              value: '250'
+            - name: REDIS_URL
+              value: redis
+            - name: REDIS_PORT
+              value: '6379'
+            - name: PROVIDER_SERVICE_ID
+              value: '41'
+            - name: SERVICE_ID
+              value: '7'
+            - name: TIMEOUTTO
+              value: '120000'
+            - name: TIMEOUT
+              value: '30000'
+            - name: MANAGEMENT_URL
+              value: http://management:3055
+          image: registrytecnob2b.azurecr.io/ota-backend
+          name: ota-backend
+          ports:
+            - containerPort: 3080
+              name: ota-backend
+          readinessProbe:
+            tcpSocket:
+              port: 3080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 3080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  [
+                    sh,
+                    -c,
+                    'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*',
+                  ]
+          volumeMounts:
+            - name: tecnob2blog
+              mountPath: /log
+              subPath: ota-backend
+      volumes:
+        - name: tecnob2blog
+          azureFile:
+            secretName: tecnob2bsharesecret
+            shareName: stgb2blogs
+            readOnly: false
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: replicaset
+                      operator: In
+                      values:
+                        - MainRepSet
+                topologyKey: kubernetes.io/hostname

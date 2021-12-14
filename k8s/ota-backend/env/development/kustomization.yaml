@@ -1,0 +1,9 @@
+resources:
+    - ../../base
+    - service.yaml
+    - deployment.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+namespace: dev
