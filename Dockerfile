@@ -19,4 +19,4 @@ RUN --mount=type=ssh,id=gitlab npm run-script build
 
 EXPOSE 3090
 
-CMD /wait && npm start
+CMD /wait && npm start:prod
