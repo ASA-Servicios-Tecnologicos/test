@@ -38,7 +38,7 @@ spec:
               value: 16199713-c697-4c44-8c82-8ab5f3bc5862
             - name: MANAGEMENT_URL
               value: https://agenciasb2b.w2m.com/api-rest/management/
-          image: registrytecnob2b.azurecr.io/ota-backend
+          image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
             - containerPort: 3080

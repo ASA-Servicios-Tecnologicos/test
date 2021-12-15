@@ -6,4 +6,4 @@ resources:
 generatorOptions:
   disableNameSuffixHash: true
 
-namespace: dev
+namespace: flowlo-pre
