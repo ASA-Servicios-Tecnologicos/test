@@ -26,6 +26,8 @@ spec:
               value: 100kb
             - name: SESSION_SECRET
               value: mySecret
+            - name: MONGODB_URI
+              value: mongodb://mongo:27017/ota-backend
             - name: SWAGGER_API_SPEC
               value: /spec
             - name: ENVIRONMENT
