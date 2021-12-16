@@ -26,6 +26,8 @@ spec:
               value: 100kb
             - name: SESSION_SECRET
               value: mySecret
+            - name: MONGODB_URI
+              value: mongodb://mongo:27017/ota-backend
             - name: SWAGGER_API_SPEC
               value: /spec
             - name: ENVIRONMENT
@@ -37,8 +39,8 @@ spec:
             - name: CLIEND_SECRET
               value: 16199713-c697-4c44-8c82-8ab5f3bc5862
             - name: MANAGEMENT_URL
-              value: http://management:3055
-          image: registrytecnob2b.azurecr.io/ota-backend
+              value: https://agenciasb2b.w2m.com/api-rest/management/
+          image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
             - containerPort: 3080
@@ -62,16 +64,6 @@ spec:
                     -c,
                     'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*',
                   ]
-          volumeMounts:
-            - name: tecnob2blog
-              mountPath: /log
-              subPath: ota-backend
-      volumes:
-        - name: tecnob2blog
-          azureFile:
-            secretName: tecnob2bsharesecret
-            shareName: devb2blogs
-            readOnly: false
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
