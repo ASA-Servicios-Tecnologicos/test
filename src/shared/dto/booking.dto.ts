@@ -1,26 +1,43 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { BookingStatusEnum } from '../enum/booking-status.enum';
 
-export interface BookingDTO {
-  id: string;
-  checkoutId: string;
-  programId: string;
-  productId: string;
-  checkIn: Date;
-  checkOut: Date;
-  status: BookingStatusEnum;
-  distribution: Room[];
-  prebookingToken: string;
-  amount: string;
-  market: string;
-  language: string;
-  currency: string;
-  session: string;
+export class Pax {
+  @ApiProperty()
+  age: string;
 }
 
-export interface Room {
+export class Room {
+  @ApiProperty({ type: [Pax] })
   pax: Pax[];
 }
 
-export interface Pax {
-  age: string;
+export class BookingDTO {
+  @ApiProperty()
+  id: string;
+  @ApiProperty()
+  checkoutId: string;
+  @ApiProperty()
+  programId: string;
+  @ApiProperty()
+  productId: string;
+  @ApiProperty()
+  checkIn: string;
+  @ApiProperty()
+  checkOut: string;
+  @ApiProperty()
+  status: BookingStatusEnum;
+  @ApiProperty({ type: [Room] })
+  distribution: Room[];
+  @ApiProperty()
+  prebookingToken: string;
+  @ApiProperty()
+  amount: number;
+  @ApiProperty()
+  market: string;
+  @ApiProperty()
+  language: string;
+  @ApiProperty()
+  currency: string;
+  @ApiProperty()
+  session: string;
 }

@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -6,7 +7,6 @@ import { l } from './logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
 
   const config = new DocumentBuilder()
     .setTitle('OTA Backend')
@@ -18,7 +18,9 @@ async function bootstrap() {
 
   // Get app config for cors settings and starting the app.
   const appConfig: AppConfigService = app.get('AppConfigService');
+  app.useGlobalPipes(new ValidationPipe());
+  app.enableCors({ credentials: true, origin: true });
   await app.listen(appConfig.port);
-  l.info(`Server is running in port ${appConfig.port}`)
+  l.info(`Server is running in port ${appConfig.port}`);
 }
 bootstrap();
