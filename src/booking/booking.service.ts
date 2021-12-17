@@ -16,7 +16,7 @@ export class BookingService {
   create(booking: BookingDTO) {
     const checkout = this.checkoutService.doCheckout({
       booking: {
-        bookingId: booking.id,
+        bookingId: booking.uuid,
         startDate: booking.checkIn,
         endDate: booking.checkOut,
         currency: booking.currency,

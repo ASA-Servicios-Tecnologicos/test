@@ -13,7 +13,7 @@ export class Room {
 
 export class BookingDTO {
   @ApiProperty()
-  id: string;
+  uuid: string;
   @ApiProperty()
   checkoutId: string;
   @ApiProperty()

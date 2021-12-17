@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BookingModule } from './booking/booking.module';
+import { BudgetModule } from './budget/budget.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { AppConfigModule } from './configuration/configuration.module';
 import { AppConfigService } from './configuration/configuration.service';
@@ -12,6 +13,7 @@ import { NotificationsModule } from './notifications/notifications.module';
   imports: [
     AppConfigModule,
     BookingModule,
+    BudgetModule,
     HttpModule,
     CheckoutModule,
     NotificationsModule,

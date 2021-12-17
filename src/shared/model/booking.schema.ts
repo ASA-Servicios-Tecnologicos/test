@@ -7,7 +7,10 @@ export type BookingDocument = Booking & Document;
 @Schema()
 export class Booking {
   @Prop({ required: true })
-  id: string;
+  uuid: string;
+
+  @Prop({ type: Object, required: false })
+  hotel?: Object;
 
   @Prop({ required: true })
   checkoutId: string;
@@ -19,10 +22,10 @@ export class Booking {
   productId: string;
 
   @Prop({ required: true })
-  checkIn: Date;
+  checkIn: string;
 
   @Prop({ required: true })
-  checkOut: Date;
+  checkOut: string;
 
   @Prop({ required: true })
   status: BookingStatusEnum;
@@ -34,7 +37,7 @@ export class Booking {
   prebookingToken: string;
 
   @Prop({ required: true })
-  amount: string;
+  amount: number;
 
   @Prop({ required: true })
   market: string;
