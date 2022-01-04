@@ -8,12 +8,15 @@ export class BudgetController {
   constructor(private budgetService: BudgetService) {}
   @Post()
   @ApiOperation({ summary: 'Crear un presupuesto' })
-  @ApiResponse({ status: 201, description: 'Booking creado.' })
+  @ApiResponse({ status: 201, description: 'Presupuest creado.' })
   create(@Body() budget: BookingDTO) {
     return this.budgetService.create(budget);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Obtener un presupuesto' })
+  @ApiResponse({ status: 200, description: 'Devuelve presupuesto.' })
+  @ApiResponse({ status: 404, description: 'Presupuesto no encontrado.' })
   findBudgetById(@Param('id') id: string) {
     return this.budgetService.findById(id);
   }
