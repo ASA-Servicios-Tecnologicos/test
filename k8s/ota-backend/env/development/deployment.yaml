@@ -19,7 +19,7 @@ spec:
             - name: APP_ID
               value: myapp
             - name: PORT
-              value: '3080'
+              value: "3080"
             - name: LOG_LEVEL
               value: debug
             - name: REQUEST_LIMIT
@@ -33,11 +33,21 @@ spec:
             - name: ENVIRONMENT
               value: production
             - name: SESSION_TOKEN_URL
-              value: https://auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+              value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+            - name: SESION_SCOPE
+              value: profile
+            - name: SESSION_PASSWORD
+              value: Tecnoturis22
+            - name: SESSION_USERNAME
+              value: test.tecnoturis2
+            - name: SESSION_GRANT_TYPE
+              value: password
             - name: CLIEND_ID
               value: tecnoturis-integration
             - name: CLIEND_SECRET
-              value: 16199713-c697-4c44-8c82-8ab5f3bc5862
+              value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+            - name: CHECKOUT_URL
+              value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_URL
               value: https://agenciasb2b.w2m.com/api-rest/management/
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
@@ -62,7 +72,7 @@ spec:
                   [
                     sh,
                     -c,
-                    'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*',
+                    "sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*",
                   ]
       affinity:
         podAntiAffinity:

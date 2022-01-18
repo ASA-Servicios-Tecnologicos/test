@@ -8,13 +8,13 @@ export class BookingController {
   constructor(private bookingService: BookingService) {}
   @Post()
   @ApiOperation({ summary: 'Crear un booking y obtener un checkout id' })
-  @ApiResponse({ status: 201, description: 'Booking creado.' })
+  @ApiResponse({ status: 201, description: 'Booking creado.'})
   create(@Body() booking: BookingDTO) {
     return this.bookingService.create(booking);
   }
 
-  @Get('byid/:id')
-  findBookingById(@Param('id') id: string) {
+  @Get('bybooking/:bookingId')
+  findBookingById(@Param('bookingId') id: string) {
     return this.bookingService.findById(id);
   }
 

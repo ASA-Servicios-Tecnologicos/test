@@ -1,6 +1,5 @@
 import { HttpService } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
-import * as FormData from 'form-data';
 import { NotificationSessionDTO } from '../dto/notification-session.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 
@@ -11,23 +10,26 @@ export abstract class SecuredHttpService {
   ) {}
 
   protected getSessionToken(): Promise<string> {
-    let bodyFormData = new FormData();
-    bodyFormData.append('grant_type', 'password');
-    console.log(this.appConfigService.SESSION_USERNAME);
-    console.log(this.appConfigService.SESSION_PASSWORD);
-    console.log(this.appConfigService.SESSION_CLIENTID);
-    bodyFormData.append('username', this.appConfigService.SESSION_USERNAME);
-    bodyFormData.append('password', this.appConfigService.SESSION_PASSWORD);
-    bodyFormData.append('client_id', this.appConfigService.SESSION_CLIENTID);
+    const data = new URLSearchParams();
+    data.append('scope', this.appConfigService.SESSION_SCOPE)
+    data.append('grant_type', this.appConfigService.SESSION_GRANT_TYPE);
+    data.append('username', this.appConfigService.SESSION_USERNAME);
+    data.append('password', this.appConfigService.SESSION_PASSWORD);
+    data.append('client_id', this.appConfigService.SESSION_CLIENTID);
+    data.append('client_secret', this.appConfigService.SESSION_CLIENT_SECRET);
+    
     return lastValueFrom(
       this.http
         .post<NotificationSessionDTO>(
           this.appConfigService.SESSION_TOKEN_URL,
-          bodyFormData,
-          { headers: bodyFormData.getHeaders() }
+          data,
+          { headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
         )
         .pipe(map((result) => result.data.access_token))
-    );
+    ).catch(error => {
+      console.log(error)
+      return error;
+    });
   }
 
   protected async postSecured(url: string, data?: any) {
@@ -39,7 +41,7 @@ export abstract class SecuredHttpService {
           Authorization: `Bearer ${token}`,
         },
       })
-    );
+    ).catch(error => console.log(error))
   }
 
   protected async getSecured(url: string) {

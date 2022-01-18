@@ -1,25 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Room } from '../dto/booking.dto';
-import { BookingStatusEnum } from '../enum/booking-status.enum';
+import { Distribution, Room } from '../dto/booking.dto';
 
 export type BookingDocument = Booking & Document;
 
 @Schema()
 export class Booking {
   @Prop({ required: true })
-  uuid: string;
-
-  @Prop({ type: Object, required: false })
-  hotel?: Object;
+  bookingId: string;
 
   @Prop({ required: true })
   checkoutId: string;
 
   @Prop({ required: true })
-  programId: string;
+  productId: string;
 
   @Prop({ required: true })
-  productId: string;
+  programId: string;
 
   @Prop({ required: true })
   checkIn: string;
@@ -28,10 +24,7 @@ export class Booking {
   checkOut: string;
 
   @Prop({ required: true })
-  status: BookingStatusEnum;
-
-  @Prop({ required: true })
-  distribution: Room[];
+  distribution: Distribution;
 
   @Prop({ required: true })
   prebookingToken: string;
@@ -48,8 +41,17 @@ export class Booking {
   @Prop({ required: true })
   currency: string;
 
+  @Prop()
+  session?: string;
+
   @Prop({ required: true })
-  session: string;
+  okUrl: string;
+
+  @Prop({ required: true })
+  koUrl: string;
+
+  @Prop()
+  dicountCode?: string;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

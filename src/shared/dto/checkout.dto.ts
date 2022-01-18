@@ -3,7 +3,7 @@ export interface CheckoutDTO {
 }
 
 export interface BookingDTO {
-  bookingId: string;
+  bookingId?: string;
   okURL: string;
   koURL: string;
   totalAmount: number;

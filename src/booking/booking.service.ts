@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { BookingDTO } from '../shared/dto/booking.dto';
 import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class BookingService {
@@ -13,27 +14,28 @@ export class BookingService {
     private checkoutService: CheckoutService
   ) {}
 
-  create(booking: BookingDTO) {
-    const checkout = this.checkoutService.doCheckout({
+ async create(booking: BookingDTO) {
+    booking.bookingId = uuidv4();
+    const checkout = await (await (this.checkoutService.doCheckout({
       booking: {
-        bookingId: booking.uuid,
+        bookingId: booking.bookingId,
         startDate: booking.checkIn,
         endDate: booking.checkOut,
         currency: booking.currency,
         language: booking.language,
         market: booking.market,
         totalAmount: booking.amount,
-        koURL: '',
-        okURL: '',
+        koURL: booking.koUrl,
+        okURL: booking.okUrl,
       },
-    });
-    const createdBooking = new this.bookingModel(booking);
-    const save = createdBooking.save();
-
-    return checkout;
+    })))['data'];
+    const prebooking: Booking = {...booking, bookingId: booking.bookingId, checkoutId: checkout.checkoutId}; 
+    const createdBooking = new this.bookingModel(prebooking);
+    await createdBooking.save();
+    return {bookingId:  prebooking.bookingId};
   }
 
   findById(id: string) {
-    return this.bookingModel.findById(id).exec();
+    return this.bookingModel.findOne({bookingId: id}).exec();
   }
 }

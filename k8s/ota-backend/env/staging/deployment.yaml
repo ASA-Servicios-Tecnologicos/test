@@ -19,13 +19,15 @@ spec:
             - name: APP_ID
               value: myapp
             - name: PORT
-              value: '3080'
+              value: "3080"
             - name: LOG_LEVEL
               value: debug
             - name: REQUEST_LIMIT
               value: 100kb
             - name: SESSION_SECRET
               value: mySecret
+            - name: MONGODB_URI
+              value: mongodb://mongo:27017/ota-backend
             - name: SWAGGER_API_SPEC
               value: /spec
             - name: ENVIRONMENT
@@ -36,24 +38,34 @@ spec:
               value: NBLPT
             - name: SESSION_TOKEN_URL
               value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+            - name: SESION_SCOPE
+              value: profile
+            - name: SESSION_PASSWORD
+              value: Tecnoturis22
+            - name: SESSION_USERNAME
+              value: test.tecnoturis2
+            - name: SESSION_GRANT_TYPE
+              value: password
             - name: CLIEND_ID
               value: tecnoturis-integration
             - name: CLIEND_SECRET
               value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+            - name: CHECKOUT_URL
+              value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: REDIS_TTL
-              value: '250'
+              value: "250"
             - name: REDIS_URL
               value: redis
             - name: REDIS_PORT
-              value: '6379'
+              value: "6379"
             - name: PROVIDER_SERVICE_ID
-              value: '41'
+              value: "41"
             - name: SERVICE_ID
-              value: '7'
+              value: "7"
             - name: TIMEOUTTO
-              value: '120000'
+              value: "120000"
             - name: TIMEOUT
-              value: '30000'
+              value: "30000"
             - name: MANAGEMENT_URL
               value: http://management:3055
           image: registrytecnob2b.azurecr.io/ota-backend
@@ -78,7 +90,7 @@ spec:
                   [
                     sh,
                     -c,
-                    'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*',
+                    "sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*",
                   ]
           volumeMounts:
             - name: tecnob2blog

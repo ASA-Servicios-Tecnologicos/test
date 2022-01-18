@@ -36,6 +36,18 @@ export class AppConfigService {
     return this.configService.get<string>('tecnoturis-app.SESSION_CLIENTID');
   }
 
+  get SESSION_SCOPE(): string {
+    return this.configService.get<string>('tecnoturis-app.SESSION_SCOPE');
+  }
+
+  get SESSION_GRANT_TYPE(): string {
+    return this.configService.get<string>('tecnoturis-app.SESSION_GRANT_TYPE');
+  }
+
+  get SESSION_CLIENT_SECRET(): string {
+    return this.configService.get<string>('tecnoturis-app.SESSION_CLIENT_SECRET');
+  }
+
   get EMAIL_RAW_URL(): string {
     return this.configService.get<string>('tecnoturis-app.EMAIL_RAW_URL');
   }

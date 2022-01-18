@@ -11,6 +11,7 @@ export class CheckoutService extends SecuredHttpService {
   ) {
     super(http, appConfigService);
   }
+  
   async doCheckout(checkout: CheckoutDTO) {
     return this.postSecured(this.appConfigService.CHECKOUT_URL, checkout);
   }
