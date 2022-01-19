@@ -46,9 +46,9 @@ spec:
               value: test.tecnoturis2
             - name: SESSION_GRANT_TYPE
               value: password
-            - name: CLIEND_ID
+            - name: CLIENT_ID
               value: tecnoturis-integration
-            - name: CLIEND_SECRET
+            - name: CLIENT_SECRET
               value: 2ed7403e-0b60-4760-a36c-5e13e2576152
             - name: CHECKOUT_URL
               value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
