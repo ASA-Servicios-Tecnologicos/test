@@ -17,12 +17,12 @@ export abstract class SecuredHttpService {
     data.append('password', this.appConfigService.SESSION_PASSWORD);
     data.append('client_id', this.appConfigService.SESSION_CLIENTID);
     data.append('client_secret', this.appConfigService.SESSION_CLIENT_SECRET);
-    
+
     return lastValueFrom(
       this.http
         .post<NotificationSessionDTO>(
           this.appConfigService.SESSION_TOKEN_URL,
-          data,
+          data.toString(),
           { headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
         )
         .pipe(map((result) => result.data.access_token))
