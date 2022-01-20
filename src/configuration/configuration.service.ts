@@ -59,4 +59,16 @@ export class AppConfigService {
   get CHECKOUT_URL(): string {
     return this.configService.get<string>('tecnoturis-app.CHECKOUT_URL');
   }
+
+  get MANAGEMENT_URL(): string {
+    return this.configService.get<string>('tecnoturis-app.MANAGEMENT_URL');
+  }
+
+  get MANAGEMENT_USERNAME(): string {
+    return this.configService.get<string>('tecnoturis-app.MANAGEMENT_USERNAME');
+  }
+
+  get MANAGEMENT_PASSWORD(): string {
+    return this.configService.get<string>('tecnoturis-app.MANAGEMENT_PASSWORD');
+  }
 }

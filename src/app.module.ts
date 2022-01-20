@@ -7,6 +7,7 @@ import { BudgetModule } from './budget/budget.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { AppConfigModule } from './configuration/configuration.module';
 import { AppConfigService } from './configuration/configuration.service';
+import { ManagementModule } from './management/management.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     HttpModule,
     CheckoutModule,
     NotificationsModule,
+    ManagementModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({

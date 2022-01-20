@@ -17,6 +17,6 @@ export class CheckoutService extends SecuredHttpService {
   }
 
   async getCheckout(id: string) {
-    return this.postSecured(this.appConfigService.CHECKOUT_URL + id);
+    return this.getSecured(`${this.appConfigService.CHECKOUT_URL}/${id}`);
   }
 }

@@ -18,8 +18,17 @@ export class BookingController {
     return this.bookingService.findById(id);
   }
 
+  @Get('reserve/:checkoutId')
+  @ApiOperation({ summary: 'Consultar info sobre el checkout y realizar la reserva'})
+  @ApiResponse({ status: 200, description: 'Reserva realizada'})
+  reserve(@Param('checkoutId') checkoutId: string) {
+    this.bookingService.doReservation(checkoutId);
+  }
+
   @Get('bycheckout/:checkoutId')
-  findBookingByCheckoutId(@Param('checkoutId') checkoutId: string) {}
+  findBookingByCheckoutId(@Param('checkoutId') checkoutId: string) {
+   return this.bookingService.getRemoteCheckout(checkoutId);
+  }
 
   @Post('confirm/:id')
   confirmBooking(@Param('id') id: string) {}

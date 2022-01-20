@@ -41,7 +41,7 @@ export abstract class SecuredHttpService {
           Authorization: `Bearer ${token}`,
         },
       })
-    ).catch(error => console.log(error))
+    ).catch(error => console.log(error));
   }
 
   protected async getSecured(url: string) {
@@ -49,9 +49,10 @@ export abstract class SecuredHttpService {
     return lastValueFrom(
       this.http.get(url, {
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      })
-    );
+      }).pipe(map((res => res.data)))
+    ).catch(error => console.log(error));
   }
 }
