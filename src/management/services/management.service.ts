@@ -14,7 +14,7 @@ export class ManagementService {
     const authData = new URLSearchParams();
     authData.append('username', this.appConfigService.MANAGEMENT_USERNAME);
     authData.append('password', this.appConfigService.MANAGEMENT_PASSWORD);
-    return lastValueFrom(this.http.post(`${this.appConfigService.MANAGEMENT_URL}/user/auth/token-auth/`, authData).pipe(pluck('data', 'token'))).catch(error => console.log(error));
+    return lastValueFrom(this.http.post(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/auth/token-auth/`, authData).pipe(pluck('data', 'token'))).catch(error => console.log(error));
   }
   
 /*   async doCheckout(checkout: CheckoutDTO) {

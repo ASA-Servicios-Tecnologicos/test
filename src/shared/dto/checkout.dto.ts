@@ -1,3 +1,5 @@
+import { CancellationPolicyDTO } from "./booking.dto";
+
 export interface CheckoutDTO {
   booking: BookingDTO;
 }

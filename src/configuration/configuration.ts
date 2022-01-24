@@ -11,7 +11,7 @@ export default registerAs('tecnoturis-app', () => ({
   SESSION_GRANT_TYPE: process.env.SESSION_GRANT_TYPE,
   SESSION_CLIENT_SECRET: process.env.CLIENT_SECRET,
   CHECKOUT_URL: process.env.CHECKOUT_URL,
-  MANAGEMENT_URL: process.env.MANAGEMENT_URL,
+  TECNOTURIS_URL: process.env.TECNOTURIS_URL,
   MANAGEMENT_USERNAME: process.env.MANAGEMENT_USERNAME,
   MANAGEMENT_PASSWORD: process.env.MANAGEMENT_PASSWORD
 }));

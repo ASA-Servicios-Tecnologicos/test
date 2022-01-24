@@ -50,6 +50,10 @@ spec:
               value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_URL
               value: https://agenciasb2b.w2m.com/api-rest/management/
+            - name: MANAGEMENT_USERNAME
+              value: bytourncentral
+            - name: MANAGEMENT_PASSWORD
+              value: "123456"
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:

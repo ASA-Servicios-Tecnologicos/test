@@ -1,5 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Distribution, Room } from '../dto/booking.dto';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { CancellationPolicyDTO, Distribution, Room } from "../dto/booking.dto";
 
 export type BookingDocument = Booking & Document;
 
@@ -24,7 +24,7 @@ export class Booking {
   checkOut: string;
 
   @Prop({ required: true })
-  distribution: Distribution;
+  distribution: Array<Distribution>;
 
   @Prop({ required: true })
   prebookingToken: string;
@@ -52,6 +52,18 @@ export class Booking {
 
   @Prop()
   dicountCode?: string;
+
+  @Prop()
+  requestToken: string;
+
+  @Prop()
+  providerToken: string;
+
+  @Prop()
+  hotelName: string;
+
+  @Prop()
+  cancellationPolicies: CancellationPolicyDTO[];
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
