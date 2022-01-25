@@ -33,24 +33,27 @@ spec:
             - name: ENVIRONMENT
               value: production
             - name: SESSION_TOKEN_URL
-              value: https://auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+              value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+            - name: SESION_SCOPE
+              value: profile
+            - name: SESSION_PASSWORD
+              value: Tecnoturis22
+            - name: SESSION_USERNAME
+              value: test.tecnoturis2
+            - name: SESSION_GRANT_TYPE
+              value: password
             - name: CLIENT_ID
               value: tecnoturis-integration
             - name: CLIENT_SECRET
-              value: 16199713-c697-4c44-8c82-8ab5f3bc5862
-<<<<<<< HEAD
-            - name: PROVIDER_SERVICE_ID
-              value: "41"
-            - name: SERVICE_ID
-              value: "7"
-            - name: TIMEOUTTO
-              value: "120000"
-            - name: TIMEOUT
-              value: "30000"
-=======
->>>>>>> 1d3c178 (Deploy to prod)
+              value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+            - name: CHECKOUT_URL
+              value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_URL
               value: https://agenciasb2b.w2m.com/api-rest/management/
+            - name: MANAGEMENT_USERNAME
+              value: bytourncentral
+            - name: MANAGEMENT_PASSWORD
+              value: "123456"
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
