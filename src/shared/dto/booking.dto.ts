@@ -4,20 +4,17 @@ import { ApiProperty } from "@nestjs/swagger";
 export class Pax {
   @ApiProperty()
   age: string;
+  @ApiProperty()
+  code: string;
+  @ApiProperty()
+  type: "ADULT" | "CHILD";
 }
 
 export class Room {
-  @ApiProperty({ type: [Pax] })
-  pax: Pax[];
-}
-
-export class Distribution {
   @ApiProperty()
-  adults: number;
+  code: string;
   @ApiProperty()
-  childrens: Array<string>;
-  @ApiProperty()
-  rooms: number;
+  passengers: Array<Pax>;
 }
 
 export class CancellationPolicyDTO {
@@ -29,6 +26,17 @@ export class CancellationPolicyDTO {
   type: PolicyType;
   @ApiProperty()
   amount: number;
+}
+
+export class DistributionDTO {
+  @ApiProperty()
+  room: string;
+  @ApiProperty()
+  age: number;
+  @ApiProperty()
+  extCode: string;
+  @ApiProperty()
+  type: "ADULT" | "CHILD";
 }
 
 export enum PolicyType {
@@ -49,7 +57,7 @@ export class BookingDTO {
   @ApiProperty()
   checkOut: string;
   @ApiProperty()
-  distribution: Array<Distribution>;
+  distribution: Array<DistributionDTO>;
   @ApiProperty()
   prebookingToken: string;
   @ApiProperty()

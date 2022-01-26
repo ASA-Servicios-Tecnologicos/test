@@ -1,4 +1,4 @@
-import { CancellationPolicyDTO } from "./booking.dto";
+import { CancellationPolicyDTO, DistributionDTO } from "./booking.dto";
 
 export interface CheckoutDTO {
   booking: BookingDTO;
@@ -14,4 +14,5 @@ export interface BookingDTO {
   language: string;
   startDate: string;
   endDate: string;
+  distribution: Array<DistributionDTO>;
 }

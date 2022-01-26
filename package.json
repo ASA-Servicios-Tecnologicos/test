@@ -34,6 +34,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^10.0.0",
     "mongoose": "^6.1.1",
+    "node-fetch": "^2.6.7",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

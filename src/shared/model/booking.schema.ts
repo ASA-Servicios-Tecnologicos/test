@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { CancellationPolicyDTO, Distribution, Room } from "../dto/booking.dto";
+import {
+  CancellationPolicyDTO,
+  DistributionDTO,
+  Room,
+} from "../dto/booking.dto";
 
 export type BookingDocument = Booking & Document;
 
@@ -24,7 +28,7 @@ export class Booking {
   checkOut: string;
 
   @Prop({ required: true })
-  distribution: Array<Distribution>;
+  distribution: Array<DistributionDTO>;
 
   @Prop({ required: true })
   prebookingToken: string;

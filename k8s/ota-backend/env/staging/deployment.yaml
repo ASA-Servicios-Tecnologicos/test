@@ -72,6 +72,8 @@ spec:
               value: bytourncentral
             - name: MANAGEMENT_PASSWORD
               value: "123456"
+            - name: TECNOTURIS_URL
+              value: https://dev.tecnoturis.es/api-rest
           image: registrytecnob2b.azurecr.io/ota-backend
           name: ota-backend
           ports:
