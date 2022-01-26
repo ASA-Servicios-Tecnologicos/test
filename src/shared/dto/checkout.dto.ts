@@ -14,5 +14,6 @@ export interface BookingDTO {
   language: string;
   startDate: string;
   endDate: string;
+  cancellationPolicies: Array<CancellationPolicyDTO>;
   distribution: Array<DistributionDTO>;
 }
