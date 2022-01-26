@@ -1,10 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ota-backend
-  namespace: b2b
 spec:
-  replicas: 2
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ota-backend
   template:
     metadata:
       labels:
@@ -24,31 +26,35 @@ spec:
               value: 100kb
             - name: SESSION_SECRET
               value: mySecret
+            - name: MONGODB_URI
+              value: mongodb://mongo:27017/ota-backend
             - name: SWAGGER_API_SPEC
               value: /spec
             - name: ENVIRONMENT
               value: production
-            - name: BRAND
-              value: NBLUE
-            - name: BRANDPT
-              value: NBLPT
             - name: SESSION_TOKEN_URL
-              value: https://auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+              value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+            - name: SESION_SCOPE
+              value: profile
+            - name: SESSION_PASSWORD
+              value: Tecnoturis22
+            - name: SESSION_USERNAME
+              value: test.tecnoturis2
+            - name: SESSION_GRANT_TYPE
+              value: password
             - name: CLIENT_ID
               value: tecnoturis-integration
             - name: CLIENT_SECRET
-              value: 16199713-c697-4c44-8c82-8ab5f3bc5862
-            - name: PROVIDER_SERVICE_ID
-              value: "41"
-            - name: SERVICE_ID
-              value: "7"
-            - name: TIMEOUTTO
-              value: "120000"
-            - name: TIMEOUT
-              value: "30000"
+              value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+            - name: CHECKOUT_URL
+              value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_URL
-              value: http://management:3055
-          image: registrytecnob2b.azurecr.io/ota-backend
+              value: https://agenciasb2b.w2m.com/api-rest/management/
+            - name: MANAGEMENT_USERNAME
+              value: bytourncentral
+            - name: MANAGEMENT_PASSWORD
+              value: "123456"
+          image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
             - containerPort: 3080
@@ -72,16 +78,6 @@ spec:
                     -c,
                     "sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*",
                   ]
-          volumeMounts:
-            - name: tecnob2blog
-              mountPath: /log
-              subPath: ota-backend
-      volumes:
-        - name: tecnob2blog
-          azureFile:
-            secretName: tecnob2bsharesecret
-            shareName: b2blogs
-            readOnly: false
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
