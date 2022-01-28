@@ -12,7 +12,7 @@ export class BudgetController {
   @Post()
   @ApiOperation({ summary: 'Crear un presupuesto' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Presupuesto creado.' })
-  create(@Body() budget: CreateBudgetDto): Observable<CreateBudgetResponseDTO> {
+  create(@Body() budget: CreateBudgetDto): Promise<CreateBudgetResponseDTO> {
     return this.budgetService.create(budget);
   }
 

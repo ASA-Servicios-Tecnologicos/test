@@ -1,20 +1,19 @@
 import { HttpService, Injectable } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { AppConfigService } from '../configuration/configuration.service';
+import { ManagementService } from '../management/services/management.service';
 import { CreateBudgetDto, CreateManagementBudgetDto } from '../shared/dto/budget.dto';
 import { CreateBudgetResponseDTO } from '../shared/dto/create-budget-response.dto';
 import { SecuredHttpService } from '../shared/services/secured-http.service';
 
 @Injectable()
 export class BudgetService extends SecuredHttpService {
-  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, private managementService: ManagementService) {
     super(http, appConfigService);
   }
 
-  create(createBudgetDTO: CreateBudgetDto): Observable<CreateBudgetResponseDTO> {
-    return this.http
-      .post<CreateBudgetResponseDTO>(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking/budget`, createBudgetDTO)
-      .pipe(map((response) => response.data));
+  create(createBudgetDTO: CreateBudgetDto): Promise<CreateBudgetResponseDTO> {
+    return this.managementService.createManagementBudget(this.mapOtaBudgetToManagementBudget(createBudgetDTO));
   }
 
   findById(id: string) {
@@ -28,11 +27,5 @@ export class BudgetService extends SecuredHttpService {
    */
   private mapOtaBudgetToManagementBudget(createBudgetDTO: CreateBudgetDto): CreateManagementBudgetDto {
     return null;
-  }
-
-  private createManagementBudget(createManagementBudgetDto: CreateManagementBudgetDto): Observable<CreateBudgetResponseDTO> {
-    return this.http
-      .post<CreateBudgetResponseDTO>(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking/budget`, createManagementBudgetDto)
-      .pipe(map((response) => response.data));
   }
 }

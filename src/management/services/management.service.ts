@@ -1,27 +1,40 @@
-import { HttpService, Injectable } from "@nestjs/common";
-import { lastValueFrom, map, pluck } from "rxjs";
-import { AppConfigService } from "../../configuration/configuration.service";
-import fetch from "node-fetch";
+import { HttpService, Injectable } from '@nestjs/common';
+import { concatMap, lastValueFrom, map, Observable, pluck } from 'rxjs';
+import { AppConfigService } from '../../configuration/configuration.service';
+import fetch from 'node-fetch';
+import { CreateManagementBudgetDto } from '../../shared/dto/budget.dto';
+import { CreateBudgetResponseDTO } from '../../shared/dto/create-budget-response.dto';
 
 @Injectable()
 export class ManagementService {
-  constructor(
-    private readonly http: HttpService,
-    private readonly appConfigService: AppConfigService
-  ) {}
+  constructor(private readonly http: HttpService, private readonly appConfigService: AppConfigService) {}
 
   auth() {
     const authData = new URLSearchParams();
-    authData.append("username", this.appConfigService.MANAGEMENT_USERNAME);
-    authData.append("password", this.appConfigService.MANAGEMENT_PASSWORD);
-    return fetch(
-      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/auth/token-auth/`,
-      { body: authData, method: "post" }
-    )
+    authData.append('username', this.appConfigService.MANAGEMENT_USERNAME);
+    authData.append('password', this.appConfigService.MANAGEMENT_PASSWORD);
+    return fetch(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/auth/token-auth/`, { body: authData, method: 'post' })
       .then(async (res) => {
         const data = await res.json();
-        return data["token"];
+        return data['token'];
       })
       .catch((error) => console.log(error));
+  }
+
+  async createManagementBudget(createManagementBudgetDto: CreateManagementBudgetDto): Promise<CreateBudgetResponseDTO> {
+    const token = await this.auth();
+    return this.http
+      .post<CreateBudgetResponseDTO>(
+        `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking/budget`,
+        createManagementBudgetDto,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .pipe(map((response) => response.data))
+      .toPromise();
   }
 }
