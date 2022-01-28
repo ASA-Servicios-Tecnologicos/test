@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 import { AppConfigService } from './configuration/configuration.service';
 import { l } from './logger';
 
+declare const module: any;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -22,5 +24,11 @@ async function bootstrap() {
   app.enableCors({ credentials: true, origin: true });
   await app.listen(appConfig.port);
   l.info(`Server is running in port ${appConfig.port}`);
+
+ // ADD Hot Reload 
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
 }
 bootstrap();
