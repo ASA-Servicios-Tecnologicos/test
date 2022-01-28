@@ -36,6 +36,7 @@ export class BookingService {
           koURL: booking.koUrl,
           okURL: booking.okUrl,
           distribution: booking.distribution,
+          cancellationPolicies: booking.cancellationPolicies,
         },
       })
     )["data"];
@@ -62,9 +63,8 @@ export class BookingService {
       .findOne({ checkoutId: checkout.checkoutId })
       .exec();
     console.log(booking);
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-    const token =
-      /*  await this.managementService.auth(); */ "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NTM0LCJyb2xlIjp7ImlkIjoyLCJuYW1lIjoiRGlyZWN0b3IgZGUgR3J1cG8ifSwiYWdlbmN5X2NoYWluIjp7ImlkIjoyODgsIm5hbWUiOiJGTE9XTyBDRU5UUkFMIn0sImFnZW5jeSI6eyJpZCI6NjMzLCJuYW1lIjoiRkxPV08gQ0VOVFJBTCIsImFnZW5jeV9jaGFpbl9pZCI6Mjg4fSwidXNlcm5hbWUiOiJmbG93b2RldiIsImZpcnN0X25hbWUiOiJGbG93byIsImxhc3RfbmFtZSI6IkRldiIsImVtYWlsIjoidGVzdEBieXRvdXJ2aWFqZXMuY29tIiwibG9nbyI6bnVsbCwiY2xpZW50IjpudWxsLCJleHAiOjE2NDMxNzQ4MzMsIm9yaWdfaWF0IjoxNjQzMTE3MjMzfQ.aAtAbTLMqCiAqRmhVJF2sCHnFyZgLZSvWSlIUEcL7nw";
+    //process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+    const token = await this.managementService.auth();
     console.log(token);
     //TODO: Login contra management, recoger token, llamar a new blue
     const body = {
@@ -94,8 +94,6 @@ export class BookingService {
         },
       },
     };
-    console.log(body.packageClient);
-
     return fetch(
       `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
       {
@@ -107,33 +105,18 @@ export class BookingService {
         },
       }
     ).catch((error) => console.log(error));
-    /*  return lastValueFrom(
-      this.http
-        .post(
-          `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
-          body,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-        .pipe(map((res) => res.data))
-    ).catch((error) => console.log(error)); */
   }
 
   private buildPaxesReserve(booking: Booking, passengers: Array<any>) {
     const paxes = [];
-    /* for (let index = 0; index < booking.distribution.length; index++) {
-      const distribution = booking.distribution[index];
-      for (let index = 0; index < distribution.adults; index++) {
-        const passenger = passengers[index];
+    booking.distribution.forEach((distribution, index) => {
+      const passenger = passengers[index];
+      if (passenger) {
         const pax = {
           abbreviation: passenger.title,
           name: passenger.name,
-          code: index + 1,
-          ages: this.getAge(passenger.dob),
+          code: distribution.extCode,
+          ages: distribution.age,
           lastname: passenger.lastname,
           phone: "",
           email: "",
@@ -145,30 +128,7 @@ export class BookingService {
         };
         paxes.push(pax);
       }
-      let i = 0;
-      for (
-        let index = distribution.adults;
-        index < distribution.children.length;
-        index++
-      ) {
-        const pax = {
-          abbreviation: "passenger.title",
-          name: "test",
-          code: index + 1,
-          ages: parseInt(distribution.children[i]),
-          lastname: "test",
-          phone: "",
-          email: "",
-          documentType: "PAS",
-          documentNumber: "",
-          birthdate: "10-10-2010",
-          documentExpirationDate: "",
-          nationality: "",
-        };
-        paxes.push(pax);
-        i++;
-      }
-    } */
+    });
     return paxes;
   }
 
