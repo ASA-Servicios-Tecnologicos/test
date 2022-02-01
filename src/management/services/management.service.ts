@@ -16,25 +16,9 @@ export class ManagementService {
     return fetch(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/auth/token-auth/`, { body: authData, method: 'post' })
       .then(async (res) => {
         const data = await res.json();
+        console.log('🚀 ~ file: management.service.ts ~ line 19 ~ ManagementService ~ .then ~ data', data);
         return data['token'];
       })
       .catch((error) => console.log(error));
-  }
-
-  async createManagementBudget(createManagementBudgetDto: CreateManagementBudgetDto): Promise<CreateBudgetResponseDTO> {
-    const token = await this.auth();
-    return this.http
-      .post<CreateBudgetResponseDTO>(
-        `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking/budget`,
-        createManagementBudgetDto,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .pipe(map((response) => response.data))
-      .toPromise();
   }
 }

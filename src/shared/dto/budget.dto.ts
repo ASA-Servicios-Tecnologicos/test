@@ -226,4 +226,8 @@ export class CreateManagementBudgetDto {
 
 export class CreateBudgetDto {
   client: OtaClientDTO;
+  // TODO: Pending type data
+  hotel: any;
+  package: any;
+  preBookings: any;
 }
