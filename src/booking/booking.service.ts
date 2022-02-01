@@ -63,7 +63,7 @@ export class BookingService {
       .findOne({ checkoutId: checkout.checkoutId })
       .exec();
     console.log(booking);
-    //process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     const token = await this.managementService.auth();
     console.log(token);
     //TODO: Login contra management, recoger token, llamar a new blue
@@ -94,6 +94,7 @@ export class BookingService {
         },
       },
     };
+    this.buildPassengersReserve(booking);
     return fetch(
       `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
       {
@@ -149,7 +150,18 @@ export class BookingService {
     return years;
   }
 
+  private buildPassengersReserve(booking: Booking) {
+    const groupByRoom = this.groupBy(booking.distribution, "room");
+    console.log(groupByRoom);
+  }
+
   async getRemoteCheckout(id: string) {
     return await this.checkoutService.getCheckout(id);
+  }
+
+  private groupBy(arr, prop) {
+    const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
+    arr.forEach((obj) => map.get(obj[prop]).push(obj));
+    return Array.from(map.values());
   }
 }
