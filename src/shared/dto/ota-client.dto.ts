@@ -1,16 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class OtaClientDTO {
-  @ApiProperty({ example: 'Pepe' })
-  name: string;
-  @ApiProperty({ example: 'Tecnoturis' })
-  surname: string;
-  @ApiProperty({ example: 'pepe@tecnoturis.com' })
-  mail: string;
-  @ApiProperty({ example: '600101010' })
-  phone: string;
-  @ApiProperty({ example: '+34' })
-  prefix: string;
-  @ApiProperty({ example: true })
-  promo: boolean;
+  @ApiPropertyOptional({ example: 822 })
+  id?: number;
+  @ApiPropertyOptional({ example: 'Pepe' })
+  name?: string;
+  @ApiPropertyOptional({ example: 'Tecnoturis' })
+  surname?: string;
+  @ApiPropertyOptional({ example: 'pepe@tecnoturis.com' })
+  mail?: string;
+  @ApiPropertyOptional({ example: '600101010' })
+  phone?: string;
+  @ApiPropertyOptional({ example: '+34' })
+  prefix?: string;
+  @ApiPropertyOptional({ example: true })
+  promo?: boolean;
 }

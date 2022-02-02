@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiParam, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PolicyType } from './booking.dto';
 import { OtaClientDTO } from './ota-client.dto';
 
@@ -225,9 +225,9 @@ export class CreateManagementBudgetDto {
 }
 
 export class CreateBudgetDto {
+  @ApiProperty()
   client: OtaClientDTO;
   // TODO: Pending type data
-  hotel: any;
-  package: any;
+  @ApiProperty()
   preBookings: any;
 }
