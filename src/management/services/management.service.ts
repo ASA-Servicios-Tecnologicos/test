@@ -16,7 +16,6 @@ export class ManagementService {
     return fetch(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/auth/token-auth/`, { body: authData, method: 'post' })
       .then(async (res) => {
         const data = await res.json();
-        console.log('🚀 ~ file: management.service.ts ~ line 19 ~ ManagementService ~ .then ~ data', data);
         return data['token'];
       })
       .catch((error) => console.log(error));
