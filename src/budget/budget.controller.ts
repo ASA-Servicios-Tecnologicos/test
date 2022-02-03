@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { CreateBudgetDto, ManagementBudgetDto } from '../shared/dto/budget.dto';
+import { BudgetDto, CreateBudgetDto, ManagementBudgetDto } from '../shared/dto/budget.dto';
 import { CreateBudgetResponseDTO } from '../shared/dto/create-budget-response.dto';
 import { BudgetService } from './budget.service';
 
@@ -17,9 +17,9 @@ export class BudgetController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un presupuesto' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Devuelve presupuesto.', type: ManagementBudgetDto })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Devuelve presupuesto.', type: BudgetDto })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Presupuesto no encontrado.' })
-  findBudgetById(@Param('id') id: string): Promise<ManagementBudgetDto> {
+  findBudgetById(@Param('id') id: string): Promise<BudgetDto> {
     return this.budgetService.findById(id);
   }
 
