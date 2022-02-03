@@ -8,8 +8,11 @@ export interface BookingDTO {
   bookingId?: string;
   okURL: string;
   koURL: string;
-  totalAmount: number;
-  currency: string;
+  amount: {
+    value: number;
+    currency: string;
+  };
+  description: string;
   market: string;
   language: string;
   startDate: string;

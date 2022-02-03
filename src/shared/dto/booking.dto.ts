@@ -26,6 +26,8 @@ export class CancellationPolicyDTO {
   type: PolicyType;
   @ApiProperty()
   amount: number;
+  @ApiProperty()
+  text: string;
 }
 
 export class DistributionDTO {
@@ -84,5 +86,11 @@ export class BookingDTO {
   requestToken: string;
   @ApiProperty()
   providerToken: string;
+  @ApiProperty()
+  flights: Array<any>;
+  @ApiProperty()
+  hotels: Array<any>;
+  @ApiProperty()
+  transfers: Array<any>;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
 }

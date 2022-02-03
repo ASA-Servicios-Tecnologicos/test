@@ -68,6 +68,15 @@ export class Booking {
 
   @Prop()
   cancellationPolicies: CancellationPolicyDTO[];
+
+  @Prop()
+  flights: Array<any>;
+
+  @Prop()
+  hotels: Array<any>;
+
+  @Prop()
+  transfers: Array<any>;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

@@ -1,7 +1,7 @@
 import { HttpService, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { BookingDTO } from "../shared/dto/booking.dto";
+import { BookingDTO, DistributionDTO } from "../shared/dto/booking.dto";
 import { Booking, BookingDocument } from "../shared/model/booking.schema";
 import { CheckoutService } from "../checkout/services/checkout.service";
 import { v4 as uuidv4 } from "uuid";
@@ -29,10 +29,13 @@ export class BookingService {
           /*  bookingId: booking.bookingId, */
           startDate: booking.checkIn,
           endDate: booking.checkOut,
-          currency: booking.currency,
+          amount: {
+            value: booking.amount,
+            currency: booking.currency,
+          },
+          description: booking.hotelName,
           language: booking.language,
           market: booking.market,
-          totalAmount: booking.amount,
           koURL: booking.koUrl,
           okURL: booking.okUrl,
           distribution: booking.distribution,
@@ -40,6 +43,7 @@ export class BookingService {
         },
       })
     )["data"];
+    console.log(checkout);
 
     // TODO: bookingId tiene que ser el generado por nosotros, cambiar checkoutId por el de la response
     const prebooking: Booking = {
@@ -65,36 +69,60 @@ export class BookingService {
     console.log(booking);
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     const token = await this.managementService.auth();
-    console.log(token);
     //TODO: Login contra management, recoger token, llamar a new blue
+    const distributionPassengers =
+      this.buildPassengersDistributionReserve(booking);
+    const paxes = this.buildPaxesReserve(booking, checkout.passengers);
+
+    //TODO: Con la info del checkout, llamar con el email etc a client/me para conseguir los datos del agency,id etc
     const body = {
       requestToken: booking.requestToken,
       providerToken: booking.providerToken,
-      paxes: this.buildPaxesReserve(booking, checkout.passengers),
+      paxes: paxes,
       packageClient: {
+        id: 822,
+        address: null,
+        agency: 633,
+        agencyChain: 288,
+        birthdate: null,
+        city: null,
+        createdAt: "2022-01-25T14:32:58.319397",
+        document: 16891861,
+        email: "a@b.com",
+        name: "Prueba",
+        nationality: "ES",
+        phoneNumber: "666555444",
+        surname: "Prueba",
+        updatedAt: "2022-01-25T14:32:58.328821",
         bookingData: {
+          totalAmount: booking.amount,
+          hotels: booking.hotels,
+          flights: booking.flights,
+          transfers: booking.transfers,
           productTokenNewblue: booking.prebookingToken,
-          distributionRooms: [
-            {
-              code: 1,
-              passengers: checkout.passengers.map((passenger, index) => {
-                return {
-                  holder: false,
-                  code: index + 1,
-                  age: this.getAge(passenger.dob),
-                  gender: null,
-                  name: null,
-                  surname: null,
-                  dateOfBith: null,
-                  extraData: [],
-                };
-              }),
-            },
-          ],
+          distributionRooms: distributionPassengers,
+          passengers: distributionPassengers,
+          paxes: paxes,
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          cancellationPolicyList: booking.cancellationPolicies,
+          currency: booking.currency,
+          requestToken: booking.requestToken,
+          providerToken: booking.providerToken,
+          distribution: this.buildDistribution(booking),
+          commission: {
+            pvp: booking.amount,
+          },
+          partialTotal: booking.amount,
+          detailedPricing: {
+            commissionableRate: booking.amount,
+            nonCommissionableRate: 0,
+          },
         },
       },
     };
-    this.buildPassengersReserve(booking);
+    console.log(JSON.stringify(body));
+
     return fetch(
       `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
       {
@@ -116,16 +144,18 @@ export class BookingService {
         const pax = {
           abbreviation: passenger.title,
           name: passenger.name,
-          code: distribution.extCode,
+          code: parseInt(distribution.extCode),
           ages: distribution.age,
           lastname: passenger.lastname,
           phone: "",
           email: "",
           documentType: "PAS",
           documentNumber: "",
-          birthdate: passenger.dob,
+          birthdate: this.formatBirthdate(passenger.dob),
           documentExpirationDate: "",
           nationality: "",
+          phoneNumberCode: 34,
+          type: "",
         };
         paxes.push(pax);
       }
@@ -133,26 +163,45 @@ export class BookingService {
     return paxes;
   }
 
-  private getAge(dob: string) {
-    const now = new Date();
-    const birthDate = new Date(dob);
-
-    let years = now.getFullYear() - birthDate.getFullYear();
-
-    if (
-      now.getMonth() < birthDate.getMonth() ||
-      (now.getMonth() == birthDate.getMonth() &&
-        now.getDate() < birthDate.getDate())
-    ) {
-      years--;
-    }
-
-    return years;
+  private formatBirthdate(dob: string) {
+    let splitedDate = dob.split("-");
+    splitedDate = splitedDate.reverse();
+    return splitedDate.join("/");
   }
 
-  private buildPassengersReserve(booking: Booking) {
+  private buildPassengersDistributionReserve(booking: Booking) {
     const groupByRoom = this.groupBy(booking.distribution, "room");
-    console.log(groupByRoom);
+    return groupByRoom.map((distribution, index) => {
+      return {
+        code: distribution[0].room,
+        passengers: distribution.map((passenger) => {
+          return {
+            holder: false,
+            code: passenger.extCode,
+            age: passenger.age,
+            gender: null,
+            name: null,
+            surname: null,
+            dateOfBirth: null,
+            extraData: [],
+          };
+        }),
+      };
+    });
+  }
+
+  private buildDistribution(booking: Booking) {
+    const groupByRoom = this.groupBy(booking.distribution, "room");
+    return groupByRoom.map((distribution) => {
+      return {
+        rooms: 1,
+        adults: distribution.filter((passenger) => passenger.type === "ADULT")
+          .length,
+        children: distribution
+          .filter((passenger) => passenger.type === "CHILD")
+          .map((child) => child.age),
+      };
+    });
   }
 
   async getRemoteCheckout(id: string) {
