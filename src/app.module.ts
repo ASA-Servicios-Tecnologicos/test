@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { BookingModule } from './booking/booking.module';
 import { BudgetModule } from './budget/budget.module';
 import { CheckoutModule } from './checkout/checkout.module';
+import { ClientsModule } from './clients/clients.module';
 import { AppConfigModule } from './configuration/configuration.module';
 import { AppConfigService } from './configuration/configuration.service';
 import { ManagementModule } from './management/management.module';
@@ -19,6 +20,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     CheckoutModule,
     NotificationsModule,
     ManagementModule,
+    ClientsModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({

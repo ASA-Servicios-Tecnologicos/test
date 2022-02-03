@@ -1,7 +1,7 @@
 import { HttpException, HttpService, Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { ManagementClientDTO } from '../../shared/dto/management-client.dto';
+import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO } from '../../shared/dto/management-client.dto';
 import { ManagementService } from './management.service';
 
 @Injectable()
@@ -13,7 +13,6 @@ export class ClientService {
   ) {}
 
   async getClientById(clientId: string): Promise<ManagementClientDTO> {
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
     const token = await this.managementService.auth();
 
     return firstValueFrom(
@@ -26,6 +25,26 @@ export class ClientService {
     )
       .then((res) => res.data)
       .catch((err) => {
+        throw new HttpException(err.message, err.response.status);
+      });
+  }
+
+  async getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
+    const token = await this.managementService.auth();
+    return firstValueFrom(
+      this.http.get<GetManagementClientInfoByUsernameDTO>(
+        `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${username}/me/`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      ),
+    )
+      .then((res) => res.data)
+      .catch((err) => {
+        console.log('🚀 ~ file: client.service.ts ~ line 47 ~ ClientService ~ getClientInfoByUsername ~ err', err);
         throw new HttpException(err.message, err.response.status);
       });
   }

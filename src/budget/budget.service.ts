@@ -42,7 +42,6 @@ export class BudgetService {
   }
 
   private async createManagementBudget(createManagementBudgetDto: CreateManagementBudgetDto): Promise<CreateBudgetResponseDTO> {
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
     const token = await this.managementService.auth();
 
     const result = await lastValueFrom(
@@ -57,7 +56,6 @@ export class BudgetService {
   }
 
   private async getManagementBudgetById(id: string): Promise<BudgetDto> {
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
     const token = await this.managementService.auth();
 
     // GET Management Budget

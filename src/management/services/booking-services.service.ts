@@ -11,7 +11,6 @@ export class BookingServicesService {
     private readonly appConfigService: AppConfigService,
   ) {}
   async getBookingServicesByDossierId(dossierId: string) {
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
     const token = await this.managementService.auth();
 
     return firstValueFrom(
