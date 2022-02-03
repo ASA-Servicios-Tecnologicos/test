@@ -75,6 +75,8 @@ export class BudgetService {
           this.bookingServicesService
             .getBookingServicesByDossierId(id)
             .then((bookingServices) => {
+              console.log('🚀 ~ file: budget.service.ts ~ line 78 ~ BudgetService ~ .then ~ bookingServices', bookingServices);
+              //   const x = bookingServices.map(())
               return responseManagementBudget.data;
             })
             // GET Client's budget info
