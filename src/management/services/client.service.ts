@@ -1,6 +1,7 @@
 import { HttpException, HttpService, Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { AppConfigService } from '../../configuration/configuration.service';
+import { GetManagementDossiersByClientId } from '../../shared/dto/dossier.dto';
 import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO } from '../../shared/dto/management-client.dto';
 import { ManagementService } from './management.service';
 
@@ -34,6 +35,31 @@ export class ClientService {
     return firstValueFrom(
       this.http.get<GetManagementClientInfoByUsernameDTO>(
         `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${username}/me/`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      ),
+    )
+      .then((res) => res.data)
+      .catch((err) => {
+        throw new HttpException(err.response.data[0] || err.message, err.response.status);
+      });
+  }
+
+  /**
+   *
+   * @param clientId
+   * @param type 1 - Reservas, 2 - Presupuestos
+   * @returns
+   */
+  async getDossiersByClientIdOrDossierType(clientId: string, type?: number): Promise<GetManagementDossiersByClientId> {
+    const token = await this.managementService.auth();
+    return firstValueFrom(
+      this.http.get<GetManagementDossiersByClientId>(
+        `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${clientId}/dossier/?type=${type}`,
         {
           headers: {
             'Content-Type': 'application/json',
