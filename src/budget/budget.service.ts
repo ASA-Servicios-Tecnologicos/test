@@ -1,11 +1,13 @@
 import { HttpException, HttpService, Injectable } from '@nestjs/common';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import { response } from 'express';
 import { ClientSession } from 'mongoose';
 import { concatMap, firstValueFrom, lastValueFrom, of } from 'rxjs';
 import { AppConfigService } from '../configuration/configuration.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
 import { ClientService } from '../management/services/client.service';
 import { ManagementService } from '../management/services/management.service';
+import { ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../shared/dto/booking-service.dto';
 import { BudgetDto, CreateBudgetDto, CreateManagementBudgetDto, ManagementBudgetDto } from '../shared/dto/budget.dto';
 import { CreateBudgetResponseDTO } from '../shared/dto/create-budget-response.dto';
 import { ManagementClientDTO } from '../shared/dto/management-client.dto';
@@ -57,37 +59,27 @@ export class BudgetService {
 
   private async getManagementBudgetById(id: string): Promise<BudgetDto> {
     const token = await this.managementService.auth();
-
     // GET Management Budget
-    return firstValueFrom(
+    const managementBudgetDTO: ManagementBudgetDto = await firstValueFrom(
       this.http.get<ManagementBudgetDto>(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/clients/dossier/${id}/`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       }),
-    )
-      .then((responseManagementBudget) => {
-        // GET Booking Services associated
-        return (
-          this.bookingServicesService
-            .getBookingServicesByDossierId(id)
-            .then((bookingServices) => {
-              console.log('🚀 ~ file: budget.service.ts ~ line 78 ~ BudgetService ~ .then ~ bookingServices', bookingServices);
-              //   const x = bookingServices.map(())
-              return responseManagementBudget.data;
-            })
-            // GET Client's budget info
-            .then((responseBookingServices) => {
-              return this.clientService.getClientById(`${responseManagementBudget.data.client}`).then((managementClientDto) => {
-                const budget: BudgetDto = { ...responseManagementBudget.data, client: managementClientDto };
-                return budget;
-              });
-            })
-        );
-      })
-      .catch((err) => {
-        throw new HttpException(err.message, err.response.status);
-      });
+    ).then((response) => response.data);
+
+    const managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO[] =
+      await this.bookingServicesService.getBookingServicesByDossierId(id);
+    const managementBookingServicesDetailedDTO: ManagementBookingServiceDTO[] = await Promise.all(
+      managementBookingServicesByDossierDTO.map((managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO) => {
+        return this.bookingServicesService.getBookingServiceById(`${managementBookingServicesByDossierDTO.id}`);
+      }),
+    );
+
+    const managementClientDTO: ManagementClientDTO = await this.clientService.getClientById(`${managementBudgetDTO.client}`);
+
+    const budget: BudgetDto = { ...managementBudgetDTO, client: managementClientDTO, services: managementBookingServicesDetailedDTO };
+    return budget;
   }
 }
