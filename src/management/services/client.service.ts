@@ -44,8 +44,7 @@ export class ClientService {
     )
       .then((res) => res.data)
       .catch((err) => {
-        console.log('🚀 ~ file: client.service.ts ~ line 47 ~ ClientService ~ getClientInfoByUsername ~ err', err);
-        throw new HttpException(err.message, err.response.status);
+        throw new HttpException(err.response.data[0] || err.message, err.response.status);
       });
   }
 }
