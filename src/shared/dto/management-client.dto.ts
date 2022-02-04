@@ -148,3 +148,15 @@ export class ManagementClientDTO {
   @ApiProperty({ example: [] })
   tags: [];
 }
+
+export class GetManagementClientInfoByUsernameDTO {
+  id: number;
+  name: string;
+  last_name: string;
+  business_name: string;
+  dni: string;
+  phone: string;
+  email: string;
+  user_id: number;
+  client_username: string;
+}

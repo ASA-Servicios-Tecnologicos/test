@@ -11,9 +11,7 @@ export class BookingServicesService {
     private readonly http: HttpService,
     private readonly appConfigService: AppConfigService,
   ) {}
-
-  async getBookingServicesByDossierId(dossierId: string): Promise<ManagementBookingServicesByDossierDTO> {
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+  async getBookingServicesByDossierId(dossierId: string) {
     const token = await this.managementService.auth();
 
     return firstValueFrom(
