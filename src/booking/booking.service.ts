@@ -21,6 +21,11 @@ export class BookingService {
   ) {}
 
   async create(booking: BookingDTO) {
+    const token = await this.managementService.auth();
+    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking, token);
+    if (!this.verifyBooking(prebookingData, booking)) {
+      throw new HttpException('La información del booking no coincide con el prebooking', 400);
+    }
     // TODO: Asignar booking al booking
     // booking.bookingId = uuidv4();
     const checkout = await (
@@ -61,12 +66,10 @@ export class BookingService {
   }
 
   async doReservation(id: string) {
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
     const checkout = await this.checkoutService.getCheckout(id);
     const booking = await this.bookingModel.findOne({ checkoutId: checkout.checkoutId }).exec();
     const token = await this.managementService.auth();
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking, token);
-    console.log(JSON.stringify(prebookingData));
     if (prebookingData?.status !== 200) {
       return prebookingData;
     }
@@ -88,7 +91,7 @@ export class BookingService {
           cancellationPolicyList: prebookingData.data.cancellationPolicyList,
           currency: prebookingData.data.currency,
           distribution: prebookingData.data.distribution,
-          providerName: booking.providerToken,
+          providerName: booking.providerName,
         },
       },
     };
@@ -191,5 +194,12 @@ export class BookingService {
     const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
     arr.forEach((obj) => map.get(obj[prop]).push(obj));
     return Array.from(map.values());
+  }
+
+  private verifyBooking(prebooking, booking: BookingDTO | BookingDocument) {
+    if (prebooking.data.totalAmount === booking.amount && prebooking.data.hashPrebooking === booking.hashPrebooking) {
+      return true;
+    }
+    return false;
   }
 }

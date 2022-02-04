@@ -60,6 +60,9 @@ export class Booking {
   providerToken: string;
 
   @Prop()
+  providerName: string;
+
+  @Prop()
   hashPrebooking: string;
 }
 
