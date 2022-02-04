@@ -1,5 +1,5 @@
-import { Optional } from "@nestjs/common";
-import { ApiProperty } from "@nestjs/swagger";
+import { Optional } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class Pax {
   @ApiProperty()
@@ -7,7 +7,7 @@ export class Pax {
   @ApiProperty()
   code: string;
   @ApiProperty()
-  type: "ADULT" | "CHILD";
+  type: 'ADULT' | 'CHILD';
 }
 
 export class Room {
@@ -38,12 +38,12 @@ export class DistributionDTO {
   @ApiProperty()
   extCode: string;
   @ApiProperty()
-  type: "ADULT" | "CHILD";
+  type: 'ADULT' | 'CHILD';
 }
 
 export enum PolicyType {
-  "ABSOLUTE",
-  "PERCENTAGE",
+  'ABSOLUTE',
+  'PERCENTAGE',
 }
 
 export class BookingDTO {
@@ -87,10 +87,6 @@ export class BookingDTO {
   @ApiProperty()
   providerToken: string;
   @ApiProperty()
-  flights: Array<any>;
-  @ApiProperty()
-  hotels: Array<any>;
-  @ApiProperty()
-  transfers: Array<any>;
+  hashPrebooking: string;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
 }

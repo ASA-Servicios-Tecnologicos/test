@@ -1,14 +1,14 @@
-import { HttpService, Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { BookingDTO, DistributionDTO } from "../shared/dto/booking.dto";
-import { Booking, BookingDocument } from "../shared/model/booking.schema";
-import { CheckoutService } from "../checkout/services/checkout.service";
-import { v4 as uuidv4 } from "uuid";
-import { ManagementService } from "src/management/services/management.service";
-import { AppConfigService } from "src/configuration/configuration.service";
-import { lastValueFrom, map } from "rxjs";
-import fetch from "node-fetch";
+import { HttpException, HttpService, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { BookingDTO, DistributionDTO } from '../shared/dto/booking.dto';
+import { Booking, BookingDocument } from '../shared/model/booking.schema';
+import { CheckoutService } from '../checkout/services/checkout.service';
+import { v4 as uuidv4 } from 'uuid';
+import { ManagementService } from 'src/management/services/management.service';
+import { AppConfigService } from 'src/configuration/configuration.service';
+import { firstValueFrom, lastValueFrom, map } from 'rxjs';
+import fetch from 'node-fetch';
 @Injectable()
 export class BookingService {
   constructor(
@@ -17,7 +17,7 @@ export class BookingService {
     private checkoutService: CheckoutService,
     private managementService: ManagementService,
     private http: HttpService,
-    private appConfigService: AppConfigService
+    private appConfigService: AppConfigService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -42,14 +42,14 @@ export class BookingService {
           cancellationPolicies: booking.cancellationPolicies,
         },
       })
-    )["data"];
+    )['data'];
     console.log(checkout);
 
     // TODO: bookingId tiene que ser el generado por nosotros, cambiar checkoutId por el de la response
     const prebooking: Booking = {
       ...booking,
       bookingId: checkout.booking.bookingId,
-      checkoutId: "CHK-FL-00432423", //checkout.checkoutId,
+      checkoutId: 'CHK-FL-00432423', //checkout.checkoutId,
     };
     const createdBooking = new this.bookingModel(prebooking);
     await createdBooking.save();
@@ -61,79 +61,49 @@ export class BookingService {
   }
 
   async doReservation(id: string) {
+    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
     const checkout = await this.checkoutService.getCheckout(id);
-    console.log(checkout);
-    const booking = await this.bookingModel
-      .findOne({ checkoutId: checkout.checkoutId })
-      .exec();
-    console.log(booking);
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+    const booking = await this.bookingModel.findOne({ checkoutId: checkout.checkoutId }).exec();
     const token = await this.managementService.auth();
-    //TODO: Login contra management, recoger token, llamar a new blue
-    const distributionPassengers =
-      this.buildPassengersDistributionReserve(booking);
-    const paxes = this.buildPaxesReserve(booking, checkout.passengers);
+    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking, token);
+    console.log(JSON.stringify(prebookingData));
+    if (prebookingData?.status !== 200) {
+      return prebookingData;
+    }
 
-    //TODO: Con la info del checkout, llamar con el email etc a client/me para conseguir los datos del agency,id etc
     const body = {
-      requestToken: booking.requestToken,
-      providerToken: booking.providerToken,
-      paxes: paxes,
+      requestToken: prebookingData.data.requestToken,
+      providerToken: prebookingData.data.providerToken,
+      paxes: this.buildPaxesReserve(booking, checkout.passengers),
       packageClient: {
-        id: 822,
-        address: null,
-        agency: 633,
-        agencyChain: 288,
-        birthdate: null,
-        city: null,
-        createdAt: "2022-01-25T14:32:58.319397",
-        document: 16891861,
-        email: "a@b.com",
-        name: "Prueba",
-        nationality: "ES",
-        phoneNumber: "666555444",
-        surname: "Prueba",
-        updatedAt: "2022-01-25T14:32:58.328821",
         bookingData: {
-          totalAmount: booking.amount,
-          hotels: booking.hotels,
-          flights: booking.flights,
-          transfers: booking.transfers,
-          productTokenNewblue: booking.prebookingToken,
-          distributionRooms: distributionPassengers,
-          passengers: distributionPassengers,
-          paxes: paxes,
-          checkIn: booking.checkIn,
-          checkOut: booking.checkOut,
-          cancellationPolicyList: booking.cancellationPolicies,
-          currency: booking.currency,
-          requestToken: booking.requestToken,
-          providerToken: booking.providerToken,
-          distribution: this.buildDistribution(booking),
-          commission: {
-            pvp: booking.amount,
-          },
-          partialTotal: booking.amount,
-          detailedPricing: {
-            commissionableRate: booking.amount,
-            nonCommissionableRate: 0,
-          },
+          hashPrebooking: booking.hashPrebooking,
+          totalAmount: prebookingData.data.totalAmount,
+          hotels: prebookingData.data.hotels,
+          flights: prebookingData.data.flights,
+          transfers: prebookingData.data.transfers,
+          productTokenNewblue: prebookingData.data.productTokenNewblue,
+          distributionRooms: prebookingData.data.distributionRooms,
+          passengers: prebookingData.data.distributionRooms,
+          cancellationPolicyList: prebookingData.data.cancellationPolicyList,
+          currency: prebookingData.data.currency,
+          distribution: prebookingData.data.distribution,
+          providerName: booking.providerToken,
         },
       },
     };
-    console.log(JSON.stringify(body));
-
-    return fetch(
-      `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
-      {
-        method: "post",
-        body: JSON.stringify(body),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    ).catch((error) => console.log(error));
+    return fetch(`${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`, {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .catch((err) => {
+        throw new HttpException(err.message, err.response.status);
+      });
   }
 
   private buildPaxesReserve(booking: Booking, passengers: Array<any>) {
@@ -147,15 +117,15 @@ export class BookingService {
           code: parseInt(distribution.extCode),
           ages: distribution.age,
           lastname: passenger.lastname,
-          phone: "",
-          email: "",
-          documentType: "PAS",
-          documentNumber: "",
+          phone: '',
+          email: '',
+          documentType: 'PAS',
+          documentNumber: '',
           birthdate: this.formatBirthdate(passenger.dob),
-          documentExpirationDate: "",
-          nationality: "",
+          documentExpirationDate: '',
+          nationality: '',
           phoneNumberCode: 34,
-          type: "",
+          type: '',
         };
         paxes.push(pax);
       }
@@ -164,13 +134,13 @@ export class BookingService {
   }
 
   private formatBirthdate(dob: string) {
-    let splitedDate = dob.split("-");
+    let splitedDate = dob.split('-');
     splitedDate = splitedDate.reverse();
-    return splitedDate.join("/");
+    return splitedDate.join('/');
   }
 
   private buildPassengersDistributionReserve(booking: Booking) {
-    const groupByRoom = this.groupBy(booking.distribution, "room");
+    const groupByRoom = this.groupBy(booking.distribution, 'room');
     return groupByRoom.map((distribution, index) => {
       return {
         code: distribution[0].room,
@@ -191,17 +161,26 @@ export class BookingService {
   }
 
   private buildDistribution(booking: Booking) {
-    const groupByRoom = this.groupBy(booking.distribution, "room");
+    const groupByRoom = this.groupBy(booking.distribution, 'room');
     return groupByRoom.map((distribution) => {
       return {
         rooms: 1,
-        adults: distribution.filter((passenger) => passenger.type === "ADULT")
-          .length,
-        children: distribution
-          .filter((passenger) => passenger.type === "CHILD")
-          .map((child) => child.age),
+        adults: distribution.filter((passenger) => passenger.type === 'ADULT').length,
+        children: distribution.filter((passenger) => passenger.type === 'CHILD').map((child) => child.age),
       };
     });
+  }
+
+  private getPrebookingDataCache(hash: string, token: string) {
+    return firstValueFrom(
+      this.http.get(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}`, {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      }),
+    )
+      .then((res) => res.data)
+      .catch((error) => {
+        throw new HttpException(error.message, error.response.status);
+      });
   }
 
   async getRemoteCheckout(id: string) {
