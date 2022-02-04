@@ -1,4 +1,5 @@
 import { ApiParam, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ManagementBookingServiceDTO } from './booking-service.dto';
 import { PolicyType } from './booking.dto';
 import { ManagementClientDTO } from './management-client.dto';
 import { OtaClientDTO } from './ota-client.dto';
@@ -377,4 +378,6 @@ export class BudgetDto {
   reference?: any;
   @ApiProperty()
   pax_reserves: number;
+  @ApiProperty()
+  services: ManagementBookingServiceDTO[];
 }
