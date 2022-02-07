@@ -9,7 +9,7 @@ export class UsersService {
 
   login(loginPayload: LoginPayloadDTO): Promise<{ token: string }> {
     return this.managementHttpService.post<{ token: string }>(
-      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/auth/token-auth/`,
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`,
       loginPayload,
     );
   }
