@@ -40,7 +40,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.4.0",
     "swagger-ui-express": "^4.1.6",
-    "tecnoturis-authentication": "github:Tecnoturis-Flowo/Authentication",
+    "tecnoturis-authentication": "git@github.com:Tecnoturis-Flowo/Authentication",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
