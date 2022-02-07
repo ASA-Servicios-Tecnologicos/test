@@ -18,4 +18,13 @@ export class ClientService {
       `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${username}/me/`,
     );
   }
+
+  // TODO: Pending type response and request DTO
+  async patchClientByUsername(username: string, updateClientDTO): Promise<unknown> {
+    const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
+    return this.managementHttpService.patch(
+      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/clients/${client.id}/`,
+      updateClientDTO,
+    );
+  }
 }
