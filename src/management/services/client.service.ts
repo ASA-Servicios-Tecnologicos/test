@@ -26,25 +26,13 @@ export class ClientService {
    * @param type 1 - Reservas, 2 - Presupuestos
    * @returns
    */
-  async getDossiersByClientIdOrDossierType(clientId: string, type?: number): Promise<GetManagementDossiersByClientId> {
-    // const token = await this.managementService.auth();
-    // return firstValueFrom(
-    //   this.http.get<GetManagementDossiersByClientId>(
-    //     `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${clientId}/dossier/?type=${type}`,
-    //     {
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     },
-    //   ),
-    // )
-    //   .then((res) => res.data)
-    //   .catch((err) => {
-    //     throw new HttpException(err.response.data[0] || err.message, err.response.status);
-    //   });
-    return null;
+  async getDossiersByClientUsername(username: string, type?: number): Promise<GetManagementDossiersByClientId> {
+    const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
+    return this.managementHttpService.get<GetManagementDossiersByClientId>(
+      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${client.id}/dossier/?type=${type}`,
+    );
   }
+
   // TODO: Pending type response and request DTO
   async patchClientByUsername(username: string, updateClientDTO): Promise<unknown> {
     const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);

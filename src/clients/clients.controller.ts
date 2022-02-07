@@ -7,14 +7,14 @@ import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-c
 export class ClientsController {
   constructor(private readonly clientService: ClientService) {}
 
+  @Get(':username/dossiers')
+  getClientDossiersById(@Param('username') username: string, @Query('type') type: number): Promise<GetManagementDossiersByClientId> {
+    return this.clientService.getDossiersByClientUsername(username, type);
+  }
+
   @Get(':username')
   getClients(@Param('username') username: string): Promise<GetManagementClientInfoByUsernameDTO> {
     return this.clientService.getClientInfoByUsername(username);
-  }
-
-  @Get(':id/dossiers')
-  getClientDossiersById(@Param('id') id: string, @Query('type') type: number): Promise<GetManagementDossiersByClientId> {
-    return this.clientService.getDossiersByClientIdOrDossierType(id, type);
   }
 
   @Patch(':username')
