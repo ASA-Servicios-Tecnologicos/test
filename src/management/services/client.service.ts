@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
+import { GetManagementDossiersByClientId } from '../../shared/dto/dossier.dto';
 import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO } from '../../shared/dto/management-client.dto';
 import { ManagementHttpService } from './management-http.service';
 
@@ -16,6 +17,19 @@ export class ClientService {
   async getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
     return this.managementHttpService.get<GetManagementClientInfoByUsernameDTO>(
       `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${username}/me/`,
+    );
+  }
+
+  /**
+   *
+   * @param clientId
+   * @param type 1 - Reservas, 2 - Presupuestos
+   * @returns
+   */
+  async getDossiersByClientUsername(username: string, type?: number): Promise<GetManagementDossiersByClientId> {
+    const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
+    return this.managementHttpService.get<GetManagementDossiersByClientId>(
+      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${client.id}/dossier/?type=${type}`,
     );
   }
 
