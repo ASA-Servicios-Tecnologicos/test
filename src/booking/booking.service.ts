@@ -1,14 +1,15 @@
 import { HttpException, HttpService, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BookingDTO, DistributionDTO } from '../shared/dto/booking.dto';
+import { BookingDTO } from '../shared/dto/booking.dto';
 import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { v4 as uuidv4 } from 'uuid';
 import { ManagementService } from 'src/management/services/management.service';
 import { AppConfigService } from 'src/configuration/configuration.service';
-import { firstValueFrom, lastValueFrom, map } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import fetch from 'node-fetch';
+import { CheckoutDTO } from 'src/shared/dto/checkout.dto';
 @Injectable()
 export class BookingService {
   constructor(
@@ -26,38 +27,36 @@ export class BookingService {
     if (!this.verifyBooking(prebookingData, booking)) {
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
-    // TODO: Asignar booking al booking
-    // booking.bookingId = uuidv4();
-    const checkout = await (
-      await this.checkoutService.doCheckout({
-        booking: {
-          /*  bookingId: booking.bookingId, */
-          startDate: booking.checkIn,
-          endDate: booking.checkOut,
-          amount: {
-            value: booking.amount,
-            currency: booking.currency,
-          },
-          description: booking.hotelName,
-          language: booking.language,
-          market: booking.market,
-          koURL: booking.koUrl,
-          okURL: booking.okUrl,
-          distribution: booking.distribution,
-          cancellationPolicies: booking.cancellationPolicies,
-        },
-      })
-    )['data'];
-    console.log(checkout);
 
-    // TODO: bookingId tiene que ser el generado por nosotros, cambiar checkoutId por el de la response
+    booking.bookingId = uuidv4();
+    const body: CheckoutDTO = {
+      booking: {
+        bookingId: booking.bookingId,
+        startDate: booking.checkIn,
+        endDate: booking.checkOut,
+        amount: {
+          value: booking.amount,
+          currency: booking.currency,
+        },
+        description: booking.hotelName,
+        language: booking.language,
+        market: booking.market,
+        koURL: booking.koUrl,
+        okURL: booking.okUrl,
+        distribution: booking.distribution,
+        cancellationPolicies: booking.cancellationPolicies,
+      },
+    };
+
+    const checkout = (await this.checkoutService.doCheckout(body))['data'];
     const prebooking: Booking = {
       ...booking,
-      bookingId: checkout.booking.bookingId,
-      checkoutId: 'CHK-FL-00432423', //checkout.checkoutId,
+      bookingId: booking.bookingId,
+      checkoutId: checkout.checkoutId,
     };
     const createdBooking = new this.bookingModel(prebooking);
     await createdBooking.save();
+
     return { bookingId: prebooking.bookingId };
   }
 
@@ -107,6 +106,7 @@ export class BookingService {
       .catch((err) => {
         throw new HttpException(err.message, err.response.status);
       });
+    // TODO: Guardar en el management
   }
 
   private buildPaxesReserve(booking: Booking, passengers: Array<any>) {
