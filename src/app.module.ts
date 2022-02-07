@@ -2,7 +2,6 @@ import { HttpModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
 import { BookingModule } from './booking/booking.module';
 import { BudgetModule } from './budget/budget.module';
 import { CheckoutModule } from './checkout/checkout.module';
@@ -11,6 +10,7 @@ import { AppConfigModule } from './configuration/configuration.module';
 import { AppConfigService } from './configuration/configuration.service';
 import { ManagementModule } from './management/management.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     NotificationsModule,
     ManagementModule,
     ClientsModule,
-    AuthModule,
+    UsersModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
