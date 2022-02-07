@@ -10,20 +10,20 @@ import { AppConfigService } from 'src/configuration/configuration.service';
 import { firstValueFrom } from 'rxjs';
 import fetch from 'node-fetch';
 import { CheckoutDTO } from 'src/shared/dto/checkout.dto';
+import { ManagementHttpService } from 'src/management/services/management-http.service';
 @Injectable()
 export class BookingService {
   constructor(
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
     private checkoutService: CheckoutService,
-    private managementService: ManagementService,
+    private managementHttpService: ManagementHttpService,
     private http: HttpService,
     private appConfigService: AppConfigService,
   ) {}
 
   async create(booking: BookingDTO) {
-    const token = await this.managementService.auth();
-    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking, token);
+    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (!this.verifyBooking(prebookingData, booking)) {
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
@@ -67,8 +67,7 @@ export class BookingService {
   async doReservation(id: string) {
     const checkout = await this.checkoutService.getCheckout(id);
     const booking = await this.bookingModel.findOne({ checkoutId: checkout.checkoutId }).exec();
-    const token = await this.managementService.auth();
-    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking, token);
+    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       return prebookingData;
     }
@@ -94,18 +93,7 @@ export class BookingService {
         },
       },
     };
-    return fetch(`${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`, {
-      method: 'post',
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .catch((err) => {
-        throw new HttpException(err.message, err.response.status);
-      });
+    return this.managementHttpService.post(`${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`, body);
     // TODO: Guardar en el management
   }
 
@@ -174,16 +162,8 @@ export class BookingService {
     });
   }
 
-  private getPrebookingDataCache(hash: string, token: string) {
-    return firstValueFrom(
-      this.http.get(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}`, {
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      }),
-    )
-      .then((res) => res.data)
-      .catch((error) => {
-        throw new HttpException(error.message, error.response.status);
-      });
+  private getPrebookingDataCache(hash: string) {
+    return this.managementHttpService.get<any>(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}`);
   }
 
   async getRemoteCheckout(id: string) {
