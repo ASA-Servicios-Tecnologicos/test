@@ -8,7 +8,10 @@ export class ClientsController {
   constructor(private readonly clientService: ClientService) {}
 
   @Get(':username/dossiers')
-  getClientDossiersById(@Param('username') username: string, @Query('type') type: number): Promise<GetManagementDossiersByClientId> {
+  getClientDossiersById(
+    @Param('username') username: string,
+    @Query('type') type: string | string[],
+  ): Promise<GetManagementDossiersByClientId> {
     return this.clientService.getDossiersByClientUsername(username, type);
   }
 

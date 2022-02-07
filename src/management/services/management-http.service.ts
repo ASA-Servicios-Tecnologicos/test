@@ -69,7 +69,10 @@ export class ManagementHttpService {
                 return data.data;
               })
               .catch((err) => {
-                throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+                throw new HttpException(
+                  { message: err.message, error: err.response.data ? err.response.data : err.message },
+                  err.response.status,
+                );
               });
           });
         }
