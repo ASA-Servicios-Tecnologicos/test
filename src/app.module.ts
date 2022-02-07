@@ -2,6 +2,7 @@ import { HttpModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { BookingModule } from './booking/booking.module';
 import { BudgetModule } from './budget/budget.module';
 import { CheckoutModule } from './checkout/checkout.module';
@@ -21,6 +22,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     NotificationsModule,
     ManagementModule,
     ClientsModule,
+    AuthModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
