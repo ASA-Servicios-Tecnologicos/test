@@ -5,13 +5,10 @@ import { SecuredHttpService } from '../../shared/services/secured-http.service';
 
 @Injectable()
 export class CheckoutService extends SecuredHttpService {
-  constructor(
-    readonly http: HttpService,
-    readonly appConfigService: AppConfigService
-  ) {
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {
     super(http, appConfigService);
   }
-  
+
   async doCheckout(checkout: CheckoutDTO) {
     return this.postSecured(this.appConfigService.CHECKOUT_URL, checkout);
   }
