@@ -27,21 +27,30 @@ export class ClientService {
    * @returns
    */
   async getDossiersByClientIdOrDossierType(clientId: string, type?: number): Promise<GetManagementDossiersByClientId> {
-    const token = await this.managementService.auth();
-    return firstValueFrom(
-      this.http.get<GetManagementDossiersByClientId>(
-        `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${clientId}/dossier/?type=${type}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      ),
-    )
-      .then((res) => res.data)
-      .catch((err) => {
-        throw new HttpException(err.response.data[0] || err.message, err.response.status);
-      });
+    // const token = await this.managementService.auth();
+    // return firstValueFrom(
+    //   this.http.get<GetManagementDossiersByClientId>(
+    //     `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${clientId}/dossier/?type=${type}`,
+    //     {
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     },
+    //   ),
+    // )
+    //   .then((res) => res.data)
+    //   .catch((err) => {
+    //     throw new HttpException(err.response.data[0] || err.message, err.response.status);
+    //   });
+    return null;
+  }
+  // TODO: Pending type response and request DTO
+  async patchClientByUsername(username: string, updateClientDTO): Promise<unknown> {
+    const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
+    return this.managementHttpService.patch(
+      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/clients/${client.id}/`,
+      updateClientDTO,
+    );
   }
 }
