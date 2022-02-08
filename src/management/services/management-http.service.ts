@@ -8,6 +8,8 @@ export class ManagementHttpService {
   constructor(private readonly httpService: HttpService, private managementService: ManagementService) {}
 
   async post<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
+      console.log("Config")
+      console.log(url, data)
     return firstValueFrom(
       this.httpService.post<K>(url, data, {
         ...config,
@@ -17,7 +19,11 @@ export class ManagementHttpService {
         },
       }),
     )
-      .then((data) => data.data)
+      .then((data) => {
+          console.log("data")
+          console.log(data)
+          data.data
+      })
       .catch((err) => {
           console.log("ERRORRRRR")
           console.log(err)

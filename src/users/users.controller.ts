@@ -8,6 +8,10 @@ export class UsersController {
 
   @Post('login')
   login(@Body() loginPayload: LoginPayloadDTO): Promise<{ token: string }> {
+    try {
     return this.usersService.login(loginPayload);
+    }catch (e) {
+      console.log(e)
+    }
   }
 }
