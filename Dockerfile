@@ -1,4 +1,4 @@
-FROM node:16.13.1-alpine
+FROM node:14.19.0-alpine
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
 RUN chmod +x /wait
