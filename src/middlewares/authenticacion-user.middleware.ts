@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthenticationService } from 'tecnoturis-authentication';
+import * as authenticationService from 'tecnoturis-authentication';
 
 @Injectable()
 export class AuthenticationUserMiddleware implements NestMiddleware {
-  constructor(private readonly authService: AuthenticationService) {}
+  constructor() {}
   async use(req: Request, res: any, next: () => void) {
     const tokenFromHeader = req.headers.authorization;
     console.log(
@@ -15,7 +15,7 @@ export class AuthenticationUserMiddleware implements NestMiddleware {
       throw new HttpException('Not authorized.', HttpStatus.UNAUTHORIZED);
     }
     try {
-      const data = await this.authService.verify('');
+      const data = await authenticationService.verify('');
       console.log('🚀 ~ file: authenticacion-user.middleware.ts ~ line 17 ~ AuthenticationUserMiddleware ~ use ~ data', data);
 
       if (!data) {
