@@ -26,7 +26,7 @@ async function bootstrap() {
     module.hot.accept();
     module.hot.dispose(() => app.close());
   }
-  // TODO: Only uncomment on develop
-  //   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+  // TODO: Pending to bind the right certificates for production
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 }
 bootstrap();
