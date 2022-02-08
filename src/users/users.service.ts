@@ -9,6 +9,7 @@ export class UsersService {
   constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
 
   login(loginPayload: LoginPayloadDTO): Promise<{ token: string }> {
+    console.log(`${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`)
     return this.managementHttpService.post<{ token: string }>(
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`,
       loginPayload,

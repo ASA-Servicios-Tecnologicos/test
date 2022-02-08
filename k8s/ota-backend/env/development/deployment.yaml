@@ -53,9 +53,9 @@ spec:
             - name: MANAGEMENT_URL
               value: https://agenciasb2b.w2m.com/api-rest/management/
             - name: MANAGEMENT_USERNAME
-              value: bytourncentral
+              value: flowodev
             - name: MANAGEMENT_PASSWORD
-              value: "123456"
+              value: "WaeN$p74XD"
             - name: TECNOTURIS_URL
               value: https://dev.tecnoturis.es/api-rest
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
