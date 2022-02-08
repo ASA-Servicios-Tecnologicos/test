@@ -22,7 +22,7 @@ export class ManagementHttpService {
       .then((data) => {
           console.log("data")
           console.log(data)
-          data.data
+         return  data.data
       })
       .catch((err) => {
           console.log("ERRORRRRR")
