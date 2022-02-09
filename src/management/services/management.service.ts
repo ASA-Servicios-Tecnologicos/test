@@ -24,8 +24,11 @@ export class ManagementService {
         password: this.appConfigService.MANAGEMENT_PASSWORD,
       };
       const requestToken = await firstValueFrom(
-        this.http.post<{ token: string }>(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/auth/token-auth/`, authData),
-      );
+        this.http.post<{ token: string }>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`, authData),
+      ).catch((err) => {
+        console.log(err);
+        throw new Error(err);
+      });
       token = requestToken.data.token;
       this.cacheService.set(MANAGEMENT_CACHED_TOKEN_KEY, requestToken.data.token);
     }
