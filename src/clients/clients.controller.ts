@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ClientService } from '../management/services/client.service';
 import { GetManagementDossiersByClientId } from '../shared/dto/dossier.dto';
+import { CreateFavouriteByUser } from '../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 
 @Controller('clients')
@@ -15,6 +16,11 @@ export class ClientsController {
     return this.clientService.getDossiersByClientUsername(username, type);
   }
 
+  @Get(':username/favourites')
+  getFavouritesByClientId(@Param('username') username: string) {
+    return this.clientService.getFavouritesByUsername(username);
+  }
+
   @Get(':username')
   getClients(@Param('username') username: string): Promise<GetManagementClientInfoByUsernameDTO> {
     return this.clientService.getClientInfoByUsername(username);
@@ -23,5 +29,15 @@ export class ClientsController {
   @Patch(':username')
   updateClientByUsername(@Param('username') username: string, @Body() updateClientDTO) {
     return this.clientService.patchClientByUsername(username, updateClientDTO);
+  }
+
+  @Post(':username/favourites')
+  createFavouritesByUsername(@Param('username') username: string, @Body() createFavouriteByUser: CreateFavouriteByUser) {
+    return this.clientService.createFavouriteByUsername(username, createFavouriteByUser);
+  }
+
+  @Delete(':username/favourites/:favouriteId')
+  deleteFavouriteByUsername(@Param('username') username: string, @Param('favouriteId') favouriteId: string) {
+    return this.clientService.deleteFavouriteByUsername(username, favouriteId);
   }
 }
