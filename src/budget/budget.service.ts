@@ -40,15 +40,12 @@ export class BudgetService {
   }
 
   private async createManagementBudget(createManagementBudgetDto: CreateManagementBudgetDto): Promise<CreateBudgetResponseDTO> {
-    return this.managementHttpService.post(
-      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking/budget/`,
-      createManagementBudgetDto,
-    );
+    return this.managementHttpService.post(`${this.appConfigService.MANAGEMENT_URL}/api/v1/booking/budget/`, createManagementBudgetDto);
   }
 
   private async getManagementBudgetById(id: string): Promise<BudgetDto> {
     const managementBudgetDTO: ManagementBudgetDto = await this.managementHttpService.get<ManagementBudgetDto>(
-      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/clients/dossier/${id}/`,
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/clients/dossier/${id}/`,
     );
 
     const managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO[] =
