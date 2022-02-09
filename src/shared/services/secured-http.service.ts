@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
 import { NotificationSessionDTO } from '../dto/notification-session.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
+import { CheckoutResponseDTO } from '../dto/checkout.dto';
 
 export abstract class SecuredHttpService {
   constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {}
@@ -41,7 +42,7 @@ export abstract class SecuredHttpService {
     ).catch((error) => console.log(error));
   }
 
-  protected async getSecured(url: string) {
+  protected async getSecured(url: string): Promise<CheckoutResponseDTO> {
     const token = await this.getSessionToken();
     return lastValueFrom(
       this.http
