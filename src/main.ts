@@ -8,7 +8,7 @@ import { l } from './logger';
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { httpsOptions: { rejectUnauthorized: false } });
+  const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder().setTitle('OTA Backend').setDescription('Backend OTA').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config);
