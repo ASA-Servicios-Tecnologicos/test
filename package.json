@@ -41,6 +41,7 @@
     "rxjs": "^7.4.0",
     "swagger-ui-express": "^4.1.6",
     "tecnoturis-authentication": "git@github.com:Tecnoturis-Flowo/Authentication",
+    "typy": "^3.3.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
