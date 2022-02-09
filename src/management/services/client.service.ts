@@ -64,4 +64,12 @@ export class ClientService {
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${client.id}/delete-favourite/${favouriteId}/`,
     );
   }
+
+  async subscribeToNewsletter(username: string, newsletterRequestDTO: { permit_email: boolean }) {
+    const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
+    return this.managementHttpService.post(
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${client.id}/newsletter/`,
+      newsletterRequestDTO,
+    );
+  }
 }
