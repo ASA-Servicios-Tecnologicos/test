@@ -15,7 +15,7 @@ export class ClientService {
 
   async getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
     return this.managementHttpService.get<GetManagementClientInfoByUsernameDTO>(
-      `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${username}/me/`,
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/me?username=${username}`,
     );
   }
 
