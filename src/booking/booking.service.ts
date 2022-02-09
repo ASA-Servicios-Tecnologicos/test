@@ -1,54 +1,62 @@
-import { HttpService, Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { BookingDTO } from "../shared/dto/booking.dto";
-import { Booking, BookingDocument } from "../shared/model/booking.schema";
-import { CheckoutService } from "../checkout/services/checkout.service";
-import { v4 as uuidv4 } from "uuid";
-import { ManagementService } from "src/management/services/management.service";
-import { AppConfigService } from "src/configuration/configuration.service";
-import { lastValueFrom, map } from "rxjs";
-import fetch from "node-fetch";
+import { HttpException, HttpService, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { BookingDTO } from '../shared/dto/booking.dto';
+import { Booking, BookingDocument } from '../shared/model/booking.schema';
+import { CheckoutService } from '../checkout/services/checkout.service';
+import { v4 as uuidv4 } from 'uuid';
+import { ManagementService } from 'src/management/services/management.service';
+import { AppConfigService } from 'src/configuration/configuration.service';
+import { firstValueFrom } from 'rxjs';
+import fetch from 'node-fetch';
+import { CheckoutDTO } from 'src/shared/dto/checkout.dto';
+import { ManagementHttpService } from 'src/management/services/management-http.service';
 @Injectable()
 export class BookingService {
   constructor(
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
     private checkoutService: CheckoutService,
-    private managementService: ManagementService,
+    private managementHttpService: ManagementHttpService,
     private http: HttpService,
-    private appConfigService: AppConfigService
+    private appConfigService: AppConfigService,
   ) {}
 
   async create(booking: BookingDTO) {
-    // TODO: Asignar booking al booking
-    // booking.bookingId = uuidv4();
-    const checkout = await (
-      await this.checkoutService.doCheckout({
-        booking: {
-          /*  bookingId: booking.bookingId, */
-          startDate: booking.checkIn,
-          endDate: booking.checkOut,
-          currency: booking.currency,
-          language: booking.language,
-          market: booking.market,
-          totalAmount: booking.amount,
-          koURL: booking.koUrl,
-          okURL: booking.okUrl,
-          distribution: booking.distribution,
-          cancellationPolicies: booking.cancellationPolicies,
-        },
-      })
-    )["data"];
+    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
+    if (!this.verifyBooking(prebookingData, booking)) {
+      throw new HttpException('La información del booking no coincide con el prebooking', 400);
+    }
 
-    // TODO: bookingId tiene que ser el generado por nosotros, cambiar checkoutId por el de la response
+    booking.bookingId = uuidv4();
+    const body: CheckoutDTO = {
+      booking: {
+        bookingId: booking.bookingId,
+        startDate: booking.checkIn,
+        endDate: booking.checkOut,
+        amount: {
+          value: booking.amount,
+          currency: booking.currency,
+        },
+        description: booking.hotelName,
+        language: booking.language,
+        market: booking.market,
+        koURL: booking.koUrl,
+        okURL: booking.okUrl,
+        distribution: booking.distribution,
+        cancellationPolicies: booking.cancellationPolicies,
+      },
+    };
+
+    const checkout = (await this.checkoutService.doCheckout(body))['data'];
     const prebooking: Booking = {
       ...booking,
-      bookingId: checkout.booking.bookingId,
-      checkoutId: "CHK-FL-00432423", //checkout.checkoutId,
+      bookingId: booking.bookingId,
+      checkoutId: checkout.checkoutId,
     };
     const createdBooking = new this.bookingModel(prebooking);
     await createdBooking.save();
+
     return { bookingId: prebooking.bookingId };
   }
 
@@ -58,53 +66,35 @@ export class BookingService {
 
   async doReservation(id: string) {
     const checkout = await this.checkoutService.getCheckout(id);
-    console.log(checkout);
-    const booking = await this.bookingModel
-      .findOne({ checkoutId: checkout.checkoutId })
-      .exec();
-    console.log(booking);
-    //process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-    const token = await this.managementService.auth();
-    console.log(token);
-    //TODO: Login contra management, recoger token, llamar a new blue
+    const booking = await this.bookingModel.findOne({ checkoutId: checkout.checkoutId }).exec();
+    const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
+    if (prebookingData?.status !== 200) {
+      return prebookingData;
+    }
+
     const body = {
-      requestToken: booking.requestToken,
-      providerToken: booking.providerToken,
+      requestToken: prebookingData.data.requestToken,
+      providerToken: prebookingData.data.providerToken,
       paxes: this.buildPaxesReserve(booking, checkout.passengers),
       packageClient: {
         bookingData: {
-          productTokenNewblue: booking.prebookingToken,
-          distributionRooms: [
-            {
-              code: 1,
-              passengers: checkout.passengers.map((passenger, index) => {
-                return {
-                  holder: false,
-                  code: index + 1,
-                  age: this.getAge(passenger.dob),
-                  gender: null,
-                  name: null,
-                  surname: null,
-                  dateOfBith: null,
-                  extraData: [],
-                };
-              }),
-            },
-          ],
+          hashPrebooking: booking.hashPrebooking,
+          totalAmount: prebookingData.data.totalAmount,
+          hotels: prebookingData.data.hotels,
+          flights: prebookingData.data.flights,
+          transfers: prebookingData.data.transfers,
+          productTokenNewblue: prebookingData.data.productTokenNewblue,
+          distributionRooms: prebookingData.data.distributionRooms,
+          passengers: prebookingData.data.distributionRooms,
+          cancellationPolicyList: prebookingData.data.cancellationPolicyList,
+          currency: prebookingData.data.currency,
+          distribution: prebookingData.data.distribution,
+          providerName: booking.providerName,
         },
       },
     };
-    return fetch(
-      `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
-      {
-        method: "post",
-        body: JSON.stringify(body),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    ).catch((error) => console.log(error));
+    return this.managementHttpService.post(`${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`, body);
+    // TODO: Guardar en el management
   }
 
   private buildPaxesReserve(booking: Booking, passengers: Array<any>) {
@@ -115,16 +105,18 @@ export class BookingService {
         const pax = {
           abbreviation: passenger.title,
           name: passenger.name,
-          code: distribution.extCode,
+          code: parseInt(distribution.extCode),
           ages: distribution.age,
           lastname: passenger.lastname,
-          phone: "",
-          email: "",
-          documentType: "PAS",
-          documentNumber: "",
-          birthdate: passenger.dob,
-          documentExpirationDate: "",
-          nationality: "",
+          phone: '',
+          email: '',
+          documentType: 'PAS',
+          documentNumber: '',
+          birthdate: this.formatBirthdate(passenger.dob),
+          documentExpirationDate: '',
+          nationality: '',
+          phoneNumberCode: 34,
+          type: '',
         };
         paxes.push(pax);
       }
@@ -132,24 +124,62 @@ export class BookingService {
     return paxes;
   }
 
-  private getAge(dob: string) {
-    const now = new Date();
-    const birthDate = new Date(dob);
+  private formatBirthdate(dob: string) {
+    let splitedDate = dob.split('-');
+    splitedDate = splitedDate.reverse();
+    return splitedDate.join('/');
+  }
 
-    let years = now.getFullYear() - birthDate.getFullYear();
+  private buildPassengersDistributionReserve(booking: Booking) {
+    const groupByRoom = this.groupBy(booking.distribution, 'room');
+    return groupByRoom.map((distribution, index) => {
+      return {
+        code: distribution[0].room,
+        passengers: distribution.map((passenger) => {
+          return {
+            holder: false,
+            code: passenger.extCode,
+            age: passenger.age,
+            gender: null,
+            name: null,
+            surname: null,
+            dateOfBirth: null,
+            extraData: [],
+          };
+        }),
+      };
+    });
+  }
 
-    if (
-      now.getMonth() < birthDate.getMonth() ||
-      (now.getMonth() == birthDate.getMonth() &&
-        now.getDate() < birthDate.getDate())
-    ) {
-      years--;
-    }
+  private buildDistribution(booking: Booking) {
+    const groupByRoom = this.groupBy(booking.distribution, 'room');
+    return groupByRoom.map((distribution) => {
+      return {
+        rooms: 1,
+        adults: distribution.filter((passenger) => passenger.type === 'ADULT').length,
+        children: distribution.filter((passenger) => passenger.type === 'CHILD').map((child) => child.age),
+      };
+    });
+  }
 
-    return years;
+  private getPrebookingDataCache(hash: string) {
+    return this.managementHttpService.get<any>(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}`);
   }
 
   async getRemoteCheckout(id: string) {
     return await this.checkoutService.getCheckout(id);
+  }
+
+  private groupBy(arr, prop) {
+    const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
+    arr.forEach((obj) => map.get(obj[prop]).push(obj));
+    return Array.from(map.values());
+  }
+
+  private verifyBooking(prebooking, booking: BookingDTO | BookingDocument) {
+    if (prebooking.data.totalAmount === booking.amount && prebooking.data.hashPrebooking === booking.hashPrebooking) {
+      return true;
+    }
+    return false;
   }
 }

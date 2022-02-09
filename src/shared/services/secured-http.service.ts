@@ -4,14 +4,11 @@ import { NotificationSessionDTO } from '../dto/notification-session.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 
 export abstract class SecuredHttpService {
-  constructor(
-    readonly http: HttpService,
-    readonly appConfigService: AppConfigService
-  ) {}
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {}
 
   protected getSessionToken(): Promise<string> {
     const data = new URLSearchParams();
-    data.append('scope', this.appConfigService.SESSION_SCOPE)
+    data.append('scope', this.appConfigService.SESSION_SCOPE);
     data.append('grant_type', this.appConfigService.SESSION_GRANT_TYPE);
     data.append('username', this.appConfigService.SESSION_USERNAME);
     data.append('password', this.appConfigService.SESSION_PASSWORD);
@@ -20,14 +17,12 @@ export abstract class SecuredHttpService {
 
     return lastValueFrom(
       this.http
-        .post<NotificationSessionDTO>(
-          this.appConfigService.SESSION_TOKEN_URL,
-          data.toString(),
-          { headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
-        )
-        .pipe(map((result) => result.data.access_token))
-    ).catch(error => {
-      console.log(error)
+        .post<NotificationSessionDTO>(this.appConfigService.SESSION_TOKEN_URL, data.toString(), {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        })
+        .pipe(map((result) => result.data.access_token)),
+    ).catch((error) => {
+      console.log(error);
       return error;
     });
   }
@@ -38,21 +33,27 @@ export abstract class SecuredHttpService {
       this.http.post(url, data, {
         headers: {
           'Content-Type': 'application/json',
+          commerce: 'FLOWO',
+          'Accept-Language': 'es_ES',
           Authorization: `Bearer ${token}`,
         },
-      })
-    ).catch(error => console.log(error));
+      }),
+    ).catch((error) => console.log(error));
   }
 
   protected async getSecured(url: string) {
     const token = await this.getSessionToken();
     return lastValueFrom(
-      this.http.get(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      }).pipe(map((res => res.data)))
-    ).catch(error => console.log(error));
+      this.http
+        .get(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            commerce: 'FLOWO',
+            'Accept-Language': 'es_ES',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .pipe(map((res) => res.data)),
+    ).catch((error) => console.log(error));
   }
 }

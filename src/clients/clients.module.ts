@@ -1,5 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common';
-import { AppConfigModule } from '../configuration/configuration.module';
+import { Module } from '@nestjs/common';
 import { ManagementModule } from '../management/management.module';
 import { ClientsController } from './clients.controller';
 

@@ -1,15 +1,18 @@
-import { CancellationPolicyDTO, DistributionDTO } from "./booking.dto";
+import { CancellationPolicyDTO, DistributionDTO } from './booking.dto';
 
 export interface CheckoutDTO {
   booking: BookingDTO;
 }
 
 export interface BookingDTO {
-  bookingId?: string;
+  bookingId: string;
   okURL: string;
   koURL: string;
-  totalAmount: number;
-  currency: string;
+  amount: {
+    value: number;
+    currency: string;
+  };
+  description: string;
   market: string;
   language: string;
   startDate: string;
