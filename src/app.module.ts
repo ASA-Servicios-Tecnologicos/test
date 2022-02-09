@@ -9,10 +9,11 @@ import { ClientsModule } from './clients/clients.module';
 import { AppConfigModule } from './configuration/configuration.module';
 import { AppConfigService } from './configuration/configuration.service';
 import { ManagementModule } from './management/management.module';
-import { AuthenticationUserMiddleware } from './middlewares/authenticacion-user.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UsersModule } from './users/users.module';
 import { ClientsController } from './clients/clients.controller';
+import { CallCenterController } from './call-center/call-center.controller';
+import { AuthenticationUserMiddleware } from './middlewares/authenticacion-user.middleware';
 
 @Module({
   imports: [
@@ -40,6 +41,6 @@ import { ClientsController } from './clients/clients.controller';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(...[AuthenticationUserMiddleware]).forRoutes(ClientsController);
+    consumer.apply(...[AuthenticationUserMiddleware]).forRoutes(ClientsController, CallCenterController);
   }
 }

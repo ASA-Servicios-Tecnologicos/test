@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CallCenterBookingFilterParamsDTO } from '../shared/dto/call-center.dto';
+import { AppConfigService } from '../configuration/configuration.service';
+import { ManagementHttpService } from '../management/services/management-http.service';
+import { CallCenterBookingFilterParamsDTO, ManagementDossierByAgency } from '../shared/dto/call-center.dto';
 
 @Injectable()
 export class CallCenterService {
-  getBookings(filterParams: CallCenterBookingFilterParamsDTO) {}
+  constructor(private readonly appConfigService: AppConfigService, private readonly managementHttpService: ManagementHttpService) {}
+  getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
+    return this.managementHttpService.get<ManagementDossierByAgency>(`${this.appConfigService.MANAGEMENT_URL}`);
+  }
 }
