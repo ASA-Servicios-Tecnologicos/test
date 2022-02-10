@@ -1,4 +1,4 @@
-import { HttpException, HttpService, Injectable } from '@nestjs/common';
+import { HttpException, HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
@@ -8,8 +8,8 @@ export class ManagementHttpService {
   constructor(private readonly httpService: HttpService, private managementService: ManagementService) {}
 
   async post<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
-      console.log("Config")
-      console.log(url, data)
+    console.log('Config');
+    console.log(url, data);
     return firstValueFrom(
       this.httpService.post<K>(url, data, {
         ...config,
@@ -20,14 +20,14 @@ export class ManagementHttpService {
       }),
     )
       .then((data) => {
-          console.log("data")
-          console.log(data)
-         return  data.data
+        console.log('data');
+        console.log(data);
+        return data.data;
       })
       .catch((err) => {
-          console.log("ERRORRRRR")
-          console.log(err)
-          // If token has expired then renew request token
+        console.log('ERRORRRRR');
+        console.log(err);
+        // If token has expired then renew request token
         if (err.response.data?.detail === 'Signature has expired.') {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
@@ -41,9 +41,9 @@ export class ManagementHttpService {
             )
               .then((data) => data.data)
               .catch((err) => {
-                  console.log("ERRORRRRR")
-                  console.log(err)
-                  throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+                console.log('ERRORRRRR');
+                console.log(err);
+                throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
@@ -162,9 +162,9 @@ export class ManagementHttpService {
       });
   }
 
-  async delete<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
+  async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
     return firstValueFrom(
-      this.httpService.delete<K>(url, {
+      this.httpService.delete(url, {
         ...config,
         headers: {
           'Content-Type': 'application/json',
@@ -172,13 +172,16 @@ export class ManagementHttpService {
         },
       }),
     )
-      .then((data) => data.data)
+      .then(() => {
+        return;
+      })
       .catch((err) => {
+        console.log('🚀 ~ file: management-http.service.ts ~ line 179 ~ ManagementHttpService ~ delete ~ err', err);
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response?.data?.detail === 'Signature has expired.') {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
-              this.httpService.delete<K>(url, {
+              this.httpService.delete(url, {
                 ...config,
                 headers: {
                   'Content-Type': 'application/json',
@@ -186,15 +189,15 @@ export class ManagementHttpService {
                 },
               }),
             )
-              .then((data) => {
-                return data.data;
+              .then(() => {
+                return;
               })
               .catch((err) => {
-                throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+                throw new InternalServerErrorException({ err });
               });
           });
         }
-        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+        throw new InternalServerErrorException({ err });
       });
   }
 }
