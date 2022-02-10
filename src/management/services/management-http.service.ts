@@ -52,7 +52,6 @@ export class ManagementHttpService {
   }
 
   async get<K>(url: string, config?: AxiosRequestConfig): Promise<K> {
-    console.log('🚀 ~ file: management-http.service.ts ~ line 55 ~ ManagementHttpService ~ url', url);
     return firstValueFrom(
       this.httpService.get<K>(url, {
         ...config,
