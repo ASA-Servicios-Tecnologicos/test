@@ -1,4 +1,4 @@
-import { HttpException, HttpService, Injectable } from '@nestjs/common';
+import { HttpException, HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
@@ -163,9 +163,9 @@ export class ManagementHttpService {
       });
   }
 
-  async delete<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
+  async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
     return firstValueFrom(
-      this.httpService.delete<K>(url, {
+      this.httpService.delete(url, {
         ...config,
         headers: {
           'Content-Type': 'application/json',
@@ -173,13 +173,15 @@ export class ManagementHttpService {
         },
       }),
     )
-      .then((data) => data.data)
+      .then(() => {
+        return;
+      })
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response?.data?.detail === 'Signature has expired.') {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
-              this.httpService.delete<K>(url, {
+              this.httpService.delete(url, {
                 ...config,
                 headers: {
                   'Content-Type': 'application/json',
@@ -187,15 +189,16 @@ export class ManagementHttpService {
                 },
               }),
             )
-              .then((data) => {
-                return data.data;
+              .then(() => {
+                return;
               })
               .catch((err) => {
-                throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+                console.error(err);
+                throw new InternalServerErrorException();
               });
           });
         }
-        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+        throw new InternalServerErrorException();
       });
   }
 }

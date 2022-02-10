@@ -15,7 +15,7 @@ export class ClientService {
 
   async getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
     return this.managementHttpService.get<GetManagementClientInfoByUsernameDTO>(
-      `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${username}/me/`,
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/me/?username=${username}`,
     );
   }
 
@@ -62,6 +62,14 @@ export class ClientService {
     const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
     return this.managementHttpService.delete(
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${client.id}/delete-favourite/${favouriteId}/`,
+    );
+  }
+
+  async subscribeToNewsletter(username: string, newsletterRequestDTO: { permit_email: boolean }) {
+    const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
+    return this.managementHttpService.post(
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${client.id}/newsletter/`,
+      newsletterRequestDTO,
     );
   }
 }

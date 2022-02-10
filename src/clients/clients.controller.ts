@@ -40,4 +40,9 @@ export class ClientsController {
   deleteFavouriteByUsername(@Param('username') username: string, @Param('favouriteId') favouriteId: string) {
     return this.clientService.deleteFavouriteByUsername(username, favouriteId);
   }
+
+  @Post(':username/newsletter')
+  subscribeToNewsletter(@Param('username') username: string, @Body() newsletterRequestDTO: { permit_email: boolean }) {
+    return this.clientService.subscribeToNewsletter(username, newsletterRequestDTO);
+  }
 }
