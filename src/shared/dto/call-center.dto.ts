@@ -21,6 +21,7 @@ export class CallCenterBookingFilterParamsDTO {
   locator?: string;
   client?: string;
   opening_date_from?: string;
+  opening_date_to?: string;
   page?: string;
   //   reference?: CallCenterBookingFilterParamsReferenceDTO;
   //   date?: CallCenterBookingFilterParamsDateDTO;

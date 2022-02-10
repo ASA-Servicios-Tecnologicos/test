@@ -16,6 +16,7 @@ export class CallCenterController {
     @Query('client') client: string,
     @Query('page') page: string,
     @Query('opening_date_from') opening_date_from: string,
+    @Query('opening_date_to') opening_date_to: string,
   ) {
     const agencyId = request['agencyId'];
     if (!agencyId) {
@@ -27,6 +28,7 @@ export class CallCenterController {
       client,
       page,
       opening_date_from,
+      opening_date_to,
     };
     return this.callCenterService.getDossiersByAgencyId(agencyId, pickBy(filterParams));
   }

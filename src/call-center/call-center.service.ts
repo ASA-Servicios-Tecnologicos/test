@@ -15,6 +15,7 @@ export class CallCenterService {
     private readonly managementHttpService: ManagementHttpService,
     private readonly bookingServicesService: BookingServicesService,
   ) {}
+
   async getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
     const managementDossierByAgency: GetDossiersByClientDTO = await this.managementHttpService.get<GetDossiersByClientDTO>(
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
