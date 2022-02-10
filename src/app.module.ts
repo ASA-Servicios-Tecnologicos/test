@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common';
+import { HttpModule, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,7 +9,10 @@ import { ClientsModule } from './clients/clients.module';
 import { AppConfigModule } from './configuration/configuration.module';
 import { AppConfigService } from './configuration/configuration.service';
 import { ManagementModule } from './management/management.module';
+import { AuthenticationUserMiddleware } from './middlewares/authenticacion-user.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
+import { UsersModule } from './users/users.module';
+import { ClientsController } from './clients/clients.controller';
 
 @Module({
   imports: [
@@ -21,6 +24,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     NotificationsModule,
     ManagementModule,
     ClientsModule,
+    UsersModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
@@ -34,4 +38,8 @@ import { NotificationsModule } from './notifications/notifications.module';
   providers: [AppService],
   exports: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(...[AuthenticationUserMiddleware]).forRoutes(ClientsController);
+  }
+}
