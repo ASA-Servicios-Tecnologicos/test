@@ -16,7 +16,7 @@ export class CallCenterController {
     @Query('client') client: string,
     @Query('page') page: string,
     @Query('opening_date_from') opening_date_from: string,
-  ): Promise<ManagementDossierByAgency> {
+  ) {
     const agencyId = request['agencyId'];
     if (!agencyId) {
       throw new NotFoundException('Agency not found');

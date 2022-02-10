@@ -64,4 +64,5 @@ export class ManagementDossierByAgency {
   agency: number;
   reference?: any;
   dossier_pax: [];
+  services: any;
 }
