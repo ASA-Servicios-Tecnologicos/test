@@ -7,6 +7,6 @@ export class ExternalClientService {
   constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
 
   async createExternalClient(user: CreateExternalUserDTO) {
-    return this.managementHttpService.post<ExternalUserDTO>(`${this.appConfigService.TECNOTURIS_URL}/client/external/`, user);
+    return this.managementHttpService.post<ExternalUserDTO>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/client/external/`, user);
   }
 }

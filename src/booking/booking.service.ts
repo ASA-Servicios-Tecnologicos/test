@@ -11,6 +11,8 @@ import { ManagementHttpService } from 'src/management/services/management-http.s
 import { PrebookingDTO } from 'src/shared/dto/pre-booking.dto';
 import { ManagementBudgetPassengerDTO } from 'src/shared/dto/budget.dto';
 import { ClientService } from 'src/management/services/client.service';
+import { ExternalClientService } from 'src/management/services/external-client.service';
+import { GetManagementClientInfoByUsernameDTO } from 'src/shared/dto/management-client.dto';
 @Injectable()
 export class BookingService {
   constructor(
@@ -20,6 +22,7 @@ export class BookingService {
     private managementHttpService: ManagementHttpService,
     private appConfigService: AppConfigService,
     private clientService: ClientService,
+    private externalClientService: ExternalClientService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -71,10 +74,6 @@ export class BookingService {
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
-    /*  console.log('**** checkout ****');
-    console.log(JSON.stringify(checkout));
-    console.log('**** prebooking ****');
-    console.log(JSON.stringify(prebookingData)); */
 
     const body = {
       requestToken: prebookingData.data.requestToken,
@@ -134,15 +133,11 @@ export class BookingService {
       `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
       body,
     );
-    /* console.log('**** Booking external ****');
-
-    console.log(JSON.stringify(booked)); */
     return this.createBookingInManagement(prebookingData, booking, checkout);
-    // TODO: Guardar en el management
   }
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
-    console.log('**** client ****');
+    const client = await this.getOrCreateClient(checkOut);
 
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
@@ -223,34 +218,50 @@ export class BookingService {
         },
       ],
       dossier: null,
-      client: 822,
+      client: client,
     };
-    /*  console.log('**** createBoook ****');
-    console.log(JSON.stringify(createBookDTO)); */
 
     const bookingManagement = await this.managementHttpService.post(
-      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking`,
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/booking/`,
       createBookDTO,
     );
-    /* console.log('**** Booking management ****');
-    console.log(bookingManagement); */
     return bookingManagement;
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
-    const client = await this.clientService.getClientInfoByUsername(checkOut.contact.email).catch((error) => {
-      if (error.response.status === HttpStatus.BAD_REQUEST) {
-        return this.clientService.getClientInfoByUsername(`${checkOut.contact.phone.phone}`).catch((error) => {
-          if (error.response.status === HttpStatus.BAD_REQUEST) {
-            return null;
-          }
-        });
-      }
-    });
-
+    const client: GetManagementClientInfoByUsernameDTO = await this.clientService
+      .getClientInfoByUsername(/* checkOut.contact.email */ 'dani@test.com')
+      .catch((error) => {
+        if (error.response.status === HttpStatus.BAD_REQUEST) {
+          return this.clientService
+            .getClientInfoByUsername(/* `+${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}` */ '+34111111111')
+            .catch((error) => {
+              if (error.response.status === HttpStatus.BAD_REQUEST) {
+                return null;
+              }
+            });
+        }
+      });
     if (!client) {
+      const integrationClient = await this.clientService.getIntegrationClient();
       //TODO: Create client
+      const createdClient = await this.externalClientService.createExternalClient({
+        accept_privacy_policy: true,
+        agency: integrationClient.agency.id,
+        agency_chain: integrationClient.agency.agency_chain_id,
+        dni: /* checkOut.buyer.document.documentNumber */ '53733022W',
+        email: /* checkOut.contact.email */ 'dani@test.com',
+        first_name: /*  checkOut.buyer.name */ 'dani',
+        last_name: /* checkOut.buyer.lastname */ 'nieto',
+        password1: '123456',
+        password2: '123456',
+        phone: /* `+${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}` */ '+34111111111',
+        role: 8,
+        username: 'dani@test.com',
+      });
+      return createdClient.client;
     }
+    return client.id;
   }
 
   private calcFlightDuration(departureDate: string, arrivalDate: string) {
@@ -319,7 +330,7 @@ export class BookingService {
   }
 
   private getPrebookingDataCache(hash: string): Promise<PrebookingDTO> {
-    return this.managementHttpService.get(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}`);
+    return this.managementHttpService.get(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}/`);
   }
 
   async getRemoteCheckout(id: string) {
