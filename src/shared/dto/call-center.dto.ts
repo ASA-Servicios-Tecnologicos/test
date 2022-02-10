@@ -17,10 +17,15 @@ export class CallCenterBookingFilterParamsReferenceDTO {
   name: any;
 }
 export class CallCenterBookingFilterParamsDTO {
-  reference?: CallCenterBookingFilterParamsReferenceDTO;
-  date?: CallCenterBookingFilterParamsDateDTO;
-  provider?: CallCenterBookingFilterParamsProviderDTO;
-  payment?: CallCenterBookingFilterParamsPaymentDTO;
+  code?: string;
+  locator?: string;
+  client?: string;
+  opening_date_from?: string;
+  page?: string;
+  //   reference?: CallCenterBookingFilterParamsReferenceDTO;
+  //   date?: CallCenterBookingFilterParamsDateDTO;
+  //   provider?: CallCenterBookingFilterParamsProviderDTO;
+  //   payment?: CallCenterBookingFilterParamsPaymentDTO;
 }
 
 export class GetDossiersByClientDTO {
