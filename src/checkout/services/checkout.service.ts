@@ -1,6 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { CheckoutDTO } from '../../shared/dto/checkout.dto';
+import { CheckoutDTO, CreateCheckoutDTO } from '../../shared/dto/checkout.dto';
 import { SecuredHttpService } from '../../shared/services/secured-http.service';
 
 @Injectable()
@@ -9,11 +9,11 @@ export class CheckoutService extends SecuredHttpService {
     super(http, appConfigService);
   }
 
-  async doCheckout(checkout: CheckoutDTO) {
+  async doCheckout(checkout: CreateCheckoutDTO) {
     return this.postSecured(this.appConfigService.CHECKOUT_URL, checkout);
   }
 
-  async getCheckout(id: string) {
+  async getCheckout(id: string): Promise<CheckoutDTO> {
     return this.getSecured(`${this.appConfigService.CHECKOUT_URL}/${id}`);
   }
 }

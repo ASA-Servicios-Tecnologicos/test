@@ -1,18 +1,16 @@
-import { HttpException, HttpService, Injectable } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BookingDTO, CreateManagementBookDto } from '../shared/dto/booking.dto';
 import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { v4 as uuidv4 } from 'uuid';
-import { ManagementService } from 'src/management/services/management.service';
 import { AppConfigService } from 'src/configuration/configuration.service';
-import { firstValueFrom } from 'rxjs';
-import fetch from 'node-fetch';
-import { CheckoutDTO } from 'src/shared/dto/checkout.dto';
+import { CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
 import { PrebookingDTO } from 'src/shared/dto/pre-booking.dto';
 import { ManagementBudgetPassengerDTO } from 'src/shared/dto/budget.dto';
+import { ClientService } from 'src/management/services/client.service';
 @Injectable()
 export class BookingService {
   constructor(
@@ -20,8 +18,8 @@ export class BookingService {
     private bookingModel: Model<BookingDocument>,
     private checkoutService: CheckoutService,
     private managementHttpService: ManagementHttpService,
-    private http: HttpService,
     private appConfigService: AppConfigService,
+    private clientService: ClientService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -31,7 +29,7 @@ export class BookingService {
     }
 
     booking.bookingId = uuidv4();
-    const body: CheckoutDTO = {
+    const body: CreateCheckoutDTO = {
       booking: {
         bookingId: booking.bookingId,
         startDate: booking.checkIn,
@@ -73,10 +71,10 @@ export class BookingService {
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
-    console.log('**** checkout ****');
+    /*  console.log('**** checkout ****');
     console.log(JSON.stringify(checkout));
     console.log('**** prebooking ****');
-    console.log(JSON.stringify(prebookingData));
+    console.log(JSON.stringify(prebookingData)); */
 
     const body = {
       requestToken: prebookingData.data.requestToken,
@@ -114,7 +112,7 @@ export class BookingService {
           phoneNumberCode: 34,
           type: '',
         },
-      ],
+      ] /* this.buildPaxesReserveV2(checkout.passengers) */,
       packageClient: {
         bookingData: {
           hashPrebooking: booking.hashPrebooking,
@@ -136,19 +134,20 @@ export class BookingService {
       `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
       body,
     );
-    console.log('**** Booking external ****');
+    /* console.log('**** Booking external ****');
 
-    console.log(JSON.stringify(booked));
-    return this.createBookingInManagement(prebookingData, booking);
+    console.log(JSON.stringify(booked)); */
+    return this.createBookingInManagement(prebookingData, booking, checkout);
     // TODO: Guardar en el management
   }
 
-  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking) {
+  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
+    console.log('**** client ****');
+
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
         {
           ...prebookingData.data,
-
           uuid: uuidv4(),
           agencyInfo: {
             agentNum: '',
@@ -226,16 +225,32 @@ export class BookingService {
       dossier: null,
       client: 822,
     };
-    console.log('**** createBoook ****');
-    console.log(JSON.stringify(createBookDTO));
+    /*  console.log('**** createBoook ****');
+    console.log(JSON.stringify(createBookDTO)); */
 
     const bookingManagement = await this.managementHttpService.post(
       `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking`,
       createBookDTO,
     );
-    console.log('**** Booking management ****');
-    console.log(bookingManagement);
+    /* console.log('**** Booking management ****');
+    console.log(bookingManagement); */
     return bookingManagement;
+  }
+
+  private async getOrCreateClient(checkOut: CheckoutDTO) {
+    const client = await this.clientService.getClientInfoByUsername(checkOut.contact.email).catch((error) => {
+      if (error.response.status === HttpStatus.BAD_REQUEST) {
+        return this.clientService.getClientInfoByUsername(`${checkOut.contact.phone.phone}`).catch((error) => {
+          if (error.response.status === HttpStatus.BAD_REQUEST) {
+            return null;
+          }
+        });
+      }
+    });
+
+    if (!client) {
+      //TODO: Create client
+    }
   }
 
   private calcFlightDuration(departureDate: string, arrivalDate: string) {
@@ -249,7 +264,7 @@ export class BookingService {
     return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
   }
 
-  private buildPaxesReserve(booking: Booking, passengers: Array<any>) {
+  private buildPaxesReserve(booking: Booking, passengers: Array<CheckoutPassenger>) {
     const paxes = [];
     booking.distribution.forEach((distribution, index) => {
       const passenger = passengers[index];
@@ -274,6 +289,27 @@ export class BookingService {
       }
     });
     return paxes;
+  }
+
+  private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>) {
+    return passengers.map((passenger) => {
+      return {
+        abbreviation: passenger.title,
+        name: passenger.name,
+        code: passenger.extCode,
+        ages: passenger.age,
+        lastname: passenger.lastname,
+        phone: '',
+        email: '',
+        documentType: passenger.document.documentType,
+        documentNumber: passenger.document.documentNumber,
+        birthdate: this.formatBirthdate(passenger.dob),
+        documentExpirationDate: '',
+        nationality: passenger.document.nationality,
+        phoneNumberCode: 34,
+        type: passenger.type,
+      };
+    });
   }
 
   private formatBirthdate(dob: string) {

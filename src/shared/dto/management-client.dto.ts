@@ -22,6 +22,9 @@ export class ManagementClientDTO {
   @ApiProperty({ example: 'Prueba Prueba' })
   final_name: string;
 
+  @ApiProperty({ example: 'Perez' })
+  surname?: string;
+
   @ApiProperty({ example: new Date('2022-01-27T10:59:50.469066') })
   last_order: Date;
 
@@ -159,4 +162,27 @@ export class GetManagementClientInfoByUsernameDTO {
   email: string;
   user_id: number;
   client_username: string;
+}
+
+export interface IntegrationClientDTO {
+  id: number;
+  role: {
+    id: number;
+    name: string;
+  };
+  agency_chain: {
+    id: number;
+    name: string;
+  };
+  agency: {
+    id: number;
+    name: string;
+    agency_chain_id: number;
+  };
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  logo: null;
+  client: null;
 }

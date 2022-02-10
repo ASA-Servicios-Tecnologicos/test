@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO } from '../../shared/dto/management-client.dto';
+import { GetManagementClientInfoByUsernameDTO, IntegrationClientDTO, ManagementClientDTO } from '../../shared/dto/management-client.dto';
 import { ManagementHttpService } from './management-http.service';
 
 @Injectable()
@@ -17,5 +17,9 @@ export class ClientService {
     return this.managementHttpService.get<GetManagementClientInfoByUsernameDTO>(
       `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/client/${username}/me/`,
     );
+  }
+
+  async getIntegrationClient() {
+    return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/me/`);
   }
 }
