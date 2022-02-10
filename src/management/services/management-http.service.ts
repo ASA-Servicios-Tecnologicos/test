@@ -176,7 +176,6 @@ export class ManagementHttpService {
         return;
       })
       .catch((err) => {
-        console.log('🚀 ~ file: management-http.service.ts ~ line 179 ~ ManagementHttpService ~ delete ~ err', err);
         // If token has expired then renew request token
         if (err.response?.data?.detail === 'Signature has expired.') {
           return this.managementService.refreshCacheToken().then((newToken) => {
@@ -193,11 +192,12 @@ export class ManagementHttpService {
                 return;
               })
               .catch((err) => {
-                throw new InternalServerErrorException({ err });
+                console.error(err);
+                throw new InternalServerErrorException();
               });
           });
         }
-        throw new InternalServerErrorException({ err });
+        throw new InternalServerErrorException();
       });
   }
 }
