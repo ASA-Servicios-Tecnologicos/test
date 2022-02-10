@@ -97,3 +97,17 @@ export class BookingDTO {
 export class CreateManagementBookDto extends CreateManagementBudgetDto {
   dossier: any;
 }
+
+export interface ManagementBookDTO {
+  id: number;
+  dossier: number;
+  description: string;
+  total_pvp: number;
+  total_abono: number;
+  provider_service_id: number;
+  locator: string;
+  discount: number;
+  fiscal_location_id: 5;
+  iva_type_id: any;
+  iva: number;
+}
