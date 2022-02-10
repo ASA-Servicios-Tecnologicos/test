@@ -1,5 +1,6 @@
 import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateManagementBudgetDto } from './budget.dto';
 
 export class Pax {
   @ApiProperty()
@@ -91,4 +92,8 @@ export class BookingDTO {
   @ApiProperty()
   hashPrebooking: string;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
+}
+
+export class CreateManagementBookDto extends CreateManagementBudgetDto {
+  dossier: any;
 }

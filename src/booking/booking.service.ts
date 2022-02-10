@@ -1,16 +1,16 @@
-import { HttpException, HttpService, Injectable } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BookingDTO } from '../shared/dto/booking.dto';
+import { BookingDTO, CreateManagementBookDto } from '../shared/dto/booking.dto';
 import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { v4 as uuidv4 } from 'uuid';
-import { ManagementService } from 'src/management/services/management.service';
 import { AppConfigService } from 'src/configuration/configuration.service';
-import { firstValueFrom } from 'rxjs';
-import fetch from 'node-fetch';
-import { CheckoutDTO } from 'src/shared/dto/checkout.dto';
+import { CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
+import { PrebookingDTO } from 'src/shared/dto/pre-booking.dto';
+import { ManagementBudgetPassengerDTO } from 'src/shared/dto/budget.dto';
+import { ClientService } from 'src/management/services/client.service';
 @Injectable()
 export class BookingService {
   constructor(
@@ -18,8 +18,8 @@ export class BookingService {
     private bookingModel: Model<BookingDocument>,
     private checkoutService: CheckoutService,
     private managementHttpService: ManagementHttpService,
-    private http: HttpService,
     private appConfigService: AppConfigService,
+    private clientService: ClientService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -29,7 +29,7 @@ export class BookingService {
     }
 
     booking.bookingId = uuidv4();
-    const body: CheckoutDTO = {
+    const body: CreateCheckoutDTO = {
       booking: {
         bookingId: booking.bookingId,
         startDate: booking.checkIn,
@@ -64,18 +64,55 @@ export class BookingService {
     return this.bookingModel.findOne({ bookingId: id }).exec();
   }
 
-  async doReservation(id: string) {
+  async doBooking(id: string) {
     const checkout = await this.checkoutService.getCheckout(id);
     const booking = await this.bookingModel.findOne({ checkoutId: checkout.checkoutId }).exec();
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
-      return prebookingData;
+      throw new HttpException(prebookingData.data, prebookingData.status);
     }
+    /*  console.log('**** checkout ****');
+    console.log(JSON.stringify(checkout));
+    console.log('**** prebooking ****');
+    console.log(JSON.stringify(prebookingData)); */
 
     const body = {
       requestToken: prebookingData.data.requestToken,
       providerToken: prebookingData.data.providerToken,
-      paxes: this.buildPaxesReserve(booking, checkout.passengers),
+      paxes: [
+        {
+          abbreviation: 'MR',
+          name: 'Pedro',
+          code: 1,
+          ages: 30,
+          lastname: 'Gutierrez',
+          phone: '',
+          email: '',
+          documentType: 'PAS',
+          documentNumber: '',
+          birthdate: '08/12/1990',
+          documentExpirationDate: '',
+          nationality: '',
+          phoneNumberCode: 34,
+          type: '',
+        },
+        {
+          abbreviation: 'MS',
+          name: 'Ana',
+          code: 2,
+          ages: 30,
+          lastname: 'Sierra',
+          phone: '',
+          email: '',
+          documentType: 'PAS',
+          documentNumber: '',
+          birthdate: '08/12/1986',
+          documentExpirationDate: '',
+          nationality: '',
+          phoneNumberCode: 34,
+          type: '',
+        },
+      ] /* this.buildPaxesReserveV2(checkout.passengers) */,
       packageClient: {
         bookingData: {
           hashPrebooking: booking.hashPrebooking,
@@ -93,11 +130,141 @@ export class BookingService {
         },
       },
     };
-    return this.managementHttpService.post(`${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`, body);
+    const booked = await this.managementHttpService.post(
+      `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
+      body,
+    );
+    /* console.log('**** Booking external ****');
+
+    console.log(JSON.stringify(booked)); */
+    return this.createBookingInManagement(prebookingData, booking, checkout);
     // TODO: Guardar en el management
   }
 
-  private buildPaxesReserve(booking: Booking, passengers: Array<any>) {
+  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
+    console.log('**** client ****');
+
+    const createBookDTO: CreateManagementBookDto = {
+      packageData: [
+        {
+          ...prebookingData.data,
+          uuid: uuidv4(),
+          agencyInfo: {
+            agentNum: '',
+            expediente: '',
+          },
+          commission: { pvp: prebookingData.data.totalAmount },
+          integrationType: 'PACKAGE',
+          adults: prebookingData.data.distribution.map((distribution) => distribution.adults).reduce((acc, current) => acc + current, 0),
+          children: prebookingData.data.distribution
+            .map((distribution) => distribution.children.length)
+            .reduce((acc, current) => acc + current, 0),
+          infants: 0,
+          partialTotal: prebookingData.data.totalAmount,
+          passengers: [...[...prebookingData.data.passengers.map((passenger) => passenger.passengers)]],
+          providerName: booking.providerName,
+          validateMessage: '',
+          checkForm: true,
+          isSelected: true,
+          canBeBooked: true,
+          comments: {
+            agentComment: '',
+            updatedPrice: prebookingData.data.totalAmount,
+            clientComment: '',
+          },
+          flightDurationOutward: this.calcFlightDuration(
+            prebookingData.data.flights[0].outward[0].departure.date.toString(),
+            prebookingData.data.flights[0].outward[0].arrival.date.toString(),
+          ),
+          flightDurationReturn: this.calcFlightDuration(
+            prebookingData.data.flights[0].return[0].departure.date.toString(),
+            prebookingData.data.flights[0].return[0].arrival.date.toString(),
+          ),
+          infoAirports: {
+            airportOriginCity: '',
+            airportOriginName: '',
+            airportArrivalCity: '',
+            airportArrivalName: '',
+          },
+          paxes: [
+            {
+              abbreviation: 'MR',
+              name: 'Pedro',
+              code: 1,
+              ages: 30,
+              lastname: 'Gutierrez',
+              phone: '',
+              email: '',
+              documentType: 'PAS',
+              documentNumber: '',
+              birthdate: '08/12/1990',
+              documentExpirationDate: '',
+              nationality: '',
+              phoneNumberCode: 34,
+              type: '',
+            },
+            {
+              abbreviation: 'MS',
+              name: 'Ana',
+              code: 2,
+              ages: 30,
+              lastname: 'Sierra',
+              phone: '',
+              email: '',
+              documentType: 'PAS',
+              documentNumber: '',
+              birthdate: '08/12/1986',
+              documentExpirationDate: '',
+              nationality: '',
+              phoneNumberCode: 34,
+              type: '',
+            },
+          ],
+        },
+      ],
+      dossier: null,
+      client: 822,
+    };
+    /*  console.log('**** createBoook ****');
+    console.log(JSON.stringify(createBookDTO)); */
+
+    const bookingManagement = await this.managementHttpService.post(
+      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking`,
+      createBookDTO,
+    );
+    /* console.log('**** Booking management ****');
+    console.log(bookingManagement); */
+    return bookingManagement;
+  }
+
+  private async getOrCreateClient(checkOut: CheckoutDTO) {
+    const client = await this.clientService.getClientInfoByUsername(checkOut.contact.email).catch((error) => {
+      if (error.response.status === HttpStatus.BAD_REQUEST) {
+        return this.clientService.getClientInfoByUsername(`${checkOut.contact.phone.phone}`).catch((error) => {
+          if (error.response.status === HttpStatus.BAD_REQUEST) {
+            return null;
+          }
+        });
+      }
+    });
+
+    if (!client) {
+      //TODO: Create client
+    }
+  }
+
+  private calcFlightDuration(departureDate: string, arrivalDate: string) {
+    const departure = new Date(departureDate);
+    const arrival = new Date(arrivalDate);
+    let diffInMilliSeconds = Math.abs(arrival.getTime() - departure.getTime()) / 1000;
+    const days = Math.floor(diffInMilliSeconds / 86400);
+    const hours = (Math.floor(diffInMilliSeconds / 3600) % 24) + days * 24;
+    diffInMilliSeconds -= hours * 3600;
+    const minutes = Math.floor(diffInMilliSeconds / 60) % 60;
+    return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+  }
+
+  private buildPaxesReserve(booking: Booking, passengers: Array<CheckoutPassenger>) {
     const paxes = [];
     booking.distribution.forEach((distribution, index) => {
       const passenger = passengers[index];
@@ -124,46 +291,35 @@ export class BookingService {
     return paxes;
   }
 
+  private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>) {
+    return passengers.map((passenger) => {
+      return {
+        abbreviation: passenger.title,
+        name: passenger.name,
+        code: passenger.extCode,
+        ages: passenger.age,
+        lastname: passenger.lastname,
+        phone: '',
+        email: '',
+        documentType: passenger.document.documentType,
+        documentNumber: passenger.document.documentNumber,
+        birthdate: this.formatBirthdate(passenger.dob),
+        documentExpirationDate: '',
+        nationality: passenger.document.nationality,
+        phoneNumberCode: 34,
+        type: passenger.type,
+      };
+    });
+  }
+
   private formatBirthdate(dob: string) {
     let splitedDate = dob.split('-');
     splitedDate = splitedDate.reverse();
     return splitedDate.join('/');
   }
 
-  private buildPassengersDistributionReserve(booking: Booking) {
-    const groupByRoom = this.groupBy(booking.distribution, 'room');
-    return groupByRoom.map((distribution, index) => {
-      return {
-        code: distribution[0].room,
-        passengers: distribution.map((passenger) => {
-          return {
-            holder: false,
-            code: passenger.extCode,
-            age: passenger.age,
-            gender: null,
-            name: null,
-            surname: null,
-            dateOfBirth: null,
-            extraData: [],
-          };
-        }),
-      };
-    });
-  }
-
-  private buildDistribution(booking: Booking) {
-    const groupByRoom = this.groupBy(booking.distribution, 'room');
-    return groupByRoom.map((distribution) => {
-      return {
-        rooms: 1,
-        adults: distribution.filter((passenger) => passenger.type === 'ADULT').length,
-        children: distribution.filter((passenger) => passenger.type === 'CHILD').map((child) => child.age),
-      };
-    });
-  }
-
-  private getPrebookingDataCache(hash: string) {
-    return this.managementHttpService.get<any>(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}`);
+  private getPrebookingDataCache(hash: string): Promise<PrebookingDTO> {
+    return this.managementHttpService.get(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}`);
   }
 
   async getRemoteCheckout(id: string) {

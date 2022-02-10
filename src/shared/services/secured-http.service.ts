@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
 import { NotificationSessionDTO } from '../dto/notification-session.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
+import { CheckoutDTO } from '../dto/checkout.dto';
 
 export abstract class SecuredHttpService {
   constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {}

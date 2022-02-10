@@ -187,16 +187,21 @@ export class ManagementBudgetPackageDataDTO {
   transfers: ManagementBudgetTransferDTO[];
   distribution: ManagementBudgetDistributionDTO[];
   productTokenNewblue: string;
-  passengers: [
-    {
-      code: string;
-      passengers: ManagementBudgetPassengerDTO[];
-    },
-  ];
-  comission: {
+  passengers: Array</* {
+    code: string;
+    passengers: ManagementBudgetPassengerDTO[];
+  } */ any>;
+  commission: {
     pvp: number;
   };
-  //   distributionRooms
+  agencyInfo?: {
+    agentNum: string;
+    expediente: string;
+  };
+  distributionRooms?: Array<{
+    code: string;
+    passengers: ManagementBudgetPassengerDTO[];
+  }>;
   checkIn: string;
   checkOut: string;
   cancellationPolicyList: ManagementBudgetCancellationPolicyDto[];
@@ -219,6 +224,12 @@ export class ManagementBudgetPackageDataDTO {
   comments: ManagementBudgetPackageDataComments;
   flightDurationOutward: string;
   flightDurationReturn: string;
+  infoAirports: {
+    airportOriginCity: string;
+    airportOriginName: string;
+    airportArrivalCity: string;
+    airportArrivalName: string;
+  };
 }
 
 export class CreateManagementBudgetDto {

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { GetManagementDossiersByClientId } from '../../shared/dto/dossier.dto';
 import { CreateFavouriteByUser } from '../../shared/dto/favourites.dto';
-import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO } from '../../shared/dto/management-client.dto';
+import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO, IntegrationClientDTO } from '../../shared/dto/management-client.dto';
 import { ManagementHttpService } from './management-http.service';
 
 @Injectable()
@@ -71,5 +71,9 @@ export class ClientService {
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${client.id}/newsletter/`,
       newsletterRequestDTO,
     );
+  }
+
+  async getIntegrationClient() {
+    return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/me/`);
   }
 }
