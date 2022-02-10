@@ -67,7 +67,7 @@ export class ClientService {
 
   async subscribeToNewsletter(username: string, newsletterRequestDTO: { permit_email: boolean }) {
     const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
-    return this.managementHttpService.post(
+    return this.managementHttpService.put(
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/client/${client.id}/newsletter/`,
       newsletterRequestDTO,
     );

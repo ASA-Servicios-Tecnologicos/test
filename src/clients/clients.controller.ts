@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ClientService } from '../management/services/client.service';
 import { GetManagementDossiersByClientId } from '../shared/dto/dossier.dto';
 import { CreateFavouriteByUser } from '../shared/dto/favourites.dto';
@@ -41,7 +41,7 @@ export class ClientsController {
     return this.clientService.deleteFavouriteByUsername(username, favouriteId);
   }
 
-  @Post(':username/newsletter')
+  @Put(':username/newsletter')
   subscribeToNewsletter(@Param('username') username: string, @Body() newsletterRequestDTO: { permit_email: boolean }) {
     return this.clientService.subscribeToNewsletter(username, newsletterRequestDTO);
   }
