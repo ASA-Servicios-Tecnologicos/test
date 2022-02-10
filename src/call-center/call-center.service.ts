@@ -7,6 +7,8 @@ import { CallCenterBookingFilterParamsDTO, ManagementDossierByAgency } from '../
 export class CallCenterService {
   constructor(private readonly appConfigService: AppConfigService, private readonly managementHttpService: ManagementHttpService) {}
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
-    return this.managementHttpService.get<ManagementDossierByAgency>(`${this.appConfigService.MANAGEMENT_URL}`);
+    return this.managementHttpService.get<ManagementDossierByAgency>(
+      `${this.appConfigService.MANAGEMENT_URL}/api/v1/agency/${agencyId}/dossier/`,
+    );
   }
 }
