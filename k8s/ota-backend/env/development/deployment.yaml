@@ -21,7 +21,7 @@ spec:
             - name: PORT
               value: '3080'
             - name: NODE_TLS_REJECT_UNAUTHORIZED
-              value: '0'
+              value: '1'
             - name: LOG_LEVEL
               value: debug
             - name: REQUEST_LIMIT
@@ -51,7 +51,7 @@ spec:
             - name: CHECKOUT_URL
               value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_URL
-              value: https://agenciasb2b.w2m.com/api-rest/management/
+              value: https://agenciasb2b.w2m.com/api-rest/management
             - name: MANAGEMENT_USERNAME
               value: flowodev
             - name: MANAGEMENT_PASSWORD

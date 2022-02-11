@@ -1,31 +1,11 @@
 //TODO: Type data when test this function
-export class CallCenterBookingFilterParamsPaymentDTO {
-  payment: any;
-  paymentType: any;
-  paymentStatus: any;
-}
-export class CallCenterBookingFilterParamsProviderDTO {
-  providerStatus: any;
-}
-export class CallCenterBookingFilterParamsDateDTO {
-  bookingDateStart: any;
-  bookingDateEnd: any;
-}
-export class CallCenterBookingFilterParamsReferenceDTO {
-  internalRef: any;
-  providerRef: any;
-  name: any;
-}
 export class CallCenterBookingFilterParamsDTO {
   code?: string;
   locator?: string;
   client?: string;
   opening_date_from?: string;
+  opening_date_to?: string;
   page?: string;
-  //   reference?: CallCenterBookingFilterParamsReferenceDTO;
-  //   date?: CallCenterBookingFilterParamsDateDTO;
-  //   provider?: CallCenterBookingFilterParamsProviderDTO;
-  //   payment?: CallCenterBookingFilterParamsPaymentDTO;
 }
 
 export class GetDossiersByClientDTO {
@@ -64,4 +44,5 @@ export class ManagementDossierByAgency {
   agency: number;
   reference?: any;
   dossier_pax: [];
+  services: any;
 }
