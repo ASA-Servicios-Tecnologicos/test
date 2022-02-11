@@ -19,7 +19,6 @@ export interface CheckoutBookingDTO {
 }
 
 export interface CheckoutDTO {
-  checkoutId: string;
   checkoutURL: string;
   booking: {
     bookingId: string;
@@ -30,32 +29,25 @@ export interface CheckoutDTO {
     startDate: string;
     endDate: string;
   };
+  checkoutId: string;
   passengers: Array<CheckoutPassenger>;
-  payment: {
-    methodType: any;
-    creditCardDto: any;
-    defer: boolean;
-    status: any;
-    amount: CheckoutAmount;
-    redirectionUrl: any;
-    installmentList: Array<CheckoutInstallment>;
-  };
+  payment: CheckoutPayment;
   buyer: CheckoutBuyer;
   contact: CheckoutContact;
 }
 
 export interface CheckoutPassenger {
-  room: string;
-  age: string;
-  extCode: string;
-  type: 'ADULT' | 'CHILD';
   gender: string;
   title: string;
   name: string;
   lastname: string;
   dob: string;
-  country: string;
   document: CheckoutDocument;
+  country: string;
+  room: string;
+  age: string;
+  extCode: string;
+  type: 'ADULT' | 'CHILD';
 }
 
 export interface CheckoutDocument {
@@ -74,12 +66,14 @@ export interface CheckoutPayment {
   acceptConditions: boolean;
   defer: boolean;
   creditCard: CheckoutCreditCard;
-  buyer;
+  buyer: CheckoutBuyer;
 }
 
 export interface CheckoutInstallment {
   dueDate: string;
   amount: CheckoutAmount;
+  recurrent: boolean;
+  status: string;
   orderCode: string;
 }
 
@@ -101,8 +95,8 @@ export interface CheckoutCreditCard {
 
 export interface CheckoutBuyer {
   gender: string;
-  title: string;
   name: string;
+  title: string;
   lastname: string;
   dob: string;
   country: string;
@@ -113,7 +107,7 @@ export interface CheckoutContact {
   address: CheckoutAddress;
   phone: CheckoutPhone;
   email: string;
-  newsletter: string;
+  newsletter: boolean;
 }
 
 export interface CheckoutAddress {

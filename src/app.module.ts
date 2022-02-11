@@ -16,6 +16,7 @@ import { CallCenterController } from './call-center/call-center.controller';
 import { AuthenticationUserMiddleware } from './middlewares/authenticacion-user.middleware';
 import { CallCenterModule } from './call-center/call-center.module';
 import { AuthenticationAgencyMiddleware } from './middlewares/authentication-agency.middleware';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuthenticationAgencyMiddleware } from './middlewares/authentication-age
     ClientsModule,
     UsersModule,
     CallCenterModule,
+    PaymentsModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({

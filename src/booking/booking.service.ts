@@ -1,7 +1,7 @@
 import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BookingDTO, CreateManagementBookDto } from '../shared/dto/booking.dto';
+import { BookingDTO, CreateManagementBookDto, ManagementBookDTO } from '../shared/dto/booking.dto';
 import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +13,8 @@ import { ManagementBudgetPassengerDTO } from 'src/shared/dto/budget.dto';
 import { ClientService } from 'src/management/services/client.service';
 import { ExternalClientService } from 'src/management/services/external-client.service';
 import { GetManagementClientInfoByUsernameDTO } from 'src/shared/dto/management-client.dto';
+import { PaymentsService } from 'src/payments/payments.service';
+import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 @Injectable()
 export class BookingService {
   constructor(
@@ -23,6 +25,7 @@ export class BookingService {
     private appConfigService: AppConfigService,
     private clientService: ClientService,
     private externalClientService: ExternalClientService,
+    private paymentsService: PaymentsService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -69,12 +72,26 @@ export class BookingService {
 
   async doBooking(id: string) {
     const checkout = await this.checkoutService.getCheckout(id);
+    console.log(checkout);
     const booking = await this.bookingModel.findOne({ checkoutId: checkout.checkoutId }).exec();
+    console.log(booking.hashPrebooking);
+
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
+    return {
+      payment: checkout.payment,
+      buyer: checkout.buyer,
+      flights: prebookingData.data.flights,
+      hotels: prebookingData.data.hotels,
+      checkIn: prebookingData.data.checkIn,
+      checkOut: prebookingData.data.checkOut,
+      contact: checkout.contact,
+    };
+  }
 
+  private saveBooking(prebookingData, booking, checkout) {
     const body = {
       requestToken: prebookingData.data.requestToken,
       providerToken: prebookingData.data.providerToken,
@@ -129,16 +146,17 @@ export class BookingService {
         },
       },
     };
-    const booked = await this.managementHttpService.post(
-      `${this.appConfigService.TECNOTURIS_URL}/packages-providers/api/v1/bookings`,
-      body,
-    );
-    return this.createBookingInManagement(prebookingData, booking, checkout);
+    // TODO: Recoger book id, no esperar a guardar. Manejar errores
+    /* const booked = await this.managementHttpService.post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings`, body);
+    console.log(JSON.stringify(booked));
+
+    return this.createBookingInManagement(prebookingData, booking, checkout); */
   }
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
     const client = await this.getOrCreateClient(checkOut);
 
+    // Todo: Añador bookId
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
         {
@@ -221,10 +239,23 @@ export class BookingService {
       client: client,
     };
 
-    const bookingManagement = await this.managementHttpService.post(
+    const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/booking/`,
       createBookDTO,
     );
+    console.log(bookingManagement);
+
+    const dossierPayments: CreateUpdateDossierPaymentDTO = {
+      dossier: bookingManagement[0].dossier,
+      bookingId: booking.bookingId,
+      amount: {
+        value: booking.amount,
+        currency: booking.currency,
+      },
+      checkoutId: checkOut.checkoutId,
+      installment: checkOut.payment.installments,
+    };
+    await this.savePayments(dossierPayments);
     return bookingManagement;
   }
 
@@ -234,7 +265,7 @@ export class BookingService {
       .catch((error) => {
         if (error.response.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
-            .getClientInfoByUsername(/* `+${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}` */ '+34111111111')
+            .getClientInfoByUsername(/* `${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}` */ '+34111111111')
             .catch((error) => {
               if (error.response.status === HttpStatus.BAD_REQUEST) {
                 return null;
@@ -262,6 +293,10 @@ export class BookingService {
       return createdClient.client;
     }
     return client.id;
+  }
+
+  private savePayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
+    this.paymentsService.createDossierPayments(dossierPayments);
   }
 
   private calcFlightDuration(departureDate: string, arrivalDate: string) {
@@ -330,7 +365,7 @@ export class BookingService {
   }
 
   private getPrebookingDataCache(hash: string): Promise<PrebookingDTO> {
-    return this.managementHttpService.get(`${this.appConfigService.TECNOTURIS_URL}/packages-newblue/api/v1/pre-bookings/${hash}/`);
+    return this.managementHttpService.get(`${this.appConfigService.BASE_URL}/packages-newblue/api/v1/pre-bookings/${hash}/`);
   }
 
   async getRemoteCheckout(id: string) {

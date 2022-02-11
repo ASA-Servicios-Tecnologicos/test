@@ -9,13 +9,13 @@ export class BookingServicesService {
 
   async getBookingServicesByDossierId(dossierId: string): Promise<ManagementBookingServicesByDossierDTO[]> {
     return this.managementHttpService.get<ManagementBookingServicesByDossierDTO[]>(
-      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/clients/dossier/${dossierId}/booking-service/`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${dossierId}/booking-service/`,
     );
   }
 
   async getBookingServiceById(id: string): Promise<ManagementBookingServiceDTO> {
     return this.managementHttpService.get<ManagementBookingServiceDTO>(
-      `${this.appConfigService.TECNOTURIS_URL}/management/api/v1/booking-service/${id}/`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`,
     );
   }
 }

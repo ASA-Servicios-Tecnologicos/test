@@ -60,8 +60,8 @@ export class AppConfigService {
     return this.configService.get<string>('tecnoturis-app.CHECKOUT_URL');
   }
 
-  get TECNOTURIS_URL(): string {
-    return this.configService.get<string>('tecnoturis-app.TECNOTURIS_URL');
+  get BASE_URL(): string {
+    return this.configService.get<string>('tecnoturis-app.BASE_URL');
   }
 
   get MANAGEMENT_URL(): string {

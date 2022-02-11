@@ -19,7 +19,7 @@ spec:
             - name: APP_ID
               value: myapp
             - name: PORT
-              value: "3080"
+              value: '3080'
             - name: LOG_LEVEL
               value: debug
             - name: REQUEST_LIMIT
@@ -53,26 +53,26 @@ spec:
             - name: CHECKOUT_URL
               value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: REDIS_TTL
-              value: "250"
+              value: '250'
             - name: REDIS_URL
               value: redis
             - name: REDIS_PORT
-              value: "6379"
+              value: '6379'
             - name: PROVIDER_SERVICE_ID
-              value: "41"
+              value: '41'
             - name: SERVICE_ID
-              value: "7"
+              value: '7'
             - name: TIMEOUTTO
-              value: "120000"
+              value: '120000'
             - name: TIMEOUT
-              value: "30000"
+              value: '30000'
             - name: MANAGEMENT_URL
               value: http://management:3055
             - name: MANAGEMENT_USERNAME
               value: bytourncentral
             - name: MANAGEMENT_PASSWORD
-              value: "123456"
-            - name: TECNOTURIS_URL
+              value: '123456'
+            - name: BASE_URL
               value: https://dev.tecnoturis.es/api-rest
           image: registrytecnob2b.azurecr.io/ota-backend
           name: ota-backend
@@ -93,11 +93,7 @@ spec:
             postStart:
               exec:
                 command:
-                  [
-                    sh,
-                    -c,
-                    "sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*",
-                  ]
+                  [sh, -c, 'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*']
           volumeMounts:
             - name: tecnob2blog
               mountPath: /log

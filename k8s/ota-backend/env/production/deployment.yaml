@@ -19,7 +19,7 @@ spec:
             - name: APP_ID
               value: myapp
             - name: PORT
-              value: "3080"
+              value: '3080'
             - name: LOG_LEVEL
               value: debug
             - name: REQUEST_LIMIT
@@ -53,7 +53,9 @@ spec:
             - name: MANAGEMENT_USERNAME
               value: bytourncentral
             - name: MANAGEMENT_PASSWORD
-              value: "123456"
+              value: '123456'
+            - name: BASE_URL
+              value: https://agenciasb2b.w2m.com/api-rest
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
@@ -73,11 +75,7 @@ spec:
             postStart:
               exec:
                 command:
-                  [
-                    sh,
-                    -c,
-                    "sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*",
-                  ]
+                  [sh, -c, 'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*']
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

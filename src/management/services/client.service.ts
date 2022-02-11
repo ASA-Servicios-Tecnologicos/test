@@ -74,6 +74,6 @@ export class ClientService {
   }
 
   async getIntegrationClient() {
-    return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.TECNOTURIS_URL}/management/api/v1/user/me/`);
+    return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/user/me/`);
   }
 }
