@@ -15,12 +15,14 @@ import { ClientsController } from './clients/clients.controller';
 import { CallCenterController } from './call-center/call-center.controller';
 import { AuthenticationUserMiddleware } from './middlewares/authenticacion-user.middleware';
 import { CallCenterModule } from './call-center/call-center.module';
-import { AuthenticationAgencyMiddleware } from './middlewares/authentication-agency.middleware';
+import { AuthenticationCallCenterMiddleware } from './middlewares/authentication-callcenter.middleware';
 import { PaymentsModule } from './payments/payments.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
     AppConfigModule,
+    SharedModule,
     BookingModule,
     BudgetModule,
     HttpModule,
@@ -47,6 +49,6 @@ import { PaymentsModule } from './payments/payments.module';
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(...[AuthenticationUserMiddleware]).forRoutes(ClientsController);
-    consumer.apply(...[AuthenticationAgencyMiddleware]).forRoutes(CallCenterController);
+    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController);
   }
 }

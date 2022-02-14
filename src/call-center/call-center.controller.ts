@@ -1,4 +1,4 @@
-import { Controller, Get, NotFoundException, Param, Query, Req } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Query, Req, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { pickBy } from 'lodash';
 import { CallCenterBookingFilterParamsDTO, ManagementDossierByAgency } from '../shared/dto/call-center.dto';
