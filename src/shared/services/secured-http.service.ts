@@ -1,4 +1,4 @@
-import { HttpService } from '@nestjs/common';
+import { HttpException, HttpService } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
 import { NotificationSessionDTO } from '../dto/notification-session.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
@@ -39,7 +39,9 @@ export abstract class SecuredHttpService {
           Authorization: `Bearer ${token}`,
         },
       }),
-    ).catch((error) => console.log(error));
+    ).catch((error) => {
+      throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
+    });
   }
 
   protected async getSecured(url: string) {
@@ -55,6 +57,8 @@ export abstract class SecuredHttpService {
           },
         })
         .pipe(map((res) => res.data)),
-    ).catch((error) => console.log(error));
+    ).catch((error) => {
+      throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
+    });
   }
 }

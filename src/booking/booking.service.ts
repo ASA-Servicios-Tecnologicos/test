@@ -112,9 +112,12 @@ export class BookingService {
         },
       },
     };
-    this.managementHttpService.post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body).then((res) => {
-      this.createBookingInManagement(prebookingData, booking, checkout, res['bookId']);
-    });
+    this.managementHttpService
+      .post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body)
+      .then((res) => {
+        this.createBookingInManagement(prebookingData, booking, checkout, res['bookId']);
+      })
+      .catch((error) => console.log(error));
   }
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string) {
