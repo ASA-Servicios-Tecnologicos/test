@@ -17,10 +17,12 @@ import { AuthenticationUserMiddleware } from './middlewares/authenticacion-user.
 import { CallCenterModule } from './call-center/call-center.module';
 import { AuthenticationAgencyMiddleware } from './middlewares/authentication-agency.middleware';
 import { PaymentsModule } from './payments/payments.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
     AppConfigModule,
+    SharedModule,
     BookingModule,
     BudgetModule,
     HttpModule,

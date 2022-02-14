@@ -3,10 +3,12 @@ import { Request, Response } from 'express';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import * as authService from 'tecnoturis-authentication';
 import t from 'typy';
+import { CacheService } from '../shared/services/cache.service';
+import { MANAGEMENT_CACHED_TOKEN_KEY } from '../shared/shared.constants';
 
 @Injectable()
 export class AuthenticationAgencyMiddleware implements NestMiddleware {
-  constructor() {}
+  constructor(private readonly cacheService: CacheService<any>) {}
 
   async use(req: Request, res: Response, next: () => void) {
     const tokenFromHeader: string = t(req, 'headers.authorization').safeObject;
@@ -23,6 +25,7 @@ export class AuthenticationAgencyMiddleware implements NestMiddleware {
 
       const agencyId = t(data, 'agency.id').safeObject;
       req['agencyId'] = agencyId;
+      this.cacheService.set(MANAGEMENT_CACHED_TOKEN_KEY, token);
     } catch (e) {
       console.error(e);
       throw new HttpException('Internal error.', HttpStatus.INTERNAL_SERVER_ERROR);
