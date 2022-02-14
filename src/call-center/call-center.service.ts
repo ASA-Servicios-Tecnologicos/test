@@ -6,6 +6,7 @@ import { AppConfigService } from '../configuration/configuration.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
 import { ClientService } from '../management/services/client.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
+import { PaymentsService } from '../payments/payments.service';
 import { ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../shared/dto/booking-service.dto';
 import { CallCenterBookingFilterParamsDTO, GetDossiersByClientDTO, ManagementDossierByAgency } from '../shared/dto/call-center.dto';
 
@@ -16,6 +17,7 @@ export class CallCenterService {
     private readonly managementHttpService: ManagementHttpService,
     private readonly bookingServicesService: BookingServicesService,
     private readonly clientService: ClientService,
+    private readonly paymentsService: PaymentsService,
   ) {}
 
   async getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
@@ -30,6 +32,8 @@ export class CallCenterService {
           ? await this.clientService.getClientById(`${managementDossierByAgency.client}`)
           : null;
 
+        const payments = await this.paymentsService.getDossierPayments(`${managementDossierByAgency.id}`);
+
         const managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO[] =
           await this.bookingServicesService.getBookingServicesByDossierId(`${managementDossierByAgency.id}`);
         const managementBookingServicesDetailedDTO: ManagementBookingServiceDTO[] = await Promise.all(
@@ -37,7 +41,7 @@ export class CallCenterService {
             return this.bookingServicesService.getBookingServiceById(`${managementBookingServicesByDossierDTO.id}`);
           }),
         );
-        return { ...managementDossierByAgency, client, services: managementBookingServicesDetailedDTO };
+        return { ...managementDossierByAgency, client, payments, services: managementBookingServicesDetailedDTO };
       }),
     );
     return { ...managementDossierByAgency, results };
