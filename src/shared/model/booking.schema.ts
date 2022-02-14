@@ -64,6 +64,12 @@ export class Booking {
 
   @Prop()
   hashPrebooking: string;
+
+  @Prop()
+  packageName: string;
+
+  @Prop()
+  dossier?: number;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

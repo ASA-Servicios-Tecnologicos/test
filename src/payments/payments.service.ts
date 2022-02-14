@@ -4,6 +4,9 @@ import { ManagementHttpService } from 'src/management/services/management-http.s
 import { ClientService } from 'src/management/services/client.service';
 import { CreateUpdateDossierPaymentDTO, DossierPayment, InfoDossierPayments } from 'src/shared/dto/dossier-payment.dto';
 import { CheckoutService } from 'src/checkout/services/checkout.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Booking, BookingDocument } from 'src/shared/model/booking.schema';
+import { Model } from 'mongoose';
 @Injectable()
 export class PaymentsService {
   constructor(
@@ -11,6 +14,8 @@ export class PaymentsService {
     readonly appConfigService: AppConfigService,
     private managementHttpService: ManagementHttpService,
     private checkoutService: CheckoutService,
+    @InjectModel(Booking.name)
+    private bookingModel: Model<BookingDocument>,
   ) {}
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
@@ -36,8 +41,9 @@ export class PaymentsService {
   async updateDossierPaymentsByCheckout(checkoutId: string) {
     //TODO: Llamar al checkout, recoger los payments y actualizarlos en management
     const checkout = await this.checkoutService.getCheckout(checkoutId);
+    const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId }).exec();
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
-      dossier: null,
+      dossier: booking.dossier,
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
       installment: checkout.payment.installments,

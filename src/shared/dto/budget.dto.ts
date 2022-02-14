@@ -179,6 +179,7 @@ export class ManagementBudgetHotelDTO {
 }
 
 export class ManagementBudgetPackageDataDTO {
+  bookId?: string;
   uuid: string;
   client?: number;
   totalAmount: number;

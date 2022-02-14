@@ -18,13 +18,13 @@ export class BookingController {
     return this.bookingService.findById(id);
   }
 
-  @Get('book/:checkoutId')
+  @Get('book/:bookingId')
   @ApiOperation({
     summary: 'Realizar una reserva y guardarla',
   })
   @ApiResponse({ status: HttpStatus.OK, description: 'Reserva realizada' })
-  reserve(@Param('checkoutId') checkoutId: string) {
-    return this.bookingService.doBooking(checkoutId);
+  reserve(@Param('bookingId') bookingId: string) {
+    return this.bookingService.doBooking(bookingId);
   }
 
   @Get('bycheckout/:checkoutId')

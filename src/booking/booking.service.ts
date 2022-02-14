@@ -1,4 +1,4 @@
-import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BookingDTO, CreateManagementBookDto, ManagementBookDTO } from '../shared/dto/booking.dto';
@@ -9,7 +9,6 @@ import { AppConfigService } from 'src/configuration/configuration.service';
 import { CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
 import { PrebookingDTO } from 'src/shared/dto/pre-booking.dto';
-import { ManagementBudgetPassengerDTO } from 'src/shared/dto/budget.dto';
 import { ClientService } from 'src/management/services/client.service';
 import { ExternalClientService } from 'src/management/services/external-client.service';
 import { GetManagementClientInfoByUsernameDTO } from 'src/shared/dto/management-client.dto';
@@ -47,8 +46,8 @@ export class BookingService {
         description: booking.hotelName,
         language: booking.language,
         market: booking.market,
-        koURL: booking.koUrl,
-        okURL: booking.okUrl,
+        koURL: `${booking.koUrl}?bookingId=${booking.bookingId}`,
+        okURL: `${booking.okUrl}?bookingId=${booking.bookingId}`,
         distribution: booking.distribution,
         cancellationPolicies: booking.cancellationPolicies,
       },
@@ -62,8 +61,7 @@ export class BookingService {
     };
     const createdBooking = new this.bookingModel(prebooking);
     await createdBooking.save();
-
-    return { bookingId: prebooking.bookingId };
+    return { checkoutUrl: checkout.checkoutURL };
   }
 
   findById(id: string) {
@@ -71,15 +69,14 @@ export class BookingService {
   }
 
   async doBooking(id: string) {
-    const checkout = await this.checkoutService.getCheckout(id);
-    console.log(checkout);
-    const booking = await this.bookingModel.findOne({ checkoutId: checkout.checkoutId }).exec();
-    console.log(booking.hashPrebooking);
+    const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
+    const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
 
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
+    this.saveBooking(prebookingData, booking, checkout);
     return {
       payment: checkout.payment,
       buyer: checkout.buyer,
@@ -88,47 +85,16 @@ export class BookingService {
       checkIn: prebookingData.data.checkIn,
       checkOut: prebookingData.data.checkOut,
       contact: checkout.contact,
+      distribution: prebookingData.data.distribution,
+      packageName: booking.packageName,
     };
   }
 
-  private saveBooking(prebookingData, booking, checkout) {
+  private saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
     const body = {
       requestToken: prebookingData.data.requestToken,
       providerToken: prebookingData.data.providerToken,
-      paxes: [
-        {
-          abbreviation: 'MR',
-          name: 'Pedro',
-          code: 1,
-          ages: 30,
-          lastname: 'Gutierrez',
-          phone: '',
-          email: '',
-          documentType: 'PAS',
-          documentNumber: '',
-          birthdate: '08/12/1990',
-          documentExpirationDate: '',
-          nationality: '',
-          phoneNumberCode: 34,
-          type: '',
-        },
-        {
-          abbreviation: 'MS',
-          name: 'Ana',
-          code: 2,
-          ages: 30,
-          lastname: 'Sierra',
-          phone: '',
-          email: '',
-          documentType: 'PAS',
-          documentNumber: '',
-          birthdate: '08/12/1986',
-          documentExpirationDate: '',
-          nationality: '',
-          phoneNumberCode: 34,
-          type: '',
-        },
-      ] /* this.buildPaxesReserveV2(checkout.passengers) */,
+      paxes: this.buildPaxesReserveV2(checkout.passengers),
       packageClient: {
         bookingData: {
           hashPrebooking: booking.hashPrebooking,
@@ -146,20 +112,18 @@ export class BookingService {
         },
       },
     };
-    // TODO: Recoger book id, no esperar a guardar. Manejar errores
-    /* const booked = await this.managementHttpService.post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings`, body);
-    console.log(JSON.stringify(booked));
-
-    return this.createBookingInManagement(prebookingData, booking, checkout); */
+    this.managementHttpService.post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body).then((res) => {
+      this.createBookingInManagement(prebookingData, booking, checkout, res['bookId']);
+    });
   }
 
-  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
+  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string) {
     const client = await this.getOrCreateClient(checkOut);
 
-    // Todo: Añador bookId
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
         {
+          bookId: bookId,
           ...prebookingData.data,
           uuid: uuidv4(),
           agencyInfo: {
@@ -199,40 +163,7 @@ export class BookingService {
             airportArrivalCity: '',
             airportArrivalName: '',
           },
-          paxes: [
-            {
-              abbreviation: 'MR',
-              name: 'Pedro',
-              code: 1,
-              ages: 30,
-              lastname: 'Gutierrez',
-              phone: '',
-              email: '',
-              documentType: 'PAS',
-              documentNumber: '',
-              birthdate: '08/12/1990',
-              documentExpirationDate: '',
-              nationality: '',
-              phoneNumberCode: 34,
-              type: '',
-            },
-            {
-              abbreviation: 'MS',
-              name: 'Ana',
-              code: 2,
-              ages: 30,
-              lastname: 'Sierra',
-              phone: '',
-              email: '',
-              documentType: 'PAS',
-              documentNumber: '',
-              birthdate: '08/12/1986',
-              documentExpirationDate: '',
-              nationality: '',
-              phoneNumberCode: 34,
-              type: '',
-            },
-          ],
+          paxes: this.buildPaxesReserveV2(checkOut.passengers),
         },
       ],
       dossier: null,
@@ -243,7 +174,6 @@ export class BookingService {
       `${this.appConfigService.MANAGEMENT_URL}/api/v1/booking/`,
       createBookDTO,
     );
-    console.log(bookingManagement);
 
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: bookingManagement[0].dossier,
@@ -255,17 +185,18 @@ export class BookingService {
       checkoutId: checkOut.checkoutId,
       installment: checkOut.payment.installments,
     };
-    await this.savePayments(dossierPayments);
-    return bookingManagement;
+    const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
+    (await update).save();
+    this.paymentsService.createDossierPayments(dossierPayments);
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
-      .getClientInfoByUsername(/* checkOut.contact.email */ 'dani@test.com')
+      .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
         if (error.response.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
-            .getClientInfoByUsername(/* `${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}` */ '+34111111111')
+            .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
             .catch((error) => {
               if (error.response.status === HttpStatus.BAD_REQUEST) {
                 return null;
@@ -275,28 +206,21 @@ export class BookingService {
       });
     if (!client) {
       const integrationClient = await this.clientService.getIntegrationClient();
-      //TODO: Create client
       const createdClient = await this.externalClientService.createExternalClient({
         accept_privacy_policy: true,
         agency: integrationClient.agency.id,
         agency_chain: integrationClient.agency.agency_chain_id,
-        dni: /* checkOut.buyer.document.documentNumber */ '53733022W',
-        email: /* checkOut.contact.email */ 'dani@test.com',
-        first_name: /*  checkOut.buyer.name */ 'dani',
-        last_name: /* checkOut.buyer.lastname */ 'nieto',
-        password1: '123456',
-        password2: '123456',
-        phone: /* `+${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}` */ '+34111111111',
+        dni: checkOut.buyer.document.documentNumber,
+        email: checkOut.contact.email,
+        first_name: checkOut.buyer.name,
+        last_name: checkOut.buyer.lastname,
+        phone: `${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`,
         role: 8,
-        username: 'dani@test.com',
+        username: checkOut.contact.email,
       });
       return createdClient.client;
     }
     return client.id;
-  }
-
-  private savePayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
-    this.paymentsService.createDossierPayments(dossierPayments);
   }
 
   private calcFlightDuration(departureDate: string, arrivalDate: string) {
@@ -308,33 +232,6 @@ export class BookingService {
     diffInMilliSeconds -= hours * 3600;
     const minutes = Math.floor(diffInMilliSeconds / 60) % 60;
     return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
-  }
-
-  private buildPaxesReserve(booking: Booking, passengers: Array<CheckoutPassenger>) {
-    const paxes = [];
-    booking.distribution.forEach((distribution, index) => {
-      const passenger = passengers[index];
-      if (passenger) {
-        const pax = {
-          abbreviation: passenger.title,
-          name: passenger.name,
-          code: parseInt(distribution.extCode),
-          ages: distribution.age,
-          lastname: passenger.lastname,
-          phone: '',
-          email: '',
-          documentType: 'PAS',
-          documentNumber: '',
-          birthdate: this.formatBirthdate(passenger.dob),
-          documentExpirationDate: '',
-          nationality: '',
-          phoneNumberCode: 34,
-          type: '',
-        };
-        paxes.push(pax);
-      }
-    });
-    return paxes;
   }
 
   private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>) {
