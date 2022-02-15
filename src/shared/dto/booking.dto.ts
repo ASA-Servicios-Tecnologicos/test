@@ -109,7 +109,7 @@ export interface ManagementBookDTO {
   provider_service_id: number;
   locator: string;
   discount: number;
-  fiscal_location_id: 5;
+  fiscal_location_id: number;
   iva_type_id: any;
   iva: number;
 }

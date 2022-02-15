@@ -29,6 +29,9 @@ export class BookingService {
 
   async create(booking: BookingDTO) {
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
+    if (prebookingData?.status !== 200) {
+      throw new HttpException(prebookingData.data, prebookingData.status);
+    }
     if (!this.verifyBooking(prebookingData, booking)) {
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
@@ -87,6 +90,7 @@ export class BookingService {
       contact: checkout.contact,
       distribution: prebookingData.data.distribution,
       packageName: booking.packageName,
+      date: new Date(),
     };
   }
 
@@ -117,7 +121,7 @@ export class BookingService {
       .then((res) => {
         this.createBookingInManagement(prebookingData, booking, checkout, res['bookId']);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null));
   }
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string) {
@@ -188,6 +192,14 @@ export class BookingService {
       checkoutId: checkOut.checkoutId,
       installment: checkOut.payment.installments,
     };
+    if (!bookId) {
+      // TODO: Después de crear el dossier, actualizar el estado si ha petado la reserva. Actualizar status(OK, KO) y observación.
+      /*  {
+      "dossier_situation": 2, // Este valor debería de ser un 7. 
+      "observation": "hola esto es un error"
+  } */
+    }
+
     const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
     (await update).save();
     this.paymentsService.createDossierPayments(dossierPayments);
