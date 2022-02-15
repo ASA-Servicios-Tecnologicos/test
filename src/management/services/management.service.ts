@@ -19,7 +19,7 @@ export class ManagementService {
 
   async login(loginPayloadDto: LoginPayloadDTO): Promise<{ token: string }> {
     const requestToken = await firstValueFrom(
-      this.http.post<{ token: string }>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`, loginPayloadDto),
+      this.http.post<{ token: string }>(`${this.appConfigService.BASE_URL}/management/api/v1/user/auth/token-auth/`, loginPayloadDto),
     ).catch((err) => {
       throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
     });
@@ -34,7 +34,7 @@ export class ManagementService {
         password: this.appConfigService.MANAGEMENT_PASSWORD,
       };
       const requestToken = await firstValueFrom(
-        this.http.post<{ token: string }>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`, authData),
+        this.http.post<{ token: string }>(`${this.appConfigService.BASE_URL}/management/api/v1/user/auth/token-auth/`, authData),
       ).catch((err) => {
         console.log(err);
         throw new Error(err);

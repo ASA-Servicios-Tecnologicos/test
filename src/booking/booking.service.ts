@@ -174,7 +174,7 @@ export class BookingService {
     };
 
     const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
-      `${this.appConfigService.MANAGEMENT_URL}/api/v1/booking/`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
       createBookDTO,
     );
 

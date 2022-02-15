@@ -50,14 +50,12 @@ spec:
               value: 2ed7403e-0b60-4760-a36c-5e13e2576152
             - name: CHECKOUT_URL
               value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
-            - name: MANAGEMENT_URL
-              value: https://agenciasb2b.w2m.com/api-rest/management
             - name: MANAGEMENT_USERNAME
               value: flowodev
             - name: MANAGEMENT_PASSWORD
               value: 'WaeN$p74XD'
             - name: BASE_URL
-              value: https://dev.tecnoturis.es/api-rest
+              value: https://agenciasb2b.w2m.com/api-rest
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:

@@ -22,7 +22,7 @@ export class CallCenterService {
 
   async getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
     const managementDossierByAgency: GetDossiersByClientDTO = await this.managementHttpService.get<GetDossiersByClientDTO>(
-      `${this.appConfigService.MANAGEMENT_URL}/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
+      `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
         pickBy(filterParams),
       )}`,
     );

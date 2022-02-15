@@ -7,6 +7,9 @@ export class ExternalClientService {
   constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
 
   async createExternalClient(user: CreateExternalUserDTO) {
-    return this.managementHttpService.post<ExternalUserDTO>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/client/external/flowo/`, user);
+    return this.managementHttpService.post<ExternalUserDTO>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/client/external/flowo/`,
+      user,
+    );
   }
 }

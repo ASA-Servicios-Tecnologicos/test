@@ -20,20 +20,20 @@ export class PaymentsService {
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
     return this.managementHttpService.post<Array<DossierPayment>>(
-      `${this.appConfigService.MANAGEMENT_URL}/api/v1/cash/dossier-payments/`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/`,
       dossierPayments,
     );
   }
 
   getDossierPayments(dossierId: string) {
     return this.managementHttpService.get<InfoDossierPayments>(
-      `${this.appConfigService.MANAGEMENT_URL}/api/v1/cash/dossier-payments/${dossierId}/`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierId}/`,
     );
   }
 
   updateDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
     return this.managementHttpService.put<Array<DossierPayment>>(
-      `${this.appConfigService.MANAGEMENT_URL}/api/v1/cash/dossier-payments/${dossierPayments.dossier}`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierPayments.dossier}`,
       dossierPayments,
     );
   }
