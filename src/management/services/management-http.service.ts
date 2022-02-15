@@ -176,6 +176,10 @@ export class ManagementHttpService {
         return;
       })
       .catch((err) => {
+        // TODO: Why this error when it deletes favourite successfully?
+        if (err.code === 'ECONNRESET') {
+          return;
+        }
         // If token has expired then renew request token
         if (err.response?.data?.detail === 'Signature has expired.') {
           return this.managementService.refreshCacheToken().then((newToken) => {
@@ -193,11 +197,11 @@ export class ManagementHttpService {
               })
               .catch((err) => {
                 console.error(err);
-                throw new InternalServerErrorException();
+                throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        throw new InternalServerErrorException();
+        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
       });
   }
 }

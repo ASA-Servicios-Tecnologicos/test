@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ClientService } from '../management/services/client.service';
 import { GetManagementDossiersByClientId } from '../shared/dto/dossier.dto';
 import { CreateFavouriteByUser } from '../shared/dto/favourites.dto';
@@ -37,6 +37,7 @@ export class ClientsController {
   }
 
   @Delete(':username/favourites/:favouriteId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   deleteFavouriteByUsername(@Param('username') username: string, @Param('favouriteId') favouriteId: string) {
     return this.clientService.deleteFavouriteByUsername(username, favouriteId);
   }
