@@ -39,7 +39,6 @@ export class PaymentsService {
   }
 
   async updateDossierPaymentsByCheckout(checkoutId: string) {
-    //TODO: Llamar al checkout, recoger los payments y actualizarlos en management
     const checkout = await this.checkoutService.getCheckout(checkoutId);
     const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId }).exec();
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
