@@ -18,6 +18,8 @@ import { CallCenterModule } from './call-center/call-center.module';
 import { AuthenticationCallCenterMiddleware } from './middlewares/authentication-callcenter.middleware';
 import { PaymentsModule } from './payments/payments.module';
 import { SharedModule } from './shared/shared.module';
+import { CalendarModule } from './calendar/calendar.module';
+import { CalendarController } from './calendar/calendar.controller';
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { SharedModule } from './shared/shared.module';
     UsersModule,
     CallCenterModule,
     PaymentsModule,
+    CalendarModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
@@ -49,6 +52,6 @@ import { SharedModule } from './shared/shared.module';
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(...[AuthenticationUserMiddleware]).forRoutes(ClientsController);
-    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController);
+    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, CalendarController);
   }
 }
