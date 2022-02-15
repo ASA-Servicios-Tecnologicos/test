@@ -36,20 +36,20 @@ spec:
               value: NBLUE
             - name: BRANDPT
               value: NBLPT
-            - name: SESSION_TOKEN_URL
-              value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+             - name: SESSION_TOKEN_URL
+              value: https://pre-auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
               value: profile
             - name: SESSION_PASSWORD
-              value: Tecnoturis22
+              value: nfa9676pBAPHRA
             - name: SESSION_USERNAME
-              value: test.tecnoturis2
+              value: tecnoturis
             - name: SESSION_GRANT_TYPE
               value: password
             - name: CLIENT_ID
-              value: tecnoturis-integration
+              value: tecnoturis
             - name: CLIENT_SECRET
-              value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+              value: b7a2b1a9-662b-4388-8b01-4fc48ccae048
             - name: CHECKOUT_URL
               value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: REDIS_TTL
@@ -67,7 +67,7 @@ spec:
             - name: TIMEOUT
               value: '30000'
             - name: MANAGEMENT_USERNAME
-              value: bytourncentral
+              value: flowodev
             - name: MANAGEMENT_PASSWORD
               value: '123456'
             - name: BASE_URL
