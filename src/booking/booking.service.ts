@@ -76,6 +76,7 @@ export class BookingService {
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
 
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
+
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
@@ -113,12 +114,14 @@ export class BookingService {
           currency: prebookingData.data.currency,
           distribution: prebookingData.data.distribution,
           providerName: booking.providerName,
+          productName: prebookingData.data.productName,
         },
       },
     };
     this.managementHttpService
       .post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body)
       .then((res) => {
+        console.log(JSON.stringify(res));
         this.createBookingInManagement(prebookingData, booking, checkout, res['bookId']);
       })
       .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null));
@@ -219,6 +222,7 @@ export class BookingService {
             });
         }
       });
+
     if (!client) {
       const integrationClient = await this.clientService.getIntegrationClient();
       const createdClient = await this.externalClientService.createExternalClient({
@@ -229,6 +233,8 @@ export class BookingService {
         email: checkOut.contact.email,
         first_name: checkOut.buyer.name,
         last_name: checkOut.buyer.lastname,
+        password1: '',
+        password2: '',
         phone: `${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`,
         role: 8,
         username: checkOut.contact.email,
@@ -282,12 +288,6 @@ export class BookingService {
 
   async getRemoteCheckout(id: string) {
     return await this.checkoutService.getCheckout(id);
-  }
-
-  private groupBy(arr, prop) {
-    const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
-    arr.forEach((obj) => map.get(obj[prop]).push(obj));
-    return Array.from(map.values());
   }
 
   private verifyBooking(prebooking, booking: BookingDTO | BookingDocument) {
