@@ -69,7 +69,7 @@ spec:
             - name: MANAGEMENT_USERNAME
               value: flowodev
             - name: MANAGEMENT_PASSWORD
-              value: '123456'
+              value: 'WaeN$p74XD'
             - name: BASE_URL
               value: https://agenciasb2b.w2m.com/api-rest
           image: registrytecnob2b.azurecr.io/ota-backend
