@@ -1,12 +1,13 @@
-import { Controller, Get, NotFoundException, Param, Query, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Patch, Query, Req, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { pickBy } from 'lodash';
+import { DossiersService } from '../dossiers/dossiers.service';
 import { CallCenterBookingFilterParamsDTO, ManagementDossierByAgency } from '../shared/dto/call-center.dto';
 import { CallCenterService } from './call-center.service';
 
 @Controller('call-center')
 export class CallCenterController {
-  constructor(private readonly callCenterService: CallCenterService) {}
+  constructor(private readonly callCenterService: CallCenterService, private readonly dossiersService: DossiersService) {}
 
   @Get('dossiers')
   getDossiersByAgency(
@@ -32,4 +33,7 @@ export class CallCenterController {
     };
     return this.callCenterService.getDossiersByAgencyId(agencyId, pickBy(filterParams));
   }
+
+  @Patch('dossiers/:id')
+  patchDossierById(@Param('id') id: number, dossierToUpdate) {}
 }

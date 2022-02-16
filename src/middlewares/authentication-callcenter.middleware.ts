@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware, HttpStatus } from '@nestjs/common';
+import { Injectable, NestMiddleware, HttpStatus, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import * as authService from 'tecnoturis-authentication';
@@ -27,8 +27,10 @@ export class AuthenticationCallCenterMiddleware implements NestMiddleware {
       req['agencyId'] = agencyId;
       this.cacheService.set(MANAGEMENT_CACHED_TOKEN_KEY, token);
     } catch (e) {
-      console.error(e);
-      throw new HttpException('Internal error.', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (e.message && e.message === 'jwt expired') {
+        throw new UnauthorizedException(e, e.message);
+      }
+      throw new InternalServerErrorException(e);
     }
     next();
   }
