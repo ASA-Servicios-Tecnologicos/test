@@ -217,6 +217,7 @@ export class ManagementBudgetPackageDataDTO {
   packageClient?: any;
   partialTotal: number;
   providerName: string;
+  productName?: string;
   detailedPricing: ManagementBudgetRoomRateDetailedPricingDTO;
   validateMessage: string;
   checkForm: boolean;

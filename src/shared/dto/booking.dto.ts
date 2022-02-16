@@ -93,6 +93,8 @@ export class BookingDTO {
   hashPrebooking: string;
   @ApiProperty()
   packageName: string;
+  @ApiProperty()
+  productName: string;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
 }
 
