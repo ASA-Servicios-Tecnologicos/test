@@ -180,6 +180,7 @@ export class ManagementBudgetHotelDTO {
 
 export class ManagementBudgetPackageDataDTO {
   bookId?: string;
+  status?: string;
   uuid: string;
   client?: number;
   totalAmount: number;
@@ -217,6 +218,7 @@ export class ManagementBudgetPackageDataDTO {
   packageClient?: any;
   partialTotal: number;
   providerName: string;
+  productName?: string;
   detailedPricing: ManagementBudgetRoomRateDetailedPricingDTO;
   validateMessage: string;
   checkForm: boolean;

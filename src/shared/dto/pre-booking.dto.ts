@@ -14,6 +14,7 @@ export interface PrebookingDTO {
     productTokenNewblue: string;
     requestToken: string;
     providerToken: string;
+    productName: string;
     distributionRooms: Array<{
       code: string;
       passengers: ManagementBudgetPassengerDTO[];

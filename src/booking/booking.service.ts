@@ -28,6 +28,7 @@ export class BookingService {
   ) {}
 
   async create(booking: BookingDTO) {
+    // TODO: Comprobar discountCode, llamar a endpoint
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
@@ -76,6 +77,7 @@ export class BookingService {
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
 
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
+
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
@@ -113,24 +115,32 @@ export class BookingService {
           currency: prebookingData.data.currency,
           distribution: prebookingData.data.distribution,
           providerName: booking.providerName,
+          productName: prebookingData.data.productName,
         },
       },
     };
     this.managementHttpService
       .post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body)
       .then((res) => {
-        this.createBookingInManagement(prebookingData, booking, checkout, res['bookId']);
+        this.createBookingInManagement(prebookingData, booking, checkout, res['data']['bookId'], res['data']['status']);
       })
-      .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null));
+      .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR'));
   }
 
-  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string) {
+  private async createBookingInManagement(
+    prebookingData: PrebookingDTO,
+    booking: Booking,
+    checkOut: CheckoutDTO,
+    bookId: string,
+    status: string,
+  ) {
     const client = await this.getOrCreateClient(checkOut);
 
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
         {
           bookId: bookId,
+          status: status,
           ...prebookingData.data,
           uuid: uuidv4(),
           agencyInfo: {
@@ -203,22 +213,27 @@ export class BookingService {
     const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
     (await update).save();
     this.paymentsService.createDossierPayments(dossierPayments);
+    //TODO: Rendereizar un email con el dossier y enviarlo.
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
-        if (error.response.status === HttpStatus.BAD_REQUEST) {
+        if (error.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
             .catch((error) => {
-              if (error.response.status === HttpStatus.BAD_REQUEST) {
+              if (error.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
+              throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
             });
+        } else {
+          throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
         }
       });
+
     if (!client) {
       const integrationClient = await this.clientService.getIntegrationClient();
       const createdClient = await this.externalClientService.createExternalClient({
@@ -229,6 +244,8 @@ export class BookingService {
         email: checkOut.contact.email,
         first_name: checkOut.buyer.name,
         last_name: checkOut.buyer.lastname,
+        password1: '',
+        password2: '',
         phone: `${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`,
         role: 8,
         username: checkOut.contact.email,
@@ -254,7 +271,7 @@ export class BookingService {
       return {
         abbreviation: passenger.title,
         name: passenger.name,
-        code: passenger.extCode,
+        code: parseInt(passenger.extCode),
         ages: passenger.age,
         lastname: passenger.lastname,
         phone: '',
@@ -284,14 +301,8 @@ export class BookingService {
     return await this.checkoutService.getCheckout(id);
   }
 
-  private groupBy(arr, prop) {
-    const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
-    arr.forEach((obj) => map.get(obj[prop]).push(obj));
-    return Array.from(map.values());
-  }
-
   private verifyBooking(prebooking, booking: BookingDTO | BookingDocument) {
-    if (prebooking.data.totalAmount === booking.amount && prebooking.data.hashPrebooking === booking.hashPrebooking) {
+    if (prebooking.data.hashPrebooking === booking.hashPrebooking) {
       return true;
     }
     return false;

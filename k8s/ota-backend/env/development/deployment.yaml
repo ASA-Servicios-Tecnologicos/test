@@ -33,7 +33,7 @@ spec:
             - name: SWAGGER_API_SPEC
               value: /spec
             - name: ENVIRONMENT
-              value: production
+              value: development
             - name: SESSION_TOKEN_URL
               value: https://pre-auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
@@ -56,6 +56,8 @@ spec:
               value: 'WaeN$p74XD'
             - name: BASE_URL
               value: https://agenciasb2b.w2m.com/api-rest
+            - name: DISCOUND_CODE_URL
+              value: https://pre-api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:

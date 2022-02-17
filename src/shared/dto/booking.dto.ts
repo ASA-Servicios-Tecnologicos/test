@@ -78,7 +78,7 @@ export class BookingDTO {
   @ApiProperty()
   koUrl: string;
   @ApiProperty()
-  dicountCode?: string;
+  discount?: DiscountDTO;
   @ApiProperty()
   cancellationPolicies: Array<CancellationPolicyDTO>;
   @ApiProperty()
@@ -93,6 +93,8 @@ export class BookingDTO {
   hashPrebooking: string;
   @ApiProperty()
   packageName: string;
+  @ApiProperty()
+  productName: string;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
 }
 
@@ -112,4 +114,18 @@ export interface ManagementBookDTO {
   fiscal_location_id: number;
   iva_type_id: any;
   iva: number;
+}
+
+export interface DiscountDTO {
+  rate?: number;
+  amount?: any;
+  amountCurrency?: any;
+  couponCode?: string;
+}
+
+export interface DiscountCode {
+  sellChannel: string;
+  brandCode: string;
+  bookingDate: string;
+  couponCode: string;
 }
