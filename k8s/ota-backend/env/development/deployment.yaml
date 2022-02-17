@@ -33,7 +33,7 @@ spec:
             - name: SWAGGER_API_SPEC
               value: /spec
             - name: ENVIRONMENT
-              value: production
+              value: development
             - name: SESSION_TOKEN_URL
               value: https://pre-auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
