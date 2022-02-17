@@ -4,11 +4,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AppConfigService } from './configuration/configuration.service';
 import { l } from './logger';
+import * as morgan from 'morgan';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule,{
     logger: process.env.ENVIRONMENT === 'development' ? ['log', 'debug', 'error', 'verbose', 'warn'] : ['error', 'warn'],
   });
+  app.use(morgan("dev"));
 
   const config = new DocumentBuilder().setTitle('OTA Backend').setDescription('Backend OTA').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config);
