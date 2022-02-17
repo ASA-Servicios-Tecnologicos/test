@@ -6,6 +6,8 @@ export class CallCenterBookingFilterParamsDTO {
   opening_date_from?: string;
   opening_date_to?: string;
   page?: string;
+  dossier_status?: number;
+  dossier_situation?: number;
 }
 
 export class GetDossiersByClientDTO {
