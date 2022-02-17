@@ -28,6 +28,7 @@ export class BookingService {
   ) {}
 
   async create(booking: BookingDTO) {
+    // TODO: Comprobar discountCode, llamar a endpoint
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
@@ -212,6 +213,7 @@ export class BookingService {
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
+        console.log(JSON.stringify(error));
         if (error.response.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
@@ -219,7 +221,10 @@ export class BookingService {
               if (error.response.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
+              throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
             });
+        } else {
+          throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
         }
       });
 
@@ -260,7 +265,7 @@ export class BookingService {
       return {
         abbreviation: passenger.title,
         name: passenger.name,
-        code: passenger.extCode,
+        code: parseInt(passenger.extCode),
         ages: passenger.age,
         lastname: passenger.lastname,
         phone: '',
