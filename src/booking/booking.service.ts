@@ -122,19 +122,25 @@ export class BookingService {
     this.managementHttpService
       .post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body)
       .then((res) => {
-        console.log(JSON.stringify(res));
-        this.createBookingInManagement(prebookingData, booking, checkout, res['bookId']);
+        this.createBookingInManagement(prebookingData, booking, checkout, res['data']['bookId'], res['data']['status']);
       })
-      .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null));
+      .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR'));
   }
 
-  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string) {
+  private async createBookingInManagement(
+    prebookingData: PrebookingDTO,
+    booking: Booking,
+    checkOut: CheckoutDTO,
+    bookId: string,
+    status: string,
+  ) {
     const client = await this.getOrCreateClient(checkOut);
 
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
         {
           bookId: bookId,
+          status: status,
           ...prebookingData.data,
           uuid: uuidv4(),
           agencyInfo: {
@@ -207,18 +213,18 @@ export class BookingService {
     const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
     (await update).save();
     this.paymentsService.createDossierPayments(dossierPayments);
+    //TODO: Rendereizar un email con el dossier y enviarlo.
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
-        console.log(JSON.stringify(error));
-        if (error.response.status === HttpStatus.BAD_REQUEST) {
+        if (error.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
             .catch((error) => {
-              if (error.response.status === HttpStatus.BAD_REQUEST) {
+              if (error.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
               throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
@@ -296,7 +302,7 @@ export class BookingService {
   }
 
   private verifyBooking(prebooking, booking: BookingDTO | BookingDocument) {
-    if (prebooking.data.totalAmount === booking.amount && prebooking.data.hashPrebooking === booking.hashPrebooking) {
+    if (prebooking.data.hashPrebooking === booking.hashPrebooking) {
       return true;
     }
     return false;
