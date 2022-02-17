@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { every, pickBy, some } from 'lodash';
 import { filter } from 'rxjs';
 import { AppConfigService } from '../configuration/configuration.service';
+import { DossiersService } from '../dossiers/dossiers.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
 import { ClientService } from '../management/services/client.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
@@ -18,6 +19,7 @@ export class CallCenterService {
     private readonly bookingServicesService: BookingServicesService,
     private readonly clientService: ClientService,
     private readonly paymentsService: PaymentsService,
+    private readonly dossiersService: DossiersService,
   ) {}
 
   async getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
@@ -45,6 +47,10 @@ export class CallCenterService {
       }),
     );
     return { ...managementDossierByAgency, results };
+  }
+
+  patchDossierById(id: number, newDossier) {
+    return this.dossiersService.patchDossierById(id, newDossier);
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {

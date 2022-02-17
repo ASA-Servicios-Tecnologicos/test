@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ClientService } from '../management/services/client.service';
+import { DossierClientDTO } from '../shared/dto/dossier-client.dto';
 import { GetManagementDossiersByClientId } from '../shared/dto/dossier.dto';
 import { CreateFavouriteByUser } from '../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
@@ -27,7 +28,7 @@ export class ClientsController {
   }
 
   @Patch(':username')
-  updateClientByUsername(@Param('username') username: string, @Body() updateClientDTO) {
+  updateClientByUsername(@Param('username') username: string, @Body() updateClientDTO: Partial<DossierClientDTO>) {
     return this.clientService.patchClientByUsername(username, updateClientDTO);
   }
 

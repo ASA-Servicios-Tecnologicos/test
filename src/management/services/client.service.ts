@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
+import { DossierClientDTO } from '../../shared/dto/dossier-client.dto';
 import { GetManagementDossiersByClientId } from '../../shared/dto/dossier.dto';
 import { CreateFavouriteByUser } from '../../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO, IntegrationClientDTO } from '../../shared/dto/management-client.dto';
@@ -40,7 +41,7 @@ export class ClientService {
   }
 
   // TODO: Pending type response and request DTO
-  async patchClientByUsername(username: string, updateClientDTO): Promise<unknown> {
+  async patchClientByUsername(username: string, updateClientDTO: Partial<DossierClientDTO>): Promise<unknown> {
     const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
     return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${client.id}/`, updateClientDTO);
   }
@@ -75,5 +76,9 @@ export class ClientService {
 
   async getIntegrationClient() {
     return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/user/me/`);
+  }
+
+  patchClientById(clientId: string, dossierClientDto: DossierClientDTO) {
+    return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${clientId}/`, dossierClientDto);
   }
 }
