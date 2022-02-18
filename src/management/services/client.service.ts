@@ -78,7 +78,7 @@ export class ClientService {
     return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/user/me/`);
   }
 
-  patchClientById(clientId: string, dossierClientDto: DossierClientDTO) {
+  patchClientById(clientId: string, dossierClientDto: Partial<DossierClientDTO>) {
     return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${clientId}/`, dossierClientDto);
   }
 }
