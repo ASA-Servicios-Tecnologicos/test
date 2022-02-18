@@ -6,4 +6,4 @@ resources:
 generatorOptions:
   disableNameSuffixHash: true
 
-namespace: stg
+namespace: flowo

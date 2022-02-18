@@ -36,7 +36,7 @@ spec:
               value: NBLUE
             - name: BRANDPT
               value: NBLPT
-             - name: SESSION_TOKEN_URL
+            - name: SESSION_TOKEN_URL
               value: https://pre-auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
               value: profile
