@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: ota-backend
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: ota-backend
@@ -56,7 +56,7 @@ spec:
               value: https://agenciasb2b.w2m.com/api-rest
             - name: DISCOUND_CODE_URL
               value: https://stg-api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
-          image: registrytecnob2b.azurecr.io/ota-backend
+          image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
             - containerPort: 3080
