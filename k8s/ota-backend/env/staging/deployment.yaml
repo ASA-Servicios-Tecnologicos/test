@@ -33,11 +33,11 @@ spec:
             - name: ENVIRONMENT
               value: production
             - name: SESSION_TOKEN_URL
-              value: https://pre-auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
+              value: https://stg-auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
               value: profile
             - name: SESSION_PASSWORD
-              value: nfa9676pBAPHRA
+              value: e2rWoC8YL23j0ym
             - name: SESSION_USERNAME
               value: tecnoturis
             - name: SESSION_GRANT_TYPE
