@@ -14,6 +14,8 @@ import { ExternalClientService } from 'src/management/services/external-client.s
 import { GetManagementClientInfoByUsernameDTO } from 'src/shared/dto/management-client.dto';
 import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
+import { DossiersService } from 'src/dossiers/dossiers.service';
+import { DiscountCodeService } from 'src/management/services/dicount-code.service';
 @Injectable()
 export class BookingService {
   constructor(
@@ -25,6 +27,8 @@ export class BookingService {
     private clientService: ClientService,
     private externalClientService: ExternalClientService,
     private paymentsService: PaymentsService,
+    private dossiersService: DossiersService,
+    private discountCodeService: DiscountCodeService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -33,7 +37,11 @@ export class BookingService {
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
-    if (!this.verifyBooking(prebookingData, booking)) {
+    let netAmount = this.applyRules(prebookingData, booking);
+    if (booking.discount) {
+      netAmount = await this.discountCodeService.validate(booking.discount, netAmount);
+    }
+    if (!this.verifyBooking(prebookingData, booking) || netAmount !== booking.amount) {
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
@@ -44,7 +52,7 @@ export class BookingService {
         startDate: booking.checkIn,
         endDate: booking.checkOut,
         amount: {
-          value: booking.amount,
+          value: netAmount,
           currency: booking.currency,
         },
         description: booking.hotelName,
@@ -75,12 +83,11 @@ export class BookingService {
   async doBooking(id: string) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
-
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
-
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
+
     this.saveBooking(prebookingData, booking, checkout);
     return {
       payment: checkout.payment,
@@ -104,7 +111,7 @@ export class BookingService {
       packageClient: {
         bookingData: {
           hashPrebooking: booking.hashPrebooking,
-          totalAmount: prebookingData.data.totalAmount,
+          totalAmount: booking.amount,
           hotels: prebookingData.data.hotels,
           flights: prebookingData.data.flights,
           transfers: prebookingData.data.transfers,
@@ -122,6 +129,8 @@ export class BookingService {
     this.managementHttpService
       .post(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body)
       .then((res) => {
+        console.log(JSON.stringify(res));
+
         this.createBookingInManagement(prebookingData, booking, checkout, res['data']['bookId'], res['data']['status']);
       })
       .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR'));
@@ -142,19 +151,20 @@ export class BookingService {
           bookId: bookId,
           status: status,
           ...prebookingData.data,
+          totalAmount: booking.amount,
           uuid: uuidv4(),
           agencyInfo: {
             agentNum: '',
             expediente: '',
           },
-          commission: { pvp: prebookingData.data.totalAmount },
+          commission: { pvp: booking.amount },
           integrationType: 'PACKAGE',
           adults: prebookingData.data.distribution.map((distribution) => distribution.adults).reduce((acc, current) => acc + current, 0),
           children: prebookingData.data.distribution
             .map((distribution) => distribution.children.length)
             .reduce((acc, current) => acc + current, 0),
           infants: 0,
-          partialTotal: prebookingData.data.totalAmount,
+          partialTotal: booking.amount,
           passengers: [...[...prebookingData.data.passengers.map((passenger) => passenger.passengers)]],
           providerName: booking.providerName,
           validateMessage: '',
@@ -163,7 +173,7 @@ export class BookingService {
           canBeBooked: true,
           comments: {
             agentComment: '',
-            updatedPrice: prebookingData.data.totalAmount,
+            updatedPrice: booking.amount,
             clientComment: '',
           },
           flightDurationOutward: this.calcFlightDuration(
@@ -203,11 +213,10 @@ export class BookingService {
       installment: checkOut.payment.installments,
     };
     if (!bookId) {
-      // TODO: Después de crear el dossier, actualizar el estado si ha petado la reserva. Actualizar status(OK, KO) y observación.
-      /*  {
-      "dossier_situation": 2, // Este valor debería de ser un 7. 
-      "observation": "hola esto es un error"
-  } */
+      this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
+        dossier_situation: 7,
+        observation: 'Ha ocurrido un error en la reserva del paquete',
+      });
     }
 
     const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
@@ -301,10 +310,34 @@ export class BookingService {
     return await this.checkoutService.getCheckout(id);
   }
 
-  private verifyBooking(prebooking, booking: BookingDTO | BookingDocument) {
+  private verifyBooking(prebooking: PrebookingDTO, booking: BookingDTO | BookingDocument) {
     if (prebooking.data.hashPrebooking === booking.hashPrebooking) {
       return true;
     }
     return false;
+  }
+
+  private applyRules(prebooking: PrebookingDTO, booking: BookingDTO | BookingDocument) {
+    if (!prebooking.data.rules) {
+      return prebooking.data.totalAmount;
+    } else {
+      const today = new Date();
+      const startDate = this.formatRulesDates(prebooking.data.rules.startDate);
+      const endDate = this.formatRulesDates(prebooking.data.rules.endDate);
+      if (today >= startDate && today <= endDate) {
+        if (prebooking.data.rules.type === 'AMOUNT') {
+          return prebooking.data.totalAmount - prebooking.data.rules.amount;
+        } else {
+          return prebooking.data.totalAmount - (prebooking.data.totalAmount * prebooking.data.rules.amount) / 100;
+        }
+      } else {
+        throw new HttpException('Las fechas de las rules son erroneas', HttpStatus.BAD_REQUEST);
+      }
+    }
+  }
+
+  private formatRulesDates(date: string): Date {
+    const [dd, mm, yyyy] = date.split('-');
+    return new Date(`${mm}/${dd}/${yyyy}`);
   }
 }

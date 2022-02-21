@@ -121,6 +121,7 @@ export interface DiscountDTO {
   amount?: any;
   amountCurrency?: any;
   couponCode?: string;
+  status?: number;
 }
 
 export interface DiscountCode {
