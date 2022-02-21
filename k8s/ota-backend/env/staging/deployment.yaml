@@ -72,7 +72,7 @@ spec:
               value: 'WaeN$p74XD'
             - name: BASE_URL
               value: https://agenciasb2b.w2m.com/api-rest
-            - name: DISCOUND_CODE_URL
+            - name: DISCOUNT_CODE_URL
               value: https://pre-api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
           image: registrytecnob2b.azurecr.io/ota-backend
           name: ota-backend

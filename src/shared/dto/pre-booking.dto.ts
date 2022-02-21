@@ -43,6 +43,16 @@ export interface PrebookingDTO {
     hotels: ManagementBudgetHotelDTO[];
     flights: ManagementBudgetFlightDTO[];
     transfers: ManagementBudgetTransferDTO[];
+    rules: {
+      type: 'PERCENTAGE' | 'ABSOLUTE';
+      uuid: string;
+      amount: number;
+      endDate: string;
+      startDate: string;
+      codeProduct: string;
+      destination: string;
+      providerService: number;
+    };
   };
   status: number;
 }
