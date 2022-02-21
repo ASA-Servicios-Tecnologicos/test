@@ -44,7 +44,7 @@ export interface PrebookingDTO {
     flights: ManagementBudgetFlightDTO[];
     transfers: ManagementBudgetTransferDTO[];
     rules: {
-      type: 'PERCENTAGE' | 'ABSOLUTE';
+      type: 'PERCENTAGE' | 'AMOUNT';
       uuid: string;
       amount: number;
       endDate: string;

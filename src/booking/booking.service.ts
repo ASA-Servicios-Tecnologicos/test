@@ -325,7 +325,7 @@ export class BookingService {
       const startDate = this.formatRulesDates(prebooking.data.rules.startDate);
       const endDate = this.formatRulesDates(prebooking.data.rules.endDate);
       if (today >= startDate && today <= endDate) {
-        if (prebooking.data.rules.type === 'ABSOLUTE') {
+        if (prebooking.data.rules.type === 'AMOUNT') {
           return prebooking.data.totalAmount - prebooking.data.rules.amount;
         } else {
           return prebooking.data.totalAmount - (prebooking.data.totalAmount * prebooking.data.rules.amount) / 100;
