@@ -18,4 +18,14 @@ export class BookingServicesService {
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`,
     );
   }
+
+  patchBookingServiceById(
+    id: number,
+    managementDossierServiceDTO: Partial<ManagementBookingServiceDTO>,
+  ): Promise<ManagementBookingServiceDTO> {
+    return this.managementHttpService.patch<ManagementBookingServiceDTO>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`,
+      managementDossierServiceDTO,
+    );
+  }
 }
