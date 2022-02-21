@@ -22,31 +22,13 @@ export class CallCenterService {
     private readonly dossiersService: DossiersService,
   ) {}
 
-  async getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
-    const managementDossierByAgency: GetDossiersByClientDTO = await this.managementHttpService.get<GetDossiersByClientDTO>(
+  getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
+    // return { ...managementDossierByAgency, results };
+    return this.managementHttpService.get<GetDossiersByClientDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
         pickBy(filterParams),
       )}`,
     );
-    const results = await Promise.all(
-      managementDossierByAgency.results.map(async (managementDossierByAgency: ManagementDossierByAgency) => {
-        const client = managementDossierByAgency.client
-          ? await this.clientService.getClientById(`${managementDossierByAgency.client}`)
-          : null;
-
-        const payments = await this.paymentsService.getDossierPayments(`${managementDossierByAgency.id}`);
-
-        const managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO[] =
-          await this.bookingServicesService.getBookingServicesByDossierId(`${managementDossierByAgency.id}`);
-        const managementBookingServicesDetailedDTO: ManagementBookingServiceDTO[] = await Promise.all(
-          managementBookingServicesByDossierDTO.map((managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO) => {
-            return this.bookingServicesService.getBookingServiceById(`${managementBookingServicesByDossierDTO.id}`);
-          }),
-        );
-        return { ...managementDossierByAgency, client, payments, services: managementBookingServicesDetailedDTO };
-      }),
-    );
-    return { ...managementDossierByAgency, results };
   }
 
   patchDossierById(id: number, newDossier) {

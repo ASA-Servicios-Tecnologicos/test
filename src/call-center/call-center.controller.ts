@@ -24,7 +24,7 @@ export class CallCenterController {
     if (!agencyId) {
       throw new NotFoundException('Agency not found');
     }
-    return this.callCenterService.getDossiersByAgencyId(agencyId, pickBy(filterParams));
+    return this.callCenterService.getDossiersByAgencyId(agencyId, { ...pickBy(filterParams), all_data: true });
   }
 
   @Patch('clients/:id')
