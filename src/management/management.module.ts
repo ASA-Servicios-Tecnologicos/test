@@ -7,10 +7,30 @@ import { DiscountCodeService } from './services/dicount-code.service';
 import { ExternalClientService } from './services/external-client.service';
 import { ManagementHttpService } from './services/management-http.service';
 import { ManagementService } from './services/management.service';
+import { PackagesNewblueService } from './services/packages-newblue.service';
+import { PackagesProvidersService } from './services/packages-providers.service';
 @Module({
   imports: [AppConfigModule, HttpModule, SharedModule],
   controllers: [],
-  providers: [ManagementService, BookingServicesService, ClientService, ManagementHttpService, ExternalClientService, DiscountCodeService],
-  exports: [ManagementService, BookingServicesService, ClientService, ManagementHttpService, ExternalClientService, DiscountCodeService],
+  providers: [
+    ManagementService,
+    BookingServicesService,
+    ClientService,
+    ManagementHttpService,
+    ExternalClientService,
+    DiscountCodeService,
+    PackagesProvidersService,
+    PackagesNewblueService,
+  ],
+  exports: [
+    ManagementService,
+    BookingServicesService,
+    ClientService,
+    ManagementHttpService,
+    ExternalClientService,
+    DiscountCodeService,
+    PackagesProvidersService,
+    PackagesNewblueService,
+  ],
 })
 export class ManagementModule {}
