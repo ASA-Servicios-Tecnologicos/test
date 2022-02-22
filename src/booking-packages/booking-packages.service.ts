@@ -14,8 +14,10 @@ export class BookingPackagesService {
     return this.packagesProvidersService.getPackageProviders();
   }
 
-  postPrebookingsPackagesProviders(data: PostPreBookingsPackagesProvidersDTO): Promise<PreBookingsPackagesProvidersResponseDTO> {
-    return this.packagesProvidersService.postPreBookings(data);
+  postPrebookingsPackagesProviders(
+    postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO,
+  ): Promise<PreBookingsPackagesProvidersResponseDTO> {
+    return this.packagesProvidersService.postPreBookings(postPreBookingsPackagesProvidersDTO);
   }
 
   getBookingPackagesNewBlue() {
