@@ -41,10 +41,11 @@ export class BookingServicesService {
     return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`);
   }
 
-  createBookingServicePax(createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
+  createBookingServicePax(serviceId: string, createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
     return this.managementHttpService.post<Pax>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/`,
-      createBookingServicePaxDTO,
+
+      { ...createBookingServicePaxDTO, booking_service: +serviceId },
     );
   }
 

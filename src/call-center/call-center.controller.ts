@@ -46,8 +46,8 @@ export class CallCenterController {
   }
 
   @Post('services/:id/paxes')
-  createBookingServicePax(@Body() pax: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
-    return this.bookingServicesService.createBookingServicePax(pax);
+  createBookingServicePax(@Param('id') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
+    return this.bookingServicesService.createBookingServicePax(serviceId, pax);
   }
 
   @Delete('services/paxes/:id')

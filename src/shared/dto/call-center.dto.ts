@@ -49,7 +49,7 @@ export class ManagementDossierByAgency {
   dossier_pax: [];
   services: any;
 }
-export interface CreateUpdateBookingServicePax {
+export class CreateUpdateBookingServicePax {
   person_title?: any;
   name?: any;
   last_name?: any;
