@@ -49,3 +49,52 @@ export class ManagementDossierByAgency {
   dossier_pax: [];
   services: any;
 }
+export interface CreateUpdateBookingServicePax {
+  person_title?: any;
+  name?: any;
+  last_name?: any;
+  birthdate: string;
+  phone?: any;
+  email?: any;
+  type_document?: any;
+  dni?: any;
+  expiration_document?: any;
+  booking_service: number;
+  country_of_residence: string;
+  gender: string;
+  nationality_of_id: string;
+  nationality: string;
+  loyalty_card_company: string;
+  loyalty_card_number: string;
+  address: string;
+  active: string;
+}
+
+export interface Pax {
+  id: number;
+  deleted_at?: any;
+  name: string;
+  last_name: string;
+  home_phone?: any;
+  phone: string;
+  dni: string;
+  address?: any;
+  email: string;
+  birthdate: string;
+  active: boolean;
+  creation_date: string;
+  created_by: string;
+  update_date: string;
+  update_by: string;
+  expiration_document: string;
+  age?: any;
+  type?: any;
+  nationality?: any;
+  country_of_residence?: any;
+  nationality_of_id?: any;
+  loyalty_card_company?: any;
+  loyalty_card_number?: any;
+  person_title?: any;
+  type_document: number;
+  gender?: any;
+}

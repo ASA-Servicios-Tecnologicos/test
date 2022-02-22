@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../../shared/dto/booking-service.dto';
+import { CreateUpdateBookingServicePax, Pax } from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
 
 @Injectable()
@@ -40,8 +41,8 @@ export class BookingServicesService {
     return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`);
   }
 
-  createBookingServicePax(createBookingServicePaxDTO) {
-    return this.managementHttpService.post<ManagementBookingServiceDTO>(
+  createBookingServicePax(createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
+    return this.managementHttpService.post<Pax>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/`,
       createBookingServicePaxDTO,
     );
