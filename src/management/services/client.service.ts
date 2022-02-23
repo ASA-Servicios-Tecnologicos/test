@@ -10,11 +10,11 @@ import { ManagementHttpService } from './management-http.service';
 export class ClientService {
   constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
 
-  async getClientById(clientId: string): Promise<ManagementClientDTO> {
+  getClientById(clientId: string): Promise<ManagementClientDTO> {
     return this.managementHttpService.get<ManagementClientDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${clientId}/`);
   }
 
-  async getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
+  getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
     return this.managementHttpService.get<GetManagementClientInfoByUsernameDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/client/me/?username=${username}`,
     );
@@ -74,7 +74,7 @@ export class ClientService {
     );
   }
 
-  async getIntegrationClient() {
+  getIntegrationClient() {
     return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/user/me/`);
   }
 
