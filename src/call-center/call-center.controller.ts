@@ -50,6 +50,11 @@ export class CallCenterController {
     return this.bookingServicesService.createBookingServicePax(serviceId, pax);
   }
 
+  @Patch('services/:serviceId/paxes')
+  patchBookingServicePaxById(@Param('serviceId') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>) {
+    return this.bookingServicesService.patchBookingServiceByServiceAndPaxId(serviceId, pax);
+  }
+
   @Delete('services/paxes/:id')
   deleteBookingServicePax(@Param('id') id: string): Promise<void> {
     return this.bookingServicesService.deleteBookingServicePaxById(Number(id));

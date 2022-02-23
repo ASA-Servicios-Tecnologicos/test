@@ -52,4 +52,12 @@ export class BookingServicesService {
   deleteBookingServicePaxById(paxId: number): Promise<void> {
     return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`);
   }
+
+  patchBookingServiceByServiceAndPaxId(serviceId: string, newPax: Partial<CreateUpdateBookingServicePax>): Promise<void> {
+    return this.deleteBookingServicePaxById(Number(serviceId))
+      .then(() => this.createBookingServicePax(serviceId, newPax))
+      .then(() => {
+        return;
+      });
+  }
 }
