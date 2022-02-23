@@ -10,16 +10,19 @@ export class BookingPackagesController {
   postPreBookingsPackagesProviders(
     @Body() postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO,
   ): Promise<PreBookingsPackagesProvidersResponseDTO> {
+    console.log('providers prebooking');
     return this.bookingPackagesService.postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO);
+  }
+
+  @Post('new-blue/reference-prices')
+  getBookingPackagesNewBlue(@Body() data) {
+    console.log('new blue');
+    return this.bookingPackagesService.postNewBlueReferencePrices(data);
   }
 
   @Get('providers')
   getBookingPackagesProviders() {
+    console.log('topy here');
     return this.bookingPackagesService.getBookingPackagesProviders();
-  }
-
-  @Get('new-blue')
-  getBookingPackagesNewBlue() {
-    return this.bookingPackagesService.getBookingPackagesNewBlue();
   }
 }

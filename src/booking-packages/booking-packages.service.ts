@@ -20,7 +20,7 @@ export class BookingPackagesService {
     return this.packagesProvidersService.postPreBookings(postPreBookingsPackagesProvidersDTO);
   }
 
-  getBookingPackagesNewBlue() {
-    return this.packagesNewBlueService.getPackagesNewBlue();
+  postNewBlueReferencePrices(data) {
+    return this.packagesNewBlueService.postPackagesNewblueReferencePrices(data);
   }
 }
