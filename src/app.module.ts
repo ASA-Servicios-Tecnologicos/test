@@ -1,4 +1,4 @@
-import { HttpModule, MiddlewareConsumer, Module } from '@nestjs/common';
+import { HttpModule, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -51,7 +51,10 @@ import { CalendarController } from './calendar/calendar.controller';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(...[AuthenticationUserMiddleware]).forRoutes(ClientsController);
-    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, CalendarController);
+    consumer
+      .apply(...[AuthenticationUserMiddleware])
+      .exclude({ path: 'calendar/ota/reference-prices', method: RequestMethod.POST })
+      .forRoutes(ClientsController, CalendarController);
+    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController);
   }
 }
