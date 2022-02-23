@@ -33,7 +33,7 @@ spec:
             - name: ENVIRONMENT
               value: production
             - name: SESSION_TOKEN_URL
-              value: https://stg-auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
+              value: https://auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
               value: profile
             - name: SESSION_PASSWORD
@@ -45,7 +45,7 @@ spec:
             - name: CLIENT_ID
               value: tecnoturis
             - name: CLIENT_SECRET
-              value: b7a2b1a9-662b-4388-8b01-4fc48ccae048
+              value: e2a08581-3dcb-4f0f-8bae-6a6df707ed72
             - name: CHECKOUT_URL
               value: https://stg-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_USERNAME
