@@ -18,7 +18,7 @@ export class DiscountCodeService extends SecuredHttpService {
     };
     return await (
       await this.postSecured(this.appConfigService.DISCOUNT_CODE_URL, body)
-    ).data.discount;
+    )?.data?.discount;
   }
 
   async validate(discountApplied: DiscountDTO, amount: number) {
