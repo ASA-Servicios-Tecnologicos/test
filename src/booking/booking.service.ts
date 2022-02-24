@@ -324,7 +324,6 @@ export class BookingService {
       const integrationClient = await this.clientService.getIntegrationClient();
       const createdClient = await this.externalClientService
         .createExternalClient({
-          accept_privacy_policy: true,
           agency: integrationClient.agency.id,
           agency_chain: integrationClient.agency.agency_chain_id,
           dni: checkOut.buyer.document.documentNumber,

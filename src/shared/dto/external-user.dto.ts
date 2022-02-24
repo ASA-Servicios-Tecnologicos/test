@@ -1,5 +1,5 @@
 export class CreateExternalUserDTO {
-  accept_privacy_policy: boolean;
+  accept_privacy_policy?: boolean;
   agency: number;
   agency_chain: number;
   dni: string;
