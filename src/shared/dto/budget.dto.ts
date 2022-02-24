@@ -126,6 +126,10 @@ export class ManagementBudgetHotelLocationDTO {
 export class ManagementBudgetRoomRateDetailedPricingDTO {
   commissionableRate: number;
   nonCommissionableRate: number;
+  commissionAmount: number;
+  commissionTaxesAmount: number;
+  commissionTaxesIncluded: boolean;
+  netAmount: number;
 }
 
 export class ManagementBudgetRoomRateDTO {

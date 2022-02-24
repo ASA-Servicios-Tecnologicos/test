@@ -4,7 +4,6 @@ export interface EmailTemplatedDTO {
   from: string;
   to: string[];
   subject: string;
-  locale: string;
-  literalProject: string;
-  templateCode: string;
+  body: string;
+  contentType: 'HTML';
 }
