@@ -198,7 +198,7 @@ export class BookingService {
       },
     };
     this.managementHttpService
-      .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body)
+      .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, { timeout: 120000 })
       .then((res) => {
         this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
