@@ -42,6 +42,7 @@ export class BookingServicesService {
   }
 
   createBookingServicePax(serviceId: string, createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
+    console.log({ ...createBookingServicePaxDTO, booking_service: +serviceId });
     return this.managementHttpService.post<Pax>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/`,
 
