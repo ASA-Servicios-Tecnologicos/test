@@ -130,6 +130,9 @@ export class ManagementBudgetRoomRateDetailedPricingDTO {
   commissionTaxesAmount: number;
   commissionTaxesIncluded: boolean;
   netAmount: number;
+  commission?: number;
+  discount?: number;
+  totalAmount?: number;
 }
 
 export class ManagementBudgetRoomRateDTO {

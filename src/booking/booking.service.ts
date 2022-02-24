@@ -225,13 +225,15 @@ export class BookingService {
           agencyInfo: {
             agentNum: '',
             expediente: '',
-          }, // Discount, PVP no comisonable + comisionable. Dividir commissionAmount / commissionableRate = pvp
-          /*  commissionableRate: number;
-          nonCommissionableRate: number;
-          commissionAmount: number;
-          commissionTaxesAmount: number;
-          commissionTaxesIncluded: boolean;
-          netAmount: number; */
+          }, // Discount, PVP no comisonable + comisionable. Dividir commissionAmount / commissionableRate = comission %
+          detailedPricing: {
+            ...prebookingData.data.detailedPricing,
+            commission:
+              (prebookingData.data.detailedPricing.commissionAmount / prebookingData.data.detailedPricing.commissionableRate) * 100,
+            discount: prebookingData.data.totalAmount - booking.amount,
+            netAmount: prebookingData.data.detailedPricing.netAmount,
+            totalAmount: booking.amount,
+          },
           commission: { pvp: booking.amount },
           integrationType: 'PACKAGE',
           adults: prebookingData.data.distribution.map((distribution) => distribution.adults).reduce((acc, current) => acc + current, 0),
