@@ -30,10 +30,16 @@ export class BookingServicesService {
     );
   }
 
-  createFlightBookingService(flightId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {
+  createFlightBookingService(flightBookingServiceId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {
     return this.managementHttpService.post<FlightDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/flight/`, {
       ...createFlightDTO,
-      flight_booking_service: flightId,
+      flight_booking_service: flightBookingServiceId,
     });
+  }
+
+  deleteFlightSegmentById(flightSegmentId: number): Promise<void> {
+    return this.managementHttpService.delete(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/flight/${flightSegmentId}/`,
+    );
   }
 }
