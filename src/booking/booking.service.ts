@@ -86,7 +86,7 @@ export class BookingService {
 
     Handlebars.registerHelper('formatHourDate', function (stringDate) {
       const date = new Date(stringDate);
-      return new Intl.DateTimeFormat('es-ES', { hour: 'numeric', minute: 'numeric' }).format();
+      return new Intl.DateTimeFormat('es-ES', { hour: 'numeric', minute: 'numeric' }).format(date);
     });
 
     Handlebars.registerHelper('fullName', function (passenger) {
