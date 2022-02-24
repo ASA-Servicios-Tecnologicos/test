@@ -1,11 +1,11 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Query, Req, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { pickBy } from 'lodash';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
 import { ClientService } from '../management/services/client.service';
 import { ManagementBookingServiceDTO } from '../shared/dto/booking-service.dto';
-import { CallCenterBookingFilterParamsDTO } from '../shared/dto/call-center.dto';
+import { CallCenterBookingFilterParamsDTO, CreateUpdateBookingServicePax, Pax } from '../shared/dto/call-center.dto';
 import { DossierClientDTO } from '../shared/dto/dossier-client.dto';
 import { CallCenterService } from './call-center.service';
 
@@ -24,7 +24,7 @@ export class CallCenterController {
     if (!agencyId) {
       throw new NotFoundException('Agency not found');
     }
-    return this.callCenterService.getDossiersByAgencyId(agencyId, pickBy(filterParams));
+    return this.callCenterService.getDossiersByAgencyId(agencyId, { ...pickBy(filterParams), all_data: true });
   }
 
   @Patch('clients/:id')
@@ -43,5 +43,20 @@ export class CallCenterController {
   @Patch('services/:id')
   patchDossierById(@Param('id') id: string, @Body() newDossier) {
     return this.dossiersService.patchDossierById(Number(id), newDossier);
+  }
+
+  @Post('services/:id/paxes')
+  createBookingServicePax(@Param('id') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
+    return this.bookingServicesService.createBookingServicePax(serviceId, pax);
+  }
+
+  @Patch('services/:serviceId/paxes')
+  patchBookingServicePaxById(@Param('serviceId') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>) {
+    return this.bookingServicesService.patchBookingServiceByServiceAndPaxId(serviceId, pax);
+  }
+
+  @Delete('services/paxes/:id')
+  deleteBookingServicePax(@Param('id') id: string): Promise<void> {
+    return this.bookingServicesService.deleteBookingServicePaxById(Number(id));
   }
 }

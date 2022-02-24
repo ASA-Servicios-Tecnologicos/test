@@ -33,7 +33,9 @@ export class BookingController {
   }
 
   @Post('confirm/:id')
-  confirmBooking(@Param('id') id: string) {}
+  confirmBooking(@Param('id') id: string) {
+    return;
+  }
 
   // Jefer datos de booking
   // Jose Angel insertar en management booking

@@ -20,6 +20,9 @@ import { PaymentsModule } from './payments/payments.module';
 import { SharedModule } from './shared/shared.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { CalendarController } from './calendar/calendar.controller';
+import { BookingPackagesModule } from './booking-packages/booking-packages.module';
+import { BookingServicesModule } from './booking-services/booking-services.module';
+import { BookingServicesFlightsController } from './booking-services/booking-services-flights/booking-services-flights.controller';
 
 @Module({
   imports: [
@@ -36,6 +39,8 @@ import { CalendarController } from './calendar/calendar.controller';
     CallCenterModule,
     PaymentsModule,
     CalendarModule,
+    BookingPackagesModule,
+    BookingServicesModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
@@ -55,6 +60,6 @@ export class AppModule {
       .apply(...[AuthenticationUserMiddleware])
       .exclude({ path: 'calendar/ota/reference-prices', method: RequestMethod.POST })
       .forRoutes(ClientsController, CalendarController);
-    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController);
+    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, BookingServicesFlightsController);
   }
 }
