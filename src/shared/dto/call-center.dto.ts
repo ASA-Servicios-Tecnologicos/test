@@ -48,3 +48,24 @@ export class ManagementDossierByAgency {
   dossier_pax: [];
   services: any;
 }
+
+export class CreateFlightDTO {
+  flight_number: string;
+  departure: string;
+  arrival: string;
+  departure_at: Date;
+  arrival_at: Date;
+  airline: string;
+  flight_booking_service: number;
+}
+export class FlightDTO {
+  id: number;
+  flight_booking_service: number;
+  flight_number: string;
+  segment_number: number;
+  departure: string;
+  arrival: string;
+  departure_at: string;
+  arrival_at: string;
+  airline: string;
+}
