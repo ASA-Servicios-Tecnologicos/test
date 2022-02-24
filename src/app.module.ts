@@ -20,6 +20,8 @@ import { PaymentsModule } from './payments/payments.module';
 import { SharedModule } from './shared/shared.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { CalendarController } from './calendar/calendar.controller';
+import { BookingPackagesModule } from './booking-packages/booking-packages.module';
+import { BookingPackagesController } from './booking-packages/booking-packages.controller';
 
 @Module({
   imports: [
@@ -36,6 +38,7 @@ import { CalendarController } from './calendar/calendar.controller';
     CallCenterModule,
     PaymentsModule,
     CalendarModule,
+    BookingPackagesModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({

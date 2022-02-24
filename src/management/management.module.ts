@@ -9,6 +9,8 @@ import { ExternalClientService } from './services/external-client.service';
 import { HotelBookingRoomsService } from './services/hotel-booking-rooms.service';
 import { ManagementHttpService } from './services/management-http.service';
 import { ManagementService } from './services/management.service';
+import { PackagesNewblueService } from './services/packages-newblue.service';
+import { PackagesProvidersService } from './services/packages-providers.service';
 @Module({
   imports: [AppConfigModule, HttpModule, SharedModule],
   controllers: [],
@@ -21,6 +23,8 @@ import { ManagementService } from './services/management.service';
     DiscountCodeService,
     AgenciesService,
     HotelBookingRoomsService,
+    PackagesProvidersService,
+    PackagesNewblueService,
   ],
   exports: [
     ManagementService,
@@ -32,6 +36,8 @@ import { ManagementService } from './services/management.service';
     HotelBookingRoomsService,
     AgenciesService,
     HotelBookingRoomsService,
+    PackagesProvidersService,
+    PackagesNewblueService,
   ],
 })
 export class ManagementModule {}

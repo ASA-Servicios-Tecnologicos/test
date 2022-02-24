@@ -130,3 +130,40 @@ export interface DiscountCode {
   bookingDate: string;
   couponCode: string;
 }
+
+export interface BookPackageProviderDTO {
+  data: {
+    bookId: string;
+    requestToken: string;
+    providerToken: string;
+    agency: string;
+    status: string;
+    creationDate: string;
+    checkIn: string;
+    checkOut: string;
+    totalAmount: number;
+    currency: string;
+    pendingAmount: number;
+    detailedPricing: {
+      commissionableRate: number;
+      nonCommissionableRate: number;
+    };
+    commission: {
+      commissionRate: number;
+      fee: number;
+      iva: number;
+      commission: number;
+      pvp: number;
+    };
+  };
+  status: number;
+}
+
+export interface CancellationPolicyPackageDTO {
+  amount: number;
+  fromDate: string;
+  toDate: string;
+  currency: string;
+  type: any;
+  text: string;
+}
