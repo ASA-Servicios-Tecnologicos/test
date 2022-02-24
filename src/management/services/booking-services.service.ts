@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../../shared/dto/booking-service.dto';
 import { CreateUpdateBookingServicePax, Pax } from '../../shared/dto/call-center.dto';
+import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
 
 @Injectable()
@@ -59,5 +60,18 @@ export class BookingServicesService {
       .then(() => {
         return;
       });
+  }
+
+  createFlightBookingService(flightBookingServiceId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {
+    return this.managementHttpService.post<FlightDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/flight/`, {
+      ...createFlightDTO,
+      flight_booking_service: flightBookingServiceId,
+    });
+  }
+
+  deleteFlightSegmentById(flightSegmentId: number): Promise<void> {
+    return this.managementHttpService.delete(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/flight/${flightSegmentId}/`,
+    );
   }
 }
