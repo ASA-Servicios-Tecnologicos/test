@@ -6,8 +6,8 @@ export class CreateExternalUserDTO {
   email: string;
   first_name: string;
   last_name: string;
-  password1: string;
-  password2: string;
+  password1: string = '';
+  password2: string = '';
   phone: string;
   username: string;
   /* Role equal to 8 means cliente-usuario */

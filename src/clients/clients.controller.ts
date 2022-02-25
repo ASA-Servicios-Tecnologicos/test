@@ -1,13 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { ClientService } from '../management/services/client.service';
+import { ExternalClientService } from '../management/services/external-client.service';
 import { DossierClientDTO } from '../shared/dto/dossier-client.dto';
 import { GetManagementDossiersByClientId } from '../shared/dto/dossier.dto';
+import { CreateExternalUserDTO } from '../shared/dto/external-user.dto';
 import { CreateFavouriteByUser } from '../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
+import { DEFAULT_EMPTY_PASSWORD_EXTERNAL_CLIENT, DEFAULT_ROL_EXTERNAL_CLIENT } from './clients.constants';
 
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientService: ClientService) {}
+  constructor(private readonly clientService: ClientService, private readonly externalClientsService: ExternalClientService) {}
 
   @Get(':username/dossiers')
   getClientDossiersById(
@@ -46,5 +50,17 @@ export class ClientsController {
   @Put(':username/newsletter')
   subscribeToNewsletter(@Param('username') username: string, @Body() newsletterRequestDTO: { permit_email: boolean }) {
     return this.clientService.subscribeToNewsletter(username, newsletterRequestDTO);
+  }
+
+  @Post()
+  createClient(@Req() request: Request, @Body() createClient: CreateExternalUserDTO) {
+    return this.externalClientsService.createExternalClient({
+      ...createClient,
+      agency: Number(request['agencyId']),
+      agency_chain: Number(request['agencyChainId']),
+      role: DEFAULT_ROL_EXTERNAL_CLIENT,
+      password1: DEFAULT_EMPTY_PASSWORD_EXTERNAL_CLIENT,
+      password2: DEFAULT_EMPTY_PASSWORD_EXTERNAL_CLIENT,
+    });
   }
 }
