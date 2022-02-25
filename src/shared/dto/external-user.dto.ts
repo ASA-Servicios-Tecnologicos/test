@@ -10,6 +10,7 @@ export class CreateExternalUserDTO {
   password2: string = '';
   phone: string;
   username: string;
+  active: boolean;
   /* Role equal to 8 means cliente-usuario */
   role: number = 8;
 }

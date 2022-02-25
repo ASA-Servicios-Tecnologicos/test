@@ -340,6 +340,7 @@ export class BookingService {
           phone: `${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`,
           role: 8,
           username: checkOut.contact.email,
+          active: false,
         })
         .catch((error) => {
           console.log(error);
