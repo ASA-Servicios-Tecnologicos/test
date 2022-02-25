@@ -54,12 +54,8 @@ export class BookingServicesService {
     return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`);
   }
 
-  patchBookingServiceByServiceAndPaxId(serviceId: string, newPax: Partial<CreateUpdateBookingServicePax>): Promise<void> {
-    return this.deleteBookingServicePaxById(Number(serviceId))
-      .then(() => this.createBookingServicePax(serviceId, newPax))
-      .then(() => {
-        return;
-      });
+  putBookingServiceByServiceAndPaxId(paxId: string, newPax: Partial<CreateUpdateBookingServicePax>): Promise<void> {
+    return this.managementHttpService.put(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`, newPax);
   }
 
   createFlightBookingService(flightBookingServiceId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {
