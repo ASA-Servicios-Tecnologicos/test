@@ -23,6 +23,7 @@ import { CalendarController } from './calendar/calendar.controller';
 import { BookingPackagesModule } from './booking-packages/booking-packages.module';
 import { BookingServicesModule } from './booking-services/booking-services.module';
 import { BookingServicesFlightsController } from './booking-services/booking-services-flights/booking-services-flights.controller';
+import { ManagementSetupModule } from './management/management-setup/management-setup.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { BookingServicesFlightsController } from './booking-services/booking-ser
     CalendarModule,
     BookingPackagesModule,
     BookingServicesModule,
+    ManagementSetupModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({

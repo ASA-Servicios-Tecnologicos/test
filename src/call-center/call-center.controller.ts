@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { pickBy } from 'lodash';
 import { DossiersService } from '../dossiers/dossiers.service';
@@ -50,13 +50,13 @@ export class CallCenterController {
     return this.bookingServicesService.createBookingServicePax(serviceId, pax);
   }
 
-  @Patch('services/:serviceId/paxes')
-  patchBookingServicePaxById(@Param('serviceId') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>) {
-    return this.bookingServicesService.patchBookingServiceByServiceAndPaxId(serviceId, pax);
+  @Put('services/paxes/:paxId/')
+  patchBookingServicePaxById(@Param('paxId') paxId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>) {
+    return this.bookingServicesService.putBookingServiceByServiceAndPaxId(paxId, pax);
   }
 
-  @Delete('services/paxes/:id')
-  deleteBookingServicePax(@Param('id') id: string): Promise<void> {
+  @Delete('services/paxes/:paxId')
+  deleteBookingServicePax(@Param('paxId') id: string): Promise<void> {
     return this.bookingServicesService.deleteBookingServicePaxById(Number(id));
   }
 }

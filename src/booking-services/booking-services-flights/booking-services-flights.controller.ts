@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { BookingServicesFlightsService } from './booking-services-flights.service';
 
@@ -6,7 +6,7 @@ import { BookingServicesFlightsService } from './booking-services-flights.servic
 export class BookingServicesFlightsController {
   constructor(private readonly bookingServicesFlights: BookingServicesFlightsService) {}
 
-  @Post(':flightBookingServiceId')
+  @Post(':flightBookingServiceId/segment')
   createFlight(
     @Param('flightBookingServiceId') flightBookingServiceId: string,
     @Body() createFlightDTO: CreateFlightDTO,
@@ -14,8 +14,13 @@ export class BookingServicesFlightsController {
     return this.bookingServicesFlights.createFlight(Number(flightBookingServiceId), createFlightDTO);
   }
 
-  @Delete(':flightSegmentId')
+  @Delete('segment/:flightSegmentId')
   deleteFlight(@Param('flightSegmentId') flightSegmentId: string): Promise<void> {
     return this.bookingServicesFlights.deleteFlightSegmentById(Number(flightSegmentId));
+  }
+
+  @Put('segment/:flightSegmentId')
+  putFlightSegment(@Param('flightSegmentId') flightSegmentId: string, @Body() newFlightSegment: CreateFlightDTO) {
+    return this.bookingServicesFlights.putFlightSegment(Number(flightSegmentId), newFlightSegment);
   }
 }
