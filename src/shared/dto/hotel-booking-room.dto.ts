@@ -1,3 +1,7 @@
+export enum BookingRoomRegimen {}
+
+export enum BookingRoomType {}
+
 export class CreateHotelBookingRoomDTO {
   hotel_booking_service: number;
   quantity: number;
