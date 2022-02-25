@@ -74,4 +74,11 @@ export class BookingServicesService {
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/flight/${flightSegmentId}/`,
     );
   }
+
+  putFlightSegmentById(flightSegmentId: number, newFlightSegment: CreateFlightDTO) {
+    return this.managementHttpService.put(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/flight/${flightSegmentId}/`,
+      newFlightSegment,
+    );
+  }
 }
