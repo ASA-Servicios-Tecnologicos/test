@@ -1,0 +1,97 @@
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    secretEnv: ['SSH_KEY']
+    id: Config
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        echo "$$SSH_KEY" >> /root/.ssh/id_rsa
+        chmod 400 /root/.ssh/id_rsa
+        ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build Image
+    args:
+      - build
+      - --ssh
+      - gitlab=/root/.ssh/id_rsa
+      - -t
+      - $_IMAGE_TAG:$COMMIT_SHA
+      - .
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+    env:
+      - "DOCKER_BUILDKIT=1"
+  
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - $_IMAGE_TAG:$COMMIT_SHA
+
+  - name: europe-west1-docker.pkg.dev/tecnoturis-pro/tools/envsubst
+    id: Updating Resources
+    args: ["-s", "'$${NAMESPACE}' '$${ENVIRONMENT}'", "k8s/${_APP}/**/*.yaml"]
+    env:
+      - 'NAMESPACE=${_NAMESPACE}'
+      - 'ENVIRONMENT=${_ENVIRONMENT}'
+
+  - name: 'europe-west1-docker.pkg.dev/tecnoturis-pro/tools/kustomize'
+    id: Generating Resources
+    args:
+      - 'create'
+      - '--resources'
+      - 'k8s/${_APP}/env/${_ENVIRONMENT}'
+    env:
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo-stg'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+
+  - name: 'europe-west1-docker.pkg.dev/tecnoturis-pro/tools/kustomize'
+    id: Editing Image
+    args:
+      - 'edit'
+      - 'set'
+      - 'image'
+      - $_IMAGE_TAG:$COMMIT_SHA
+    env:
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo-stg'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+
+  - name: 'europe-west1-docker.pkg.dev/tecnoturis-pro/tools/kustomize'
+    id: Kustomize Build
+    args:
+      - 'build'
+      - '-o'
+      - ${COMMIT_SHA}.yaml
+    env:
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo-stg'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+
+  - name: "gcr.io/cloud-builders/kubectl"
+    id: Deploy
+    args:
+      - apply
+      - -f
+      - ${COMMIT_SHA}.yaml
+    env:
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo-stg'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+
+
+substitutions:
+  _IMAGE_TAG: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
+  _NAMESPACE: flowo
+  _ENVIRONMENT: staging
+  _APP: ota-backend
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/tecnoturis-pro/secrets/github_id/versions/latest
+    env: 'SSH_KEY'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
