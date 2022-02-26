@@ -19,9 +19,9 @@ spec:
             - name: APP_ID
               value: myapp
             - name: PORT
-              value: "3080"
+              value: '3080'
             - name: NODE_TLS_REJECT_UNAUTHORIZED
-              value: "1"
+              value: '1'
             - name: LOG_LEVEL
               value: debug
             - name: REQUEST_LIMIT
@@ -35,29 +35,29 @@ spec:
             - name: ENVIRONMENT
               value: production
             - name: SESSION_TOKEN_URL
-              value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+              value: https://auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
               value: profile
             - name: SESSION_PASSWORD
-              value: Tecnoturis22
+              value: e2rWoC8YL23j0ym
             - name: SESSION_USERNAME
-              value: test.tecnoturis2
+              value: tecnoturis
             - name: SESSION_GRANT_TYPE
               value: password
             - name: CLIENT_ID
-              value: tecnoturis-integration
+              value: tecnoturis
             - name: CLIENT_SECRET
-              value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+              value: e2a08581-3dcb-4f0f-8bae-6a6df707ed72
             - name: CHECKOUT_URL
-              value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
-            - name: MANAGEMENT_URL
-              value: https://agenciasb2b.w2m.com/api-rest/management
+              value: https://api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_USERNAME
-              value: flowodev
+              value: flowopro
             - name: MANAGEMENT_PASSWORD
-              value: WaeN$p74XD
-            - name: TECNOTURIS_URL
-              value: https://dev.tecnoturis.es/api-rest
+              value: 'WaeN$p74XD'
+            - name: BASE_URL
+              value: https://agenciasb2b.w2m.com/api-rest
+            - name: DISCOUNT_CODE_URL
+              value: https://api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
@@ -77,11 +77,7 @@ spec:
             postStart:
               exec:
                 command:
-                  [
-                    sh,
-                    -c,
-                    "sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*",
-                  ]
+                  [sh, -c, 'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*']
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

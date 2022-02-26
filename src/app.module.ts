@@ -1,4 +1,4 @@
-import { HttpModule, MiddlewareConsumer, Module } from '@nestjs/common';
+import { HttpModule, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,11 +15,20 @@ import { ClientsController } from './clients/clients.controller';
 import { CallCenterController } from './call-center/call-center.controller';
 import { AuthenticationUserMiddleware } from './middlewares/authenticacion-user.middleware';
 import { CallCenterModule } from './call-center/call-center.module';
-import { AuthenticationAgencyMiddleware } from './middlewares/authentication-agency.middleware';
+import { AuthenticationCallCenterMiddleware } from './middlewares/authentication-callcenter.middleware';
+import { PaymentsModule } from './payments/payments.module';
+import { SharedModule } from './shared/shared.module';
+import { CalendarModule } from './calendar/calendar.module';
+import { CalendarController } from './calendar/calendar.controller';
+import { BookingPackagesModule } from './booking-packages/booking-packages.module';
+import { BookingServicesModule } from './booking-services/booking-services.module';
+import { BookingServicesFlightsController } from './booking-services/booking-services-flights/booking-services-flights.controller';
+import { ManagementSetupModule } from './management/management-setup/management-setup.module';
 
 @Module({
   imports: [
     AppConfigModule,
+    SharedModule,
     BookingModule,
     BudgetModule,
     HttpModule,
@@ -29,6 +38,11 @@ import { AuthenticationAgencyMiddleware } from './middlewares/authentication-age
     ClientsModule,
     UsersModule,
     CallCenterModule,
+    PaymentsModule,
+    CalendarModule,
+    BookingPackagesModule,
+    BookingServicesModule,
+    ManagementSetupModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
@@ -44,7 +58,10 @@ import { AuthenticationAgencyMiddleware } from './middlewares/authentication-age
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(...[AuthenticationUserMiddleware]).forRoutes(ClientsController);
-    consumer.apply(...[AuthenticationAgencyMiddleware]).forRoutes(CallCenterController);
+    consumer
+      .apply(...[AuthenticationUserMiddleware])
+      .exclude({ path: 'calendar/ota/reference-prices', method: RequestMethod.POST })
+      .forRoutes(ClientsController, CalendarController);
+    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, BookingServicesFlightsController);
   }
 }

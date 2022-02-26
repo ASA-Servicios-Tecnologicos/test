@@ -14,6 +14,7 @@ export interface PrebookingDTO {
     productTokenNewblue: string;
     requestToken: string;
     providerToken: string;
+    productName: string;
     distributionRooms: Array<{
       code: string;
       passengers: ManagementBudgetPassengerDTO[];
@@ -42,6 +43,16 @@ export interface PrebookingDTO {
     hotels: ManagementBudgetHotelDTO[];
     flights: ManagementBudgetFlightDTO[];
     transfers: ManagementBudgetTransferDTO[];
+    rules: {
+      type: 'PERCENTAGE' | 'AMOUNT';
+      uuid: string;
+      amount: number;
+      endDate: string;
+      startDate: string;
+      codeProduct: string;
+      destination: string;
+      providerService: number;
+    };
   };
   status: number;
 }

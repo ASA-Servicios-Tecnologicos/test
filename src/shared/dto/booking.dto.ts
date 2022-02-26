@@ -78,7 +78,7 @@ export class BookingDTO {
   @ApiProperty()
   koUrl: string;
   @ApiProperty()
-  dicountCode?: string;
+  discount?: DiscountDTO;
   @ApiProperty()
   cancellationPolicies: Array<CancellationPolicyDTO>;
   @ApiProperty()
@@ -91,6 +91,10 @@ export class BookingDTO {
   providerName: string;
   @ApiProperty()
   hashPrebooking: string;
+  @ApiProperty()
+  packageName: string;
+  @ApiProperty()
+  productName: string;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
 }
 
@@ -107,7 +111,59 @@ export interface ManagementBookDTO {
   provider_service_id: number;
   locator: string;
   discount: number;
-  fiscal_location_id: 5;
+  fiscal_location_id: number;
   iva_type_id: any;
   iva: number;
+}
+
+export interface DiscountDTO {
+  rate?: number;
+  amount?: any;
+  amountCurrency?: any;
+  couponCode?: string;
+  status?: number;
+}
+
+export interface DiscountCode {
+  sellChannel: string;
+  brandCode: string;
+  bookingDate: string;
+  couponCode: string;
+}
+
+export interface BookPackageProviderDTO {
+  data: {
+    bookId: string;
+    requestToken: string;
+    providerToken: string;
+    agency: string;
+    status: string;
+    creationDate: string;
+    checkIn: string;
+    checkOut: string;
+    totalAmount: number;
+    currency: string;
+    pendingAmount: number;
+    detailedPricing: {
+      commissionableRate: number;
+      nonCommissionableRate: number;
+    };
+    commission: {
+      commissionRate: number;
+      fee: number;
+      iva: number;
+      commission: number;
+      pvp: number;
+    };
+  };
+  status: number;
+}
+
+export interface CancellationPolicyPackageDTO {
+  amount: number;
+  fromDate: string;
+  toDate: string;
+  currency: string;
+  type: any;
+  text: string;
 }

@@ -126,6 +126,13 @@ export class ManagementBudgetHotelLocationDTO {
 export class ManagementBudgetRoomRateDetailedPricingDTO {
   commissionableRate: number;
   nonCommissionableRate: number;
+  commissionAmount: number;
+  commissionTaxesAmount: number;
+  commissionTaxesIncluded: boolean;
+  netAmount: number;
+  commission?: number;
+  discount?: number;
+  totalAmount?: number;
 }
 
 export class ManagementBudgetRoomRateDTO {
@@ -179,6 +186,8 @@ export class ManagementBudgetHotelDTO {
 }
 
 export class ManagementBudgetPackageDataDTO {
+  bookId?: string;
+  status?: string;
   uuid: string;
   client?: number;
   totalAmount: number;
@@ -187,10 +196,8 @@ export class ManagementBudgetPackageDataDTO {
   transfers: ManagementBudgetTransferDTO[];
   distribution: ManagementBudgetDistributionDTO[];
   productTokenNewblue: string;
-  passengers: Array</* {
-    code: string;
-    passengers: ManagementBudgetPassengerDTO[];
-  } */ any>;
+  passengers: Array<any>;
+  newsletter?: boolean;
   commission: {
     pvp: number;
   };
@@ -216,6 +223,7 @@ export class ManagementBudgetPackageDataDTO {
   packageClient?: any;
   partialTotal: number;
   providerName: string;
+  productName?: string;
   detailedPricing: ManagementBudgetRoomRateDetailedPricingDTO;
   validateMessage: string;
   checkForm: boolean;

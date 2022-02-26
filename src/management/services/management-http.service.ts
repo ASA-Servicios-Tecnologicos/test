@@ -8,8 +8,6 @@ export class ManagementHttpService {
   constructor(private readonly httpService: HttpService, private managementService: ManagementService) {}
 
   async post<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
-    console.log('Config');
-    console.log(url, data);
     return firstValueFrom(
       this.httpService.post<K>(url, data, {
         ...config,
@@ -20,13 +18,9 @@ export class ManagementHttpService {
       }),
     )
       .then((data) => {
-        console.log('data');
-        console.log(data);
         return data.data;
       })
       .catch((err) => {
-        console.log('ERRORRRRR');
-        console.log(err);
         // If token has expired then renew request token
         if (err.response.data?.detail === 'Signature has expired.') {
           return this.managementService.refreshCacheToken().then((newToken) => {
@@ -41,8 +35,6 @@ export class ManagementHttpService {
             )
               .then((data) => data.data)
               .catch((err) => {
-                console.log('ERRORRRRR');
-                console.log(err);
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
@@ -176,6 +168,10 @@ export class ManagementHttpService {
         return;
       })
       .catch((err) => {
+        // TODO: Why this error when it deletes favourite successfully?
+        if (err.code === 'ECONNRESET') {
+          return;
+        }
         // If token has expired then renew request token
         if (err.response?.data?.detail === 'Signature has expired.') {
           return this.managementService.refreshCacheToken().then((newToken) => {
@@ -192,12 +188,11 @@ export class ManagementHttpService {
                 return;
               })
               .catch((err) => {
-                console.error(err);
-                throw new InternalServerErrorException();
+                throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        throw new InternalServerErrorException();
+        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
       });
   }
 }

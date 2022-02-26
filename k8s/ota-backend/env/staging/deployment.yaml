@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: ota-backend
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: ota-backend
@@ -19,7 +19,7 @@ spec:
             - name: APP_ID
               value: myapp
             - name: PORT
-              value: "3080"
+              value: '3080'
             - name: LOG_LEVEL
               value: debug
             - name: REQUEST_LIMIT
@@ -32,49 +32,33 @@ spec:
               value: /spec
             - name: ENVIRONMENT
               value: production
-            - name: BRAND
-              value: NBLUE
-            - name: BRANDPT
-              value: NBLPT
             - name: SESSION_TOKEN_URL
-              value: https://pre-auth.w2m.com/auth/realms/agency/protocol/openid-connect/token
+              value: https://auth.w2m.com/auth/realms/integration/protocol/openid-connect/token
             - name: SESION_SCOPE
               value: profile
             - name: SESSION_PASSWORD
-              value: Tecnoturis22
+              value: e2rWoC8YL23j0ym
             - name: SESSION_USERNAME
-              value: test.tecnoturis2
+              value: tecnoturis
             - name: SESSION_GRANT_TYPE
               value: password
             - name: CLIENT_ID
-              value: tecnoturis-integration
+              value: tecnoturis
             - name: CLIENT_SECRET
-              value: 2ed7403e-0b60-4760-a36c-5e13e2576152
+              value: e2a08581-3dcb-4f0f-8bae-6a6df707ed72
             - name: CHECKOUT_URL
-              value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
-            - name: REDIS_TTL
-              value: "250"
-            - name: REDIS_URL
-              value: redis
-            - name: REDIS_PORT
-              value: "6379"
-            - name: PROVIDER_SERVICE_ID
-              value: "41"
-            - name: SERVICE_ID
-              value: "7"
-            - name: TIMEOUTTO
-              value: "120000"
-            - name: TIMEOUT
-              value: "30000"
-            - name: MANAGEMENT_URL
-              value: http://management:3055
+              value: https://stg-api.w2m.com/integration/checkout/api/v1/checkout/
             - name: MANAGEMENT_USERNAME
-              value: bytourncentral
+              value: flowostg
             - name: MANAGEMENT_PASSWORD
-              value: "123456"
-            - name: TECNOTURIS_URL
-              value: https://dev.tecnoturis.es/api-rest
-          image: registrytecnob2b.azurecr.io/ota-backend
+              value: 'WaeN$p74XD'
+            - name: BASE_URL
+              value: https://agenciasb2b.w2m.com/api-rest
+            - name: DISCOUNT_CODE_URL
+              value: https://stg-api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
+            - name: EMAIL_RAW_URL
+              value: https://stg-api.w2m.com/integration/notify/api/v1/notification/send/email/raw
+          image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
             - containerPort: 3080
@@ -93,21 +77,7 @@ spec:
             postStart:
               exec:
                 command:
-                  [
-                    sh,
-                    -c,
-                    "sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*",
-                  ]
-          volumeMounts:
-            - name: tecnob2blog
-              mountPath: /log
-              subPath: ota-backend
-      volumes:
-        - name: tecnob2blog
-          azureFile:
-            secretName: tecnob2bsharesecret
-            shareName: stgb2blogs
-            readOnly: false
+                  [sh, -c, 'sleep 30 && rm -f /node_modules/swagger-ui-dist/index.* && rm -f /node_modules/swagger-ui-dist/swagger-ui*']
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

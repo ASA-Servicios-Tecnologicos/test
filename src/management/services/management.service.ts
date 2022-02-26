@@ -1,4 +1,4 @@
-import { HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { LoginPayloadDTO } from 'src/shared/dto/login-payload.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
@@ -11,7 +11,7 @@ export class ManagementService {
     private readonly http: HttpService,
     private readonly appConfigService: AppConfigService,
     private readonly cacheService: CacheService<any>,
-  ) { }
+  ) {}
 
   auth(): Promise<string> {
     return this.getCachedToken();
@@ -19,11 +19,11 @@ export class ManagementService {
 
   async login(loginPayloadDto: LoginPayloadDTO): Promise<{ token: string }> {
     const requestToken = await firstValueFrom(
-      this.http.post<{ token: string }>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`, loginPayloadDto),
+      this.http.post<{ token: string }>(`${this.appConfigService.BASE_URL}/management/api/v1/user/auth/token-auth/`, loginPayloadDto),
     ).catch((err) => {
-      throw new InternalServerErrorException(err);
+      throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
     });
-    return { token: requestToken.data.token }
+    return { token: requestToken.data.token };
   }
 
   async getCachedToken(): Promise<string> {
@@ -34,7 +34,7 @@ export class ManagementService {
         password: this.appConfigService.MANAGEMENT_PASSWORD,
       };
       const requestToken = await firstValueFrom(
-        this.http.post<{ token: string }>(`${this.appConfigService.MANAGEMENT_URL}/api/v1/user/auth/token-auth/`, authData),
+        this.http.post<{ token: string }>(`${this.appConfigService.BASE_URL}/management/api/v1/user/auth/token-auth/`, authData),
       ).catch((err) => {
         console.log(err);
         throw new Error(err);
