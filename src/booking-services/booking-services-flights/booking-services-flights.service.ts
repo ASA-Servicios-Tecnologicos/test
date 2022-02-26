@@ -13,4 +13,8 @@ export class BookingServicesFlightsService {
   deleteFlightSegmentById(flightSegmentId: number): Promise<void> {
     return this.bookingServicesService.deleteFlightSegmentById(flightSegmentId);
   }
+
+  putFlightSegment(flightSegmentId: number, newFlightSegment) {
+    return this.bookingServicesService.putFlightSegmentById(flightSegmentId, newFlightSegment);
+  }
 }

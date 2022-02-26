@@ -196,10 +196,8 @@ export class ManagementBudgetPackageDataDTO {
   transfers: ManagementBudgetTransferDTO[];
   distribution: ManagementBudgetDistributionDTO[];
   productTokenNewblue: string;
-  passengers: Array</* {
-    code: string;
-    passengers: ManagementBudgetPassengerDTO[];
-  } */ any>;
+  passengers: Array<any>;
+  newsletter?: boolean;
   commission: {
     pvp: number;
   };

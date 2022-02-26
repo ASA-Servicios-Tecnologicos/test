@@ -8,6 +8,7 @@ import { DiscountCodeService } from './services/dicount-code.service';
 import { ExternalClientService } from './services/external-client.service';
 import { HotelBookingRoomsService } from './services/hotel-booking-rooms.service';
 import { ManagementHttpService } from './services/management-http.service';
+import { ManagementSetupService } from './management-setup/management-setup.service';
 import { ManagementService } from './services/management.service';
 import { PackagesNewblueService } from './services/packages-newblue.service';
 import { PackagesProvidersService } from './services/packages-providers.service';
@@ -25,6 +26,7 @@ import { PackagesProvidersService } from './services/packages-providers.service'
     HotelBookingRoomsService,
     PackagesProvidersService,
     PackagesNewblueService,
+    ManagementSetupService,
   ],
   exports: [
     ManagementService,
@@ -38,6 +40,7 @@ import { PackagesProvidersService } from './services/packages-providers.service'
     HotelBookingRoomsService,
     PackagesProvidersService,
     PackagesNewblueService,
+    ManagementSetupService,
   ],
 })
 export class ManagementModule {}
