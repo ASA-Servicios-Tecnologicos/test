@@ -20,9 +20,7 @@ export class BookingPackagesController {
   constructor(private readonly bookingPackagesService: BookingPackagesService) {}
 
   @Post('providers/pre-bookings')
-  postPreBookingsPackagesProviders(
-    @Body() postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO,
-  ): Promise<PreBookingsPackagesProvidersResponseDTO> {
+  postPreBookingsPackagesProviders(@Body() postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO): Promise<any> {
     return this.bookingPackagesService.postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO);
   }
 
