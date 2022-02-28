@@ -4,7 +4,7 @@ import { SecuredHttpService } from '../../shared/services/secured-http.service';
 
 @Injectable()
 export class BookingDocumentsService extends SecuredHttpService {
-  constructor(http: HttpService, readonly appConfigService: AppConfigService) {
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {
     super(http, appConfigService);
   }
 
