@@ -15,9 +15,7 @@ export class BookingPackagesService {
     return this.packagesProvidersService.getPackageProviders(queryParams);
   }
 
-  postPrebookingsPackagesProviders(
-    postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO,
-  ): Promise<PreBookingsPackagesProvidersResponseDTO> {
+  postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO): Promise<any> {
     return this.packagesProvidersService.postPreBookings(postPreBookingsPackagesProvidersDTO);
   }
 
