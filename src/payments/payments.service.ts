@@ -7,6 +7,7 @@ import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Booking, BookingDocument } from 'src/shared/model/booking.schema';
 import { Model } from 'mongoose';
+import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 @Injectable()
 export class PaymentsService {
   constructor(
@@ -16,6 +17,7 @@ export class PaymentsService {
     private checkoutService: CheckoutService,
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
+    private bookingDocumentsService: BookingDocumentsService,
   ) {}
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
@@ -41,7 +43,8 @@ export class PaymentsService {
   async updateDossierPaymentsByCheckout(checkoutId: string) {
     const checkout = await this.checkoutService.getCheckout(checkoutId);
     const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId }).exec();
-    const dossierPayments: CreateUpdateDossierPaymentDTO = {
+    return this.bookingDocumentsService.findDocumentsByBooking('nblue', booking.bookingId);
+    /* const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: booking.dossier,
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
@@ -54,7 +57,7 @@ export class PaymentsService {
           : parseInt(checkout.payment.paymentMethods[0].code),
       amount: checkout.payment.amount,
     };
-    return this.updateDossierPayments(dossierPayments);
+    return this.updateDossierPayments(dossierPayments); */
   }
 
   private sendBonoEmail() {}
