@@ -12,7 +12,7 @@ export class CallCenterBookingFilterParamsDTO {
   payment_status?: number;
   check_in?: string;
   check_out?: string;
-  product_code: string;
+  product_code?: string;
 }
 
 export class GetDossiersByClientDTO {
