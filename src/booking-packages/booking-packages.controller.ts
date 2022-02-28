@@ -14,7 +14,8 @@ export class BookingPackagesProvidersFilters {
   destinationType: string;
   providers: string;
 }
-// TODO: PENDING TYPE ALL
+
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('booking-packages')
 export class BookingPackagesController {
   constructor(private readonly bookingPackagesService: BookingPackagesService) {}

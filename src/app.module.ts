@@ -1,6 +1,5 @@
 import { HttpModule, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BookingModule } from './booking/booking.module';
 import { BudgetModule } from './budget/budget.module';
@@ -54,7 +53,7 @@ import { BookingDocumentsModule } from './booking-documents/booking-documents.mo
     }),
   ],
 
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService],
   exports: [],
 })

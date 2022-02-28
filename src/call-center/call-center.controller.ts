@@ -8,7 +8,7 @@ import { ManagementBookingServiceDTO } from '../shared/dto/booking-service.dto';
 import { CallCenterBookingFilterParamsDTO, CreateUpdateBookingServicePax, Pax } from '../shared/dto/call-center.dto';
 import { DossierClientDTO } from '../shared/dto/dossier-client.dto';
 import { CallCenterService } from './call-center.service';
-
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('call-center')
 export class CallCenterController {
   constructor(
