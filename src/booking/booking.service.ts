@@ -20,6 +20,7 @@ import Handlebars from 'handlebars';
 import { readFileSync } from 'fs';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { EmailDTO } from 'src/shared/dto/email.dto';
+import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 
 @Injectable()
 export class BookingService {
@@ -35,6 +36,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
+    private bookingDocumentsService: BookingDocumentsService,
   ) {
     Handlebars.registerHelper('toOrdinal', function (options) {
       let index = parseInt(options.fn(this)) + 1;

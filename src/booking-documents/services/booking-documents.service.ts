@@ -1,11 +1,10 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { CheckoutDTO, CreateCheckoutDTO } from '../../shared/dto/checkout.dto';
 import { SecuredHttpService } from '../../shared/services/secured-http.service';
 
 @Injectable()
 export class BookingDocumentsService extends SecuredHttpService {
-  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {
+  constructor(http: HttpService, readonly appConfigService: AppConfigService) {
     super(http, appConfigService);
   }
 
