@@ -9,6 +9,8 @@ export class CallCenterBookingFilterParamsDTO {
   dossier_status?: number;
   dossier_situation?: number;
   all_data?: boolean;
+  payment_method?: number;
+  payment_status?: number;
 }
 
 export class GetDossiersByClientDTO {
