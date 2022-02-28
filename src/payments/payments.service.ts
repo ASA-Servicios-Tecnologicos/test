@@ -46,8 +46,16 @@ export class PaymentsService {
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
       installment: checkout.payment.installments,
+      paymentMethods:
+        checkout.payment.paymentMethods[0].code === '1'
+          ? 4
+          : checkout.payment.paymentMethods[0].code === '2'
+          ? 2
+          : parseInt(checkout.payment.paymentMethods[0].code),
       amount: checkout.payment.amount,
     };
     return this.updateDossierPayments(dossierPayments);
   }
+
+  private sendBonoEmail() {}
 }

@@ -60,6 +60,8 @@ spec:
               value: https://pre-api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
             - name: EMAIL_RAW_URL
               value: https://pre-api.w2m.com/integration/notify/api/v1/notification/send/email/raw
+            - name: W2M_URL
+              value: https://pre-api.w2m.com
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:

@@ -19,7 +19,7 @@ import { DiscountCodeService } from 'src/management/services/dicount-code.servic
 import Handlebars from 'handlebars';
 import { readFileSync } from 'fs';
 import { NotificationService } from 'src/notifications/services/notification.service';
-import { EmailTemplatedDTO } from 'src/shared/dto/email-templated.dto';
+import { EmailDTO } from 'src/shared/dto/email.dto';
 
 @Injectable()
 export class BookingService {
@@ -287,6 +287,12 @@ export class BookingService {
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: bookingManagement[0].dossier,
       bookingId: booking.bookingId,
+      paymentMethods:
+        checkOut.payment.paymentMethods[0].code === '1'
+          ? 4
+          : checkOut.payment.paymentMethods[0].code === '2'
+          ? 2
+          : parseInt(checkOut.payment.paymentMethods[0].code),
       amount: {
         value: booking.amount,
         currency: booking.currency,
@@ -495,7 +501,7 @@ export class BookingService {
     let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
     let template = Handlebars.compile(flowo_email_confirmation);
     let emailTemplate = template(data);
-    const email: EmailTemplatedDTO = {
+    const email: EmailDTO = {
       uuid: uuidv4(),
       applicationName: 'booking-flowo-tecnoturis',
       from: 'noreply@mg.flowo.com',
@@ -504,7 +510,7 @@ export class BookingService {
       body: emailTemplate,
       contentType: 'HTML',
     };
-    this.notificationsService.sendMailTemplated(email);
+    this.notificationsService.sendMailRaw(email);
   }
 
   private testTemplate() {

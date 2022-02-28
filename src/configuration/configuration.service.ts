@@ -75,4 +75,8 @@ export class AppConfigService {
   get MANAGEMENT_PASSWORD(): string {
     return this.configService.get<string>('tecnoturis-app.MANAGEMENT_PASSWORD');
   }
+
+  get W2M_URL(): string {
+    return this.configService.get<string>('tecnoturis-app.W2M_URL');
+  }
 }
