@@ -55,7 +55,7 @@ export class BookingServicesService {
   }
 
   putBookingServiceByServiceAndPaxId(paxId: string, newPax: Partial<CreateUpdateBookingServicePax>): Promise<void> {
-    return this.managementHttpService.put(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`, newPax);
+    return this.managementHttpService.put(`${this.appConfigService.BASE_URL}/management/api/v1/pax/${paxId}/`, newPax);
   }
 
   createFlightBookingService(flightBookingServiceId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {
