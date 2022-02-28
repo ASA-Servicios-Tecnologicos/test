@@ -16,7 +16,7 @@ export class ExternalClientService {
   async createExternalClient(user: CreateExternalUserDTO) {
     return this.managementHttpService
       .post<ExternalUserDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/client/external/flowo/`, user)
-      .catch((err) => {
+      .catch(async (err) => {
         // Handles if user exists but is not activated.
         // Then activates it and updates its privacy policy with current date
         if (
@@ -27,7 +27,7 @@ export class ExternalClientService {
             err.response.status === HttpStatus.BAD_REQUEST)
         ) {
           // Activates user
-          return this.clientService.patchClientByUsername(user.username, { accept_privacy_policy: new Date(), active: true });
+          await this.clientService.patchClientByUsername(user.username, { accept_privacy_policy: new Date(), active: true });
         }
         throw err;
       });
