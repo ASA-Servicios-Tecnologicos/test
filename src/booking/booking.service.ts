@@ -309,7 +309,10 @@ export class BookingService {
       });
     }
 
-    const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
+    const update = await this.bookingModel.findOneAndUpdate(
+      { bookingId: booking.bookingId },
+      { dossier: bookingManagement[0].dossier, locator: bookId },
+    );
     (await update).save();
     this.paymentsService.createDossierPayments(dossierPayments);
     this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status);
@@ -480,6 +483,8 @@ export class BookingService {
       transfers: prebookingData.data.transfers,
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
+      insurances: prebookingData.data.insurances,
+      observations: prebookingData.data.observations,
     };
     const formatDatesCancellationPollicies = function (text: string) {
       const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);

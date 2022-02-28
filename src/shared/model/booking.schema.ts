@@ -70,6 +70,9 @@ export class Booking {
 
   @Prop()
   dossier?: number;
+
+  @Prop()
+  locator?: string;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

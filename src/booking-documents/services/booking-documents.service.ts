@@ -1,4 +1,5 @@
 import { HttpService, Injectable } from '@nestjs/common';
+import { GetDocumentsContent } from 'src/shared/dto/booking-documents.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { SecuredHttpService } from '../../shared/services/secured-http.service';
 
@@ -12,6 +13,10 @@ export class BookingDocumentsService extends SecuredHttpService {
     return this.getSecured(
       `${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/attachments/brands/${brandCode}/bookings/${bookingReference}`,
     );
+  }
+
+  findDocumentsContent(documentContent: GetDocumentsContent) {
+    return this.getSecured(`${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/`);
   }
 
   /* async doCheckout(checkout: CreateCheckoutDTO) {

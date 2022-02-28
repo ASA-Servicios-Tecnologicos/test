@@ -43,8 +43,7 @@ export class PaymentsService {
   async updateDossierPaymentsByCheckout(checkoutId: string) {
     const checkout = await this.checkoutService.getCheckout(checkoutId);
     const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId }).exec();
-    return this.bookingDocumentsService.findDocumentsByBooking('nblue', booking.bookingId);
-    /* const dossierPayments: CreateUpdateDossierPaymentDTO = {
+    const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: booking.dossier,
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
@@ -57,7 +56,9 @@ export class PaymentsService {
           : parseInt(checkout.payment.paymentMethods[0].code),
       amount: checkout.payment.amount,
     };
-    return this.updateDossierPayments(dossierPayments); */
+    this.updateDossierPayments(dossierPayments);
+    return this.bookingDocumentsService.findDocumentsByBooking('NBLUE', booking.locator);
+    /*     return  */
   }
 
   private sendBonoEmail() {}
