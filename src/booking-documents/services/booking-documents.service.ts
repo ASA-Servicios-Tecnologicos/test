@@ -11,7 +11,7 @@ export class BookingDocumentsService extends SecuredHttpService {
 
   private findDocumentsByBooking(brandCode: string, bookingReference: string): Promise<Array<any>> {
     return this.getSecured(
-      `${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/attachments/brands/${brandCode}/bookings/${bookingReference}`,
+      `${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/brands/${brandCode}/bookings/${bookingReference}`,
     );
   }
 

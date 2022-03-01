@@ -15,12 +15,12 @@ export class HotelBookingRoomsService {
   }
 
   deleteHotelBookingRoomById(id: number): Promise<void> {
-    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/hotel-booking-rooms/${id}`);
+    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/hotel-booking-rooms/${id}/`);
   }
 
   putHotelBookingRoomById(id: number, createHotelBookingRoomDTO: CreateHotelBookingRoomDTO): Promise<ManagementHotelBookingRoomDTO> {
     return this.managementHttpService.put<ManagementHotelBookingRoomDTO>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/hotel-booking-rooms/${id}`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/hotel-booking-rooms/${id}/`,
       createHotelBookingRoomDTO,
     );
   }

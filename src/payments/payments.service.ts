@@ -64,6 +64,6 @@ export class PaymentsService {
   }
 
   private sendBonoEmail(booking: Booking) {
-    this.bookingDocumentsService.sendBonoEmail('NBLUE', booking.locator);
+    return this.bookingDocumentsService.sendBonoEmail('NBLUE', booking.locator);
   }
 }

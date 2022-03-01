@@ -21,13 +21,10 @@ export class ExternalClientService {
         // Then activates it and updates its privacy policy with current date
         if (
           (err.response?.error[0] && err.response?.error[0] === CLIENT_NOT_ACTIVE_ERROR) ||
-          (err.response?.error &&
-            err.response.error === CLIENT_NOT_ACTIVE_ERROR &&
-            err.response?.status &&
-            err.response.status === HttpStatus.BAD_REQUEST)
+          (err.response?.error && err.response.error === CLIENT_NOT_ACTIVE_ERROR)
         ) {
           // Activates user
-          await this.clientService.patchClientByUsername(user.username, { accept_privacy_policy: new Date(), active: true });
+          await this.clientService.patchClientByUsername(user.username, { accept_privacy_policy: new Date().toISOString(), active: true });
         }
         throw err;
       });
