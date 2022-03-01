@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { BookingServicesFlightsService } from './booking-services-flights.service';
-
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('booking-services/flights')
 export class BookingServicesFlightsController {
   constructor(private readonly bookingServicesFlights: BookingServicesFlightsService) {}

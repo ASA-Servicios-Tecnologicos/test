@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BookingDTO } from '../shared/dto/booking.dto';
 import { BookingService } from './booking.service';
-
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('booking')
 export class BookingController {
   constructor(private bookingService: BookingService) {}
