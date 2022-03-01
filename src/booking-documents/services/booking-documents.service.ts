@@ -9,21 +9,27 @@ export class BookingDocumentsService extends SecuredHttpService {
     super(http, appConfigService);
   }
 
-  findDocumentsByBooking(brandCode: string, bookingReference: string) {
+  private findDocumentsByBooking(brandCode: string, bookingReference: string): Promise<Array<any>> {
     return this.getSecured(
       `${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/attachments/brands/${brandCode}/bookings/${bookingReference}`,
     );
   }
 
-  findDocumentsContent(documentContent: GetDocumentsContent) {
-    return this.getSecured(`${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/`);
+  private findDocumentsContent(documentContent: GetDocumentsContent) {
+    return this.getSecured(`${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/`, documentContent);
   }
 
-  /* async doCheckout(checkout: CreateCheckoutDTO) {
-    return this.postSecured(this.appConfigService.CHECKOUT_URL, checkout);
+  private findDocumentsContentPacked(documentContent: GetDocumentsContent) {
+    return this.getSecured(`${this.appConfigService.W2M_URL}/agency/ttoo-third-document/api/v1/agency/packed`, documentContent);
   }
 
-  async getCheckout(id: string): Promise<CheckoutDTO> {
-    return this.getSecured(`${this.appConfigService.CHECKOUT_URL}/${id}`);
-  } */
+  async sendBonoEmail(brandCode: string, locator: string) {
+    const bonoDocuments = (await this.findDocumentsByBooking(brandCode, locator)).filter((document) => document.type === 'VOUCHER');
+    const getContentBody: GetDocumentsContent = {
+      bookingReference: locator,
+      brandCode: brandCode,
+      documentIds: [...bonoDocuments.map((doc) => doc.id)],
+    };
+    const content = await this.findDocumentsContent(getContentBody);
+  }
 }

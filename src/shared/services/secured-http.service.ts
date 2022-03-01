@@ -44,7 +44,7 @@ export abstract class SecuredHttpService {
     });
   }
 
-  protected async getSecured(url: string) {
+  protected async getSecured(url: string, body?) {
     const token = await this.getSessionToken();
     return lastValueFrom(
       this.http
@@ -55,6 +55,7 @@ export abstract class SecuredHttpService {
             'Accept-Language': 'es_ES',
             Authorization: `Bearer ${token}`,
           },
+          data: body,
         })
         .pipe(map((res) => res.data)),
     ).catch((error) => {

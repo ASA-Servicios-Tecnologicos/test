@@ -56,10 +56,14 @@ export class PaymentsService {
           : parseInt(checkout.payment.paymentMethods[0].code),
       amount: checkout.payment.amount,
     };
-    this.updateDossierPayments(dossierPayments);
-    return this.bookingDocumentsService.findDocumentsByBooking('NBLUE', booking.locator);
-    /*     return  */
+    const pendingPayments = checkout.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
+    if (!pendingPayments.length) {
+      this.sendBonoEmail(booking);
+    }
+    return this.updateDossierPayments(dossierPayments);
   }
 
-  private sendBonoEmail() {}
+  private sendBonoEmail(booking: Booking) {
+    this.bookingDocumentsService.sendBonoEmail('NBLUE', booking.locator);
+  }
 }
