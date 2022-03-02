@@ -485,6 +485,7 @@ export class BookingService {
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
       insurances: prebookingData.data.insurances,
       observations: prebookingData.data.observations,
+      hotelRemarks: prebookingData.data.hotels[0].remarks,
     };
     const formatDatesCancellationPollicies = function (text: string) {
       const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
@@ -504,6 +505,25 @@ export class BookingService {
         text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
       };
     });
+    const lowestDatePolicy = data.cancellationPollicies
+      .filter((policy) => policy.amount !== 0)
+      .find(
+        (policy) =>
+          Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
+          new Date(policy.fromDate).getMilliseconds(),
+      );
+    const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));
+    if (noExpensesPolicy > -1) {
+      const datesInText = data.cancellationPollicies[noExpensesPolicy].text.match(/(\d{1,4}([.\/-])\d{1,2}([.\/-])\d{1,4})/g);
+      const date = new Date(lowestDatePolicy.fromDate);
+      date.setDate(date.getDate() - 1);
+      if (datesInText) {
+        data.cancellationPollicies[noExpensesPolicy].text = data.cancellationPollicies[noExpensesPolicy].text.replace(
+          datesInText[1],
+          new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date),
+        );
+      }
+    }
 
     let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
     let template = Handlebars.compile(flowo_email_confirmation);
@@ -771,6 +791,23 @@ export class BookingService {
         text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
       };
     });
+    const lowestDatePolicy = data.cancellationPollicies
+      .filter((policy) => policy.amount !== 0)
+      .find(
+        (policy) =>
+          Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
+          new Date(policy.fromDate).getMilliseconds(),
+      );
+    const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));
+    const datesInText = data.cancellationPollicies[noExpensesPolicy].text.match(/(\d{1,4}([.\/-])\d{1,2}([.\/-])\d{1,4})/g);
+    const date = new Date(lowestDatePolicy.fromDate);
+    date.setDate(date.getDate() - 1);
+    if (datesInText) {
+      data.cancellationPollicies[noExpensesPolicy].text = data.cancellationPollicies[noExpensesPolicy].text.replace(
+        datesInText[1],
+        new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date),
+      );
+    }
 
     let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
     let template = Handlebars.compile(flowo_email_confirmation);

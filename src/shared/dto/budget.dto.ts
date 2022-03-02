@@ -183,6 +183,7 @@ export class ManagementBudgetHotelDTO {
   providerCode: string;
   partyInfo: string;
   extras: [] = [];
+  remarks: Array<{ type: any; text: string }>;
 }
 
 export class ManagementBudgetPackageDataDTO {
