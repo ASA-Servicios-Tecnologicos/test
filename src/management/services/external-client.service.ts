@@ -20,11 +20,17 @@ export class ExternalClientService {
         // Handles if user exists but is not activated.
         // Then activates it and updates its privacy policy with current date
         if (
-          (err.response?.error[0] && err.response?.error[0] === CLIENT_NOT_ACTIVE_ERROR) ||
-          (err.response?.error && err.response.error === CLIENT_NOT_ACTIVE_ERROR)
+          (err.response?.error[0] && err.response?.error[0] === CLIENT_NOT_ACTIVE_ERROR && err.status === HttpStatus.BAD_REQUEST) ||
+          (err.response?.error && err.response.error === CLIENT_NOT_ACTIVE_ERROR && err.status === HttpStatus.BAD_REQUEST)
         ) {
           // Activates user
-          await this.clientService.patchClientByUsername(user.username, { accept_privacy_policy: new Date().toISOString(), active: true });
+          const userActive = await this.clientService.patchClientByUsername(user.username, {
+            accept_privacy_policy: new Date().toISOString(),
+            active: true,
+          });
+          return {
+            client: userActive.id,
+          };
         }
         throw err;
       });
