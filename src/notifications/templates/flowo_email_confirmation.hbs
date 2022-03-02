@@ -284,9 +284,9 @@
 													<hr style="border: 0; width: 100%; height: 1px; background-color:#EBEBEB; margin: 20px 0; color: transparent;">
 													<p style="margin: 0; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px;"><strong><span style="font-size: 18px;">Observaciones y notas importantes</span></strong></p>
 													<ul style="margin: 0; padding-left: 20px; list-style: disc;">
-														<li style="font-size: 14px; line-height: 1.8; mso-line-height-alt: 32px; margin-top: 14px;"><span style="font-size: 14px;"><span style="font-size: 14px;">A la llegada al país debe presentarse el formulario de migración, aduana y salud pública-COVID19. El cual debe tramitarse </span></span><span style="font-size: 18px;"><span style="font-size: 14px;">online en: <strong><a style="color: #000000;" href="https://eticket.migracion.gob.do">https://eticket.migracion.gob.do</a></strong></span></span><strong><span style="font-size: 18px;">&nbsp;</span></strong></li>
-														<li style="font-size: 14px; line-height: 1.8; mso-line-height-alt: 25px; margin-top: 14px;"><span style="font-size: 14px;">CHECK-IN ONLINE: Para ahorrarte esperas en el aeropuerto, a partir de 48 horas antes de la salida del vuelo y hasta con 4&nbsp;<br>horas de antelación, te aconsejamos realizar el check-in online, con el que eliges tu asiento (si no lo has elegido previamente) y obtienes tu tarjeta de embarque. Accede a <a style="color: #000000;" href="https://www.w2fly.es/viaje/check-in-formulario"><strong>https://www.w2fly.es/viaje/check-in-formulario.</strong></a> Recuerda que para realizar el Check-in, como localizador debes indicar el&nbsp;<br>localizador de tu reserva Newblue<strong>.&nbsp;</strong></span></li>
-														<li style="font-size: 14px; line-height: 1.8; mso-line-height-alt: 25px; margin-top: 14px;"><span style="font-size: 14px;">TERMINAL SALIDA MADRID: T1<strong>&nbsp;</strong></span></li>
+														{{#each observations}}
+														<li style="font-size: 14px; line-height: 1.8; mso-line-height-alt: 32px; margin-top: 14px;"><span style="font-size: 14px;"><span style="font-size: 14px;">{{text}}</a></strong></span></span><strong><span style="font-size: 18px;">&nbsp;</span></strong></li>
+														{{/each}}
 													</ul>
 													
 													<hr style="border: 0; width: 100%; height: 1px; background-color:#EBEBEB; margin: 20px 0; color: transparent;">
@@ -329,7 +329,7 @@
 													<table style="background-color: #ECFBF9; border-radius: 14px; width: 100%;">
 														<tr>
 															<td>
-																<p style="margin: 20px; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px; color: #1D9886;"><img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/insurance.png" alt="insurance" style="margin-bottom: -2px;"><span style="font-size: 14px;"><strong>Mayor protección con el seguro Plus</strong></span></p>
+																<p style="margin: 20px; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px; color: #1D9886;"><img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/insurance.png" alt="insurance" style="margin-bottom: -2px;"><span style="font-size: 14px;"><strong>{{insurances.insured.name}}</strong></span></p>
 															</td>
 														</tr>
 													</table>

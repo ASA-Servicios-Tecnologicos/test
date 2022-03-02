@@ -25,6 +25,8 @@ export interface PrebookingDTO {
     totalAmount: number;
     pendingAmount: number;
     currency: string;
+    insurances: Insurances;
+    observations: Array<Observation>;
     commision: {
       commission: number;
       iva: number;
@@ -55,4 +57,21 @@ export interface PrebookingDTO {
     };
   };
   status: number;
+}
+
+interface Insurances {
+  name: string;
+  startDate: string;
+  endDate: string;
+  insured: Insured;
+}
+
+interface Insured {
+  code: string;
+  name: string;
+}
+
+interface Observation {
+  type?: any;
+  text: string;
 }

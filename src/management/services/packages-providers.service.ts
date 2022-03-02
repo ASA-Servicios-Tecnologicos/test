@@ -12,7 +12,7 @@ export class PackagesProvidersService {
     return this.managementHttpService.get(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/packages`, { params: queryParams });
   }
 
-  postPreBookings(data: PostPreBookingsPackagesProvidersDTO): Promise<PreBookingsPackagesProvidersResponseDTO> {
+  postPreBookings(data: PostPreBookingsPackagesProvidersDTO): Promise<any> {
     return this.managementHttpService
       .post<PreBookingsPackagesProvidersResponseDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/pre-bookings`, data)
       .then((response) => {

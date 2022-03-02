@@ -1,13 +1,13 @@
-export interface EmailRawDTO {
+export interface EmailDTO {
   uuid: string;
   applicationName: string;
   from: string;
   to: string[];
   subject: string;
   body: string;
-  contentType: string;
-  urlAttachments: Attachment[];
-  rawAttachments: RawAttachment[];
+  contentType: 'HTML' | 'TEXT';
+  urlAttachments?: Attachment[];
+  rawAttachments?: RawAttachment[];
 }
 
 export interface Attachment {

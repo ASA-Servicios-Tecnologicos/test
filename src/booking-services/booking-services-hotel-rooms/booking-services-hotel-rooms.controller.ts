@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
 import { ManagementHttpService } from '../../management/services/management-http.service';
 import { CreateHotelBookingRoomDTO } from '../../shared/dto/hotel-booking-room.dto';
 import { BookingServicesHotelRoomsService } from './booking-services-hotel-rooms.service';
-
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('booking-services/hotel-rooms')
 export class BookingServicesHotelRoomsController {
   constructor(private readonly bookingServicesHotelRoomsService: BookingServicesHotelRoomsService) {}

@@ -7,6 +7,7 @@ import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Booking, BookingDocument } from 'src/shared/model/booking.schema';
 import { Model } from 'mongoose';
+import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 @Injectable()
 export class PaymentsService {
   constructor(
@@ -16,6 +17,7 @@ export class PaymentsService {
     private checkoutService: CheckoutService,
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
+    private bookingDocumentsService: BookingDocumentsService,
   ) {}
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
@@ -46,8 +48,22 @@ export class PaymentsService {
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
       installment: checkout.payment.installments,
+      paymentMethods:
+        checkout.payment.paymentMethods[0].code === '1'
+          ? 4
+          : checkout.payment.paymentMethods[0].code === '2'
+          ? 2
+          : parseInt(checkout.payment.paymentMethods[0].code),
       amount: checkout.payment.amount,
     };
+    const pendingPayments = checkout.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
+    if (!pendingPayments.length) {
+      this.sendBonoEmail(booking);
+    }
     return this.updateDossierPayments(dossierPayments);
+  }
+
+  private sendBonoEmail(booking: Booking) {
+    return this.bookingDocumentsService.sendBonoEmail('NBLUE', booking.locator);
   }
 }

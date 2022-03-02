@@ -17,4 +17,5 @@ export default registerAs('tecnoturis-app', () => ({
   DISCOUNT_CODE_URL: process.env.DISCOUNT_CODE_URL,
   EMAIL_RAW_URL: process.env.EMAIL_RAW_URL,
   EMAIL_TEMPLATED_URL: process.env.EMAIL_TEMPLATED_URL,
+  W2M_URL: process.env.W2M_URL,
 }));

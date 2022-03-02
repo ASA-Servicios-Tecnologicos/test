@@ -5,6 +5,7 @@ export class CreateUpdateDossierPaymentDTO {
   bookingId: string;
   checkoutId: string;
   amount: CheckoutAmount;
+  paymentMethods?: number;
   installment: Array<DossierPaymentInstallment>;
 }
 

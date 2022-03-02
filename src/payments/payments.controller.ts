@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpStatus, Param, Post, Put } from '@nestjs/com
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { PaymentsService } from './payments.service';
-
+// TODO: Request payload validators and type responses
 @Controller('payments')
 export class PaymentsController {
   constructor(private paymentsService: PaymentsService) {}

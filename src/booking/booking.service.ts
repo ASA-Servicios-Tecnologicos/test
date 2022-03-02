@@ -19,7 +19,8 @@ import { DiscountCodeService } from 'src/management/services/dicount-code.servic
 import Handlebars from 'handlebars';
 import { readFileSync } from 'fs';
 import { NotificationService } from 'src/notifications/services/notification.service';
-import { EmailTemplatedDTO } from 'src/shared/dto/email-templated.dto';
+import { EmailDTO } from 'src/shared/dto/email.dto';
+import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 
 @Injectable()
 export class BookingService {
@@ -35,6 +36,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
+    private bookingDocumentsService: BookingDocumentsService,
   ) {
     Handlebars.registerHelper('toOrdinal', function (options) {
       let index = parseInt(options.fn(this)) + 1;
@@ -287,6 +289,12 @@ export class BookingService {
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: bookingManagement[0].dossier,
       bookingId: booking.bookingId,
+      paymentMethods:
+        checkOut.payment.paymentMethods[0].code === '1'
+          ? 4
+          : checkOut.payment.paymentMethods[0].code === '2'
+          ? 2
+          : parseInt(checkOut.payment.paymentMethods[0].code),
       amount: {
         value: booking.amount,
         currency: booking.currency,
@@ -301,7 +309,10 @@ export class BookingService {
       });
     }
 
-    const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
+    const update = await this.bookingModel.findOneAndUpdate(
+      { bookingId: booking.bookingId },
+      { dossier: bookingManagement[0].dossier, locator: bookId },
+    );
     (await update).save();
     this.paymentsService.createDossierPayments(dossierPayments);
     this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status);
@@ -472,6 +483,8 @@ export class BookingService {
       transfers: prebookingData.data.transfers,
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
+      insurances: prebookingData.data.insurances,
+      observations: prebookingData.data.observations,
     };
     const formatDatesCancellationPollicies = function (text: string) {
       const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
@@ -495,7 +508,7 @@ export class BookingService {
     let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
     let template = Handlebars.compile(flowo_email_confirmation);
     let emailTemplate = template(data);
-    const email: EmailTemplatedDTO = {
+    const email: EmailDTO = {
       uuid: uuidv4(),
       applicationName: 'booking-flowo-tecnoturis',
       from: 'noreply@mg.flowo.com',
@@ -504,7 +517,7 @@ export class BookingService {
       body: emailTemplate,
       contentType: 'HTML',
     };
-    this.notificationsService.sendMailTemplated(email);
+    this.notificationsService.sendMailRaw(email);
   }
 
   private testTemplate() {
