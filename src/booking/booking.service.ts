@@ -16,11 +16,9 @@ import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { DossiersService } from 'src/dossiers/dossiers.service';
 import { DiscountCodeService } from 'src/management/services/dicount-code.service';
-import Handlebars from 'handlebars';
 import { readFileSync } from 'fs';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { EmailDTO } from 'src/shared/dto/email.dto';
-import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 
 @Injectable()
 export class BookingService {
@@ -36,69 +34,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
-    private bookingDocumentsService: BookingDocumentsService,
-  ) {
-    Handlebars.registerHelper('toOrdinal', function (options) {
-      let index = parseInt(options.fn(this)) + 1;
-      let ordinalTextMapping = [
-        // unidades
-        ['', 'primer', 'segundo', 'tercer', 'cuarto', 'quinto', 'sexto', 'séptimo', 'octavo', 'noveno'],
-        // decenas
-        ['', 'décimo', 'vigésimo', 'trigésimo', 'cuadragésimo', 'quincuagésimo', 'sexagésimo', 'septuagésimo', 'octagésimo', 'nonagésimo'],
-      ];
-      let ordinal = '';
-      let digits = [...index.toString()];
-      digits.forEach((digit, i) => {
-        let digit_ordinal = ordinalTextMapping[digits.length - i - 1][+digit];
-        if (!digit_ordinal) return;
-
-        ordinal += digit_ordinal + ' ';
-      });
-      return ordinal.trim();
-    });
-
-    Handlebars.registerHelper('paymentStatus', function (options) {
-      let status = options.fn(this);
-      return status === 'COMPLETED' ? 'Pagado' : '';
-    });
-
-    Handlebars.registerHelper('paymentStausIcon', function (status, options) {
-      return status === 'COMPLETED' ? options.fn(this) : options.inverse(this);
-    });
-
-    Handlebars.registerHelper('capitalizeFirstLetter', function (options) {
-      let str = options.fn(this).trim();
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    });
-
-    Handlebars.registerHelper('formatdate', function (date) {
-      let splitedDate = date.split('-');
-      splitedDate = splitedDate.reverse();
-      return splitedDate.join('/');
-    });
-
-    Handlebars.registerHelper('formatPrice', function (price, currency) {
-      if (currency) {
-        return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, style: 'currency', currency: currency }).format(price);
-      } else {
-        return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2 }).format(price);
-      }
-    });
-
-    Handlebars.registerHelper('formatFullDate', function (stringDate) {
-      const date = new Date(stringDate);
-      return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
-    });
-
-    Handlebars.registerHelper('formatHourDate', function (stringDate) {
-      const date = new Date(stringDate);
-      return new Intl.DateTimeFormat('es-ES', { hour: 'numeric', minute: 'numeric' }).format(date);
-    });
-
-    Handlebars.registerHelper('fullName', function (passenger) {
-      return `${passenger.gender === 'MALE' ? 'Sr.' : passenger.gender === 'FEMALE' ? 'Sra.' : ''} ${passenger.name} ${passenger.lastname}`;
-    });
-  }
+  ) {}
 
   async create(booking: BookingDTO) {
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
@@ -487,57 +423,7 @@ export class BookingService {
       observations: prebookingData.data.observations,
       hotelRemarks: prebookingData.data.hotels[0].remarks,
     };
-    const formatDatesCancellationPollicies = function (text: string) {
-      const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
-      if (findings) {
-        findings.forEach((finding) => {
-          let splitedDate = finding.split('-');
-          splitedDate = splitedDate.reverse();
-          text = text.replace(finding, splitedDate.join('/'));
-        });
-      }
-      return text;
-    };
-    data.cancellationPollicies = data.cancellationPollicies.map((policy) => {
-      return {
-        ...policy,
-        title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
-        text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
-      };
-    });
-    const lowestDatePolicy = data.cancellationPollicies
-      .filter((policy) => policy.amount !== 0)
-      .find(
-        (policy) =>
-          Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
-          new Date(policy.fromDate).getMilliseconds(),
-      );
-    const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));
-    if (noExpensesPolicy > -1) {
-      const datesInText = data.cancellationPollicies[noExpensesPolicy].text.match(/(\d{1,4}([.\/-])\d{1,2}([.\/-])\d{1,4})/g);
-      const date = new Date(lowestDatePolicy.fromDate);
-      date.setDate(date.getDate() - 1);
-      if (datesInText) {
-        data.cancellationPollicies[noExpensesPolicy].text = data.cancellationPollicies[noExpensesPolicy].text.replace(
-          datesInText[1],
-          new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date),
-        );
-      }
-    }
-
-    let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
-    let template = Handlebars.compile(flowo_email_confirmation);
-    let emailTemplate = template(data);
-    const email: EmailDTO = {
-      uuid: uuidv4(),
-      applicationName: 'booking-flowo-tecnoturis',
-      from: 'noreply@mg.flowo.com',
-      to: [checkOut.contact.email],
-      subject: 'Enhorabuena, tu viaje con Flowo ha sido confirmado',
-      body: emailTemplate,
-      contentType: 'HTML',
-    };
-    this.notificationsService.sendMailRaw(email);
+    this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);
   }
 
   private testTemplate() {

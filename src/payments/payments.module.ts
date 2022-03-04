@@ -1,7 +1,7 @@
 import { HttpModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BookingDocumentsModule } from 'src/booking-documents/booking-documents.module';
-import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
+import { DossiersModule } from 'src/dossiers/dossiers.module';
 import { ManagementModule } from 'src/management/management.module';
 import { Booking, BookingSchema } from 'src/shared/model/booking.schema';
 import { CheckoutModule } from '../checkout/checkout.module';
@@ -16,6 +16,7 @@ import { PaymentsService } from './payments.service';
     ManagementModule,
     HttpModule,
     BookingDocumentsModule,
+    DossiersModule,
     MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
   ],
   exports: [PaymentsService],
