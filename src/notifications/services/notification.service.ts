@@ -5,11 +5,13 @@ import { SecuredHttpService } from '../../shared/services/secured-http.service';
 import Handlebars from 'handlebars';
 import { readFileSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { CacheService } from 'src/shared/services/cache.service';
 
 @Injectable()
 export class NotificationService extends SecuredHttpService {
-  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {
-    super(http, appConfigService);
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>) {
+    super(http, appConfigService, cacheService);
+
     Handlebars.registerHelper('toOrdinal', function (options) {
       let index = parseInt(options.fn(this)) + 1;
       let ordinalTextMapping = [
