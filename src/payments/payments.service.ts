@@ -1,13 +1,15 @@
-import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from 'src/configuration/configuration.service';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
-import { ClientService } from 'src/management/services/client.service';
 import { CreateUpdateDossierPaymentDTO, DossierPayment, InfoDossierPayments } from 'src/shared/dto/dossier-payment.dto';
 import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Booking, BookingDocument } from 'src/shared/model/booking.schema';
 import { Model } from 'mongoose';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
+import { DossiersService } from 'src/dossiers/dossiers.service';
+import { CheckoutBuyer, CheckoutContact } from 'src/shared/dto/checkout.dto';
+
 @Injectable()
 export class PaymentsService {
   constructor(
@@ -18,6 +20,7 @@ export class PaymentsService {
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
     private bookingDocumentsService: BookingDocumentsService,
+    private dossiersService: DossiersService,
   ) {}
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
@@ -56,14 +59,31 @@ export class PaymentsService {
           : parseInt(checkout.payment.paymentMethods[0].code),
       amount: checkout.payment.amount,
     };
+    const errorPayments = checkout.payment.installments
+      .filter((installment) => installment.status !== 'COMPLETED')
+      .map((installment, index) => {
+        if (installment.status === 'ERROR') {
+          return index + 1;
+        }
+      });
+
+    if (errorPayments.length) {
+      this.dossiersService.patchDossierById(booking.dossier, {
+        dossier_situation: 7,
+        observation: `Ha ocurrido un error en ${errorPayments.length > 1 ? 'los pagos' : 'el pago'} ${errorPayments
+          .toString()
+          .split(',')
+          .join(', ')}`,
+      });
+    }
     const pendingPayments = checkout.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
     if (!pendingPayments.length) {
-      this.sendBonoEmail(booking);
+      this.sendBonoEmail(booking, checkout.contact, checkout.buyer);
     }
     return this.updateDossierPayments(dossierPayments);
   }
 
-  private sendBonoEmail(booking: Booking) {
-    return this.bookingDocumentsService.sendBonoEmail('NBLUE', booking.locator);
+  private sendBonoEmail(booking: Booking, contact: CheckoutContact, buyer: CheckoutBuyer) {
+    this.bookingDocumentsService.sendBonoEmail('NBLUE', booking.locator, contact, buyer);
   }
 }

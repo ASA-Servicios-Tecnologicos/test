@@ -3,9 +3,19 @@ import { lastValueFrom, map } from 'rxjs';
 import { NotificationSessionDTO } from '../dto/notification-session.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { CheckoutDTO } from '../dto/checkout.dto';
+import { CacheService } from './cache.service';
+import { INSTANA_MONITORING_COOKIE } from '../shared.constants';
 
 export abstract class SecuredHttpService {
-  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {}
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>) {
+    this.http.axiosRef.interceptors.request.use((config) => {
+      const cookie = this.cacheService.get(INSTANA_MONITORING_COOKIE);
+      if (this.cacheService.get(INSTANA_MONITORING_COOKIE)) {
+        config.headers['monit-tsid'] = cookie;
+      }
+      return config;
+    });
+  }
 
   protected getSessionToken(): Promise<string> {
     const data = new URLSearchParams();
@@ -19,7 +29,9 @@ export abstract class SecuredHttpService {
     return lastValueFrom(
       this.http
         .post<NotificationSessionDTO>(this.appConfigService.SESSION_TOKEN_URL, data.toString(), {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         })
         .pipe(map((result) => result.data.access_token)),
     ).catch((error) => {

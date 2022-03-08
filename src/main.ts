@@ -6,12 +6,11 @@ import { AppConfigService } from './configuration/configuration.service';
 import { l } from './logger';
 import * as morgan from 'morgan';
 
-
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule,{
+  const app = await NestFactory.create(AppModule, {
     logger: process.env.ENVIRONMENT === 'development' ? ['log', 'debug', 'error', 'verbose', 'warn'] : ['error', 'warn'],
   });
-  app.use(morgan("dev"));
+  app.use(morgan('dev'));
 
   const config = new DocumentBuilder().setTitle('OTA Backend').setDescription('Backend OTA').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config);
@@ -23,6 +22,5 @@ async function bootstrap() {
   app.enableCors({ credentials: true, origin: true });
   await app.listen(appConfig.port);
   l.info(`Server is running in port ${appConfig.port}`);
-
 }
 bootstrap();

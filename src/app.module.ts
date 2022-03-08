@@ -24,6 +24,7 @@ import { BookingServicesModule } from './booking-services/booking-services.modul
 import { BookingServicesFlightsController } from './booking-services/booking-services-flights/booking-services-flights.controller';
 import { ManagementSetupModule } from './management/management-setup/management-setup.module';
 import { BookingDocumentsModule } from './booking-documents/booking-documents.module';
+import { CookieMiddleware } from './middlewares/cookie.middleware';
 
 @Module({
   imports: [
@@ -64,5 +65,6 @@ export class AppModule {
       .exclude({ path: 'calendar/ota/reference-prices', method: RequestMethod.POST })
       .forRoutes(ClientsController, CalendarController);
     consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, BookingServicesFlightsController);
+    consumer.apply(CookieMiddleware).forRoutes('*');
   }
 }

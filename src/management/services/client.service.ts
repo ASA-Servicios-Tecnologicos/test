@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PatchExternalClient } from 'src/shared/dto/external-user.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { DossierClientDTO } from '../../shared/dto/dossier-client.dto';
 import { GetManagementDossiersByClientId } from '../../shared/dto/dossier.dto';
@@ -40,8 +41,7 @@ export class ClientService {
     );
   }
 
-  // TODO: Pending type response and request DTO
-  async patchClientByUsername(username: string, updateClientDTO: Partial<DossierClientDTO>): Promise<unknown> {
+  async patchClientByUsername(username: string, updateClientDTO: Partial<DossierClientDTO>): Promise<PatchExternalClient> {
     const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
     return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${client.id}/`, updateClientDTO);
   }

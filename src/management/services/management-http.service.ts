@@ -2,10 +2,24 @@ import { HttpException, HttpService, Injectable, InternalServerErrorException } 
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
+import { CacheService } from 'src/shared/services/cache.service';
+import { INSTANA_MONITORING_COOKIE } from 'src/shared/shared.constants';
 
 @Injectable()
 export class ManagementHttpService {
-  constructor(private readonly httpService: HttpService, private managementService: ManagementService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private managementService: ManagementService,
+    private cacheService: CacheService<any>,
+  ) {
+    this.httpService.axiosRef.interceptors.request.use((config) => {
+      const cookie = this.cacheService.get(INSTANA_MONITORING_COOKIE);
+      if (this.cacheService.get(INSTANA_MONITORING_COOKIE)) {
+        config.headers['monit-tsid'] = cookie;
+      }
+      return config;
+    });
+  }
 
   async post<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
     return firstValueFrom(
