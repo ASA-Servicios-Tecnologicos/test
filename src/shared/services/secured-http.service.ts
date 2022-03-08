@@ -7,7 +7,15 @@ import { CacheService } from './cache.service';
 import { INSTANA_MONITORING_COOKIE } from '../shared.constants';
 
 export abstract class SecuredHttpService {
-  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>) {}
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>) {
+    this.http.axiosRef.interceptors.request.use((config) => {
+      const cookie = this.cacheService.get(INSTANA_MONITORING_COOKIE);
+      if (this.cacheService.get(INSTANA_MONITORING_COOKIE)) {
+        config.headers['monit-tsid'] = cookie;
+      }
+      return config;
+    });
+  }
 
   protected getSessionToken(): Promise<string> {
     const data = new URLSearchParams();
@@ -23,7 +31,6 @@ export abstract class SecuredHttpService {
         .post<NotificationSessionDTO>(this.appConfigService.SESSION_TOKEN_URL, data.toString(), {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
           },
         })
         .pipe(map((result) => result.data.access_token)),
@@ -42,7 +49,6 @@ export abstract class SecuredHttpService {
           commerce: 'FLOWO',
           'Accept-Language': 'es_ES',
           Authorization: `Bearer ${token}`,
-          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
         },
       }),
     ).catch((error) => {
@@ -60,7 +66,6 @@ export abstract class SecuredHttpService {
             commerce: 'FLOWO',
             'Accept-Language': 'es_ES',
             Authorization: `Bearer ${token}`,
-            'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
           },
           data: body,
         })
