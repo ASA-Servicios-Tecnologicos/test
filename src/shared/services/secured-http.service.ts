@@ -21,7 +21,10 @@ export abstract class SecuredHttpService {
     return lastValueFrom(
       this.http
         .post<NotificationSessionDTO>(this.appConfigService.SESSION_TOKEN_URL, data.toString(), {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
+          },
         })
         .pipe(map((result) => result.data.access_token)),
     ).catch((error) => {
@@ -39,7 +42,7 @@ export abstract class SecuredHttpService {
           commerce: 'FLOWO',
           'Accept-Language': 'es_ES',
           Authorization: `Bearer ${token}`,
-          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
         },
       }),
     ).catch((error) => {
@@ -57,7 +60,7 @@ export abstract class SecuredHttpService {
             commerce: 'FLOWO',
             'Accept-Language': 'es_ES',
             Authorization: `Bearer ${token}`,
-            'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+            'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
           },
           data: body,
         })

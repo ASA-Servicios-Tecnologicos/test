@@ -20,7 +20,7 @@ export class ManagementHttpService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
         },
       }),
     )
@@ -37,7 +37,7 @@ export class ManagementHttpService {
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${newToken}`,
-                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
                 },
               }),
             )
@@ -58,7 +58,7 @@ export class ManagementHttpService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
         },
       }),
     )
@@ -73,7 +73,7 @@ export class ManagementHttpService {
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${newToken}`,
-                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
                 },
               }),
             )
@@ -99,7 +99,7 @@ export class ManagementHttpService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
         },
       }),
     )
@@ -114,7 +114,7 @@ export class ManagementHttpService {
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${newToken}`,
-                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
                 },
               }),
             )
@@ -137,7 +137,7 @@ export class ManagementHttpService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
         },
       }),
     )
@@ -152,7 +152,7 @@ export class ManagementHttpService {
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${newToken}`,
-                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
                 },
               }),
             )
@@ -175,7 +175,7 @@ export class ManagementHttpService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+          'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
         },
       }),
     )
@@ -196,7 +196,7 @@ export class ManagementHttpService {
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${newToken}`,
-                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE),
+                  'monit-tsid': this.cacheService.get(INSTANA_MONITORING_COOKIE) ?? '',
                 },
               }),
             )
