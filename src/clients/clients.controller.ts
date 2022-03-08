@@ -52,7 +52,7 @@ export class ClientsController {
     return this.clientService.subscribeToNewsletter(username, newsletterRequestDTO);
   }
 
-  @Post()
+  @Post(['', ':username'])
   createClient(@Req() request: Request, @Body() createClient: CreateExternalUserDTO) {
     return this.externalClientsService.createExternalClient({
       ...createClient,
