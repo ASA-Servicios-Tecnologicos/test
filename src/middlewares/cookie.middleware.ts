@@ -1,6 +1,5 @@
-import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request } from 'express';
-import * as authenticationService from 'tecnoturis-authentication';
 import t from 'typy';
 import { CacheService } from '../shared/services/cache.service';
 import { INSTANA_MONITORING_COOKIE } from '../shared/shared.constants';
