@@ -74,7 +74,7 @@ export class NotificationService extends SecuredHttpService {
     });
   }
 
-  async sendMailRaw(data: EmailDTO) {
+  sendMailRaw(data: EmailDTO) {
     return this.postSecured(this.appConfigService.EMAIL_RAW_URL, data);
   }
 
@@ -129,6 +129,6 @@ export class NotificationService extends SecuredHttpService {
       body: emailTemplate,
       contentType: 'HTML',
     };
-    this.sendMailRaw(email);
+    return this.sendMailRaw(email);
   }
 }

@@ -32,11 +32,6 @@ export class BookingController {
     return this.bookingService.getRemoteCheckout(checkoutId);
   }
 
-  @Post('confirm/:id')
-  confirmBooking(@Param('id') id: string) {
-    return;
-  }
-
   // Jefer datos de booking
   // Jose Angel insertar en management booking
 }

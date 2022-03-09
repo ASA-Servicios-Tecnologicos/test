@@ -87,6 +87,10 @@ export class BookingService {
     return this.bookingModel.findOne({ bookingId: id }).exec();
   }
 
+  findByLocator(locator: string) {
+    return this.bookingModel.findOne({ locator: locator }).exec();
+  }
+
   async doBooking(id: string) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
