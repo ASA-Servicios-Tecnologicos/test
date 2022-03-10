@@ -34,12 +34,12 @@ export class CallCenterService {
 
   async sendConfirmationEmail(dossierId: string) {
     const budget = await this.budgetService.findById(dossierId);
-    const booking = await this.bookingService.findByLocator(budget.services[0].raw_data.bookId);
+    const booking = await this.bookingService.findByDossier(dossierId);
     const checkout = await this.bookingService.getRemoteCheckout(booking.checkoutId);
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
-      return dateA > dateB ? 1 : -1; /*  */
+      return dateA > dateB ? 1 : -1;
     });
     const data = {
       buyerName: `${budget.client.final_name}`,

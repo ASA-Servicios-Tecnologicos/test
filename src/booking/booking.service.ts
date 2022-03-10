@@ -88,8 +88,8 @@ export class BookingService {
     return this.bookingModel.findOne({ bookingId: id }).exec();
   }
 
-  findByLocator(locator: string) {
-    return this.bookingModel.findOne({ locator: locator }).exec();
+  findByDossier(dossier: string) {
+    return this.bookingModel.findOne({ dossier: parseInt(dossier) }).exec();
   }
 
   async doBooking(id: string) {
