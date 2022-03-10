@@ -8,6 +8,7 @@ export interface CheckoutBookingDTO {
   bookingId: string;
   okURL: string;
   koURL: string;
+  backURL: string;
   amount: CheckoutAmount;
   description: string;
   market: string;

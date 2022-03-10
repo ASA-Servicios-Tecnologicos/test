@@ -67,6 +67,7 @@ export class BookingService {
         market: booking.market,
         koURL: `${booking.koUrl}?bookingId=${booking.bookingId}`,
         okURL: `${booking.okUrl}?bookingId=${booking.bookingId}`,
+        backURL: booking.backURL,
         distribution: booking.distribution,
         cancellationPolicies: booking.cancellationPolicies,
       },
