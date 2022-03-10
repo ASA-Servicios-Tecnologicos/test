@@ -400,4 +400,6 @@ export class BudgetDto {
   pax_reserves: number;
   @ApiProperty()
   services: ManagementBookingServiceDTO[];
+  @ApiProperty()
+  dossier_payments?: Array<any>;
 }

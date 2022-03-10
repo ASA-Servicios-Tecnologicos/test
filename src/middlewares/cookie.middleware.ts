@@ -23,7 +23,6 @@ export class CookieMiddleware implements NestMiddleware {
     } else {
       this.cacheService.delete(INSTANA_MONITORING_COOKIE);
     }
-
     next();
   }
 }

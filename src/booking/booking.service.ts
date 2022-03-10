@@ -67,6 +67,7 @@ export class BookingService {
         market: booking.market,
         koURL: `${booking.koUrl}?bookingId=${booking.bookingId}`,
         okURL: `${booking.okUrl}?bookingId=${booking.bookingId}`,
+        backURL: booking.backURL,
         distribution: booking.distribution,
         cancellationPolicies: booking.cancellationPolicies,
       },
@@ -85,6 +86,10 @@ export class BookingService {
 
   findById(id: string) {
     return this.bookingModel.findOne({ bookingId: id }).exec();
+  }
+
+  findByLocator(locator: string) {
+    return this.bookingModel.findOne({ locator: locator }).exec();
   }
 
   async doBooking(id: string) {

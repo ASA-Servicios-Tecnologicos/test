@@ -1,25 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { format } from 'date-fns';
-import { every, pickBy, some } from 'lodash';
-import { filter } from 'rxjs';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { pickBy } from 'lodash';
+import { BookingService } from 'src/booking/booking.service';
+import { BudgetService } from 'src/budget/budget.service';
+import { NotificationService } from 'src/notifications/services/notification.service';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
-import { BookingServicesService } from '../management/services/booking-services.service';
-import { ClientService } from '../management/services/client.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
-import { PaymentsService } from '../payments/payments.service';
-import { ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../shared/dto/booking-service.dto';
-import { CallCenterBookingFilterParamsDTO, GetDossiersByClientDTO, ManagementDossierByAgency } from '../shared/dto/call-center.dto';
+import { CallCenterBookingFilterParamsDTO, GetDossiersByClientDTO } from '../shared/dto/call-center.dto';
 
 @Injectable()
 export class CallCenterService {
   constructor(
     private readonly appConfigService: AppConfigService,
     private readonly managementHttpService: ManagementHttpService,
-    private readonly bookingServicesService: BookingServicesService,
-    private readonly clientService: ClientService,
-    private readonly paymentsService: PaymentsService,
     private readonly dossiersService: DossiersService,
+    private readonly budgetService: BudgetService,
+    private readonly bookingService: BookingService,
+    private readonly notificationsService: NotificationService,
   ) {}
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
@@ -33,6 +30,40 @@ export class CallCenterService {
 
   patchDossierById(id: number, newDossier) {
     return this.dossiersService.patchDossierById(id, newDossier);
+  }
+
+  async sendConfirmationEmail(dossierId: string) {
+    const budget = await this.budgetService.findById(dossierId);
+    const booking = await this.bookingService.findByLocator(budget.services[0].raw_data.bookId);
+    const checkout = await this.bookingService.getRemoteCheckout(booking.checkoutId);
+    checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
+      const dateA = new Date(a.dueDate);
+      const dateB = new Date(b.dueDate);
+      return dateA > dateB ? 1 : -1; /*  */
+    });
+    const data = {
+      buyerName: `${budget.client.final_name}`,
+      reference: budget.services[0].locator ?? 'Pendiente',
+      pricePerPerson: checkout.payment.amount.value / checkout.passengers.length,
+      personsNumber: checkout.passengers.length,
+      amount: checkout.payment.amount.value,
+      currency: checkout.payment.amount.currency,
+      payments: checkout.payment.installments,
+      packageName: booking.packageName,
+      flights: budget.services[0].flight[0].raw_data,
+      transfers: budget.services[0].raw_data.transfers,
+      passengers: checkout.passengers,
+      cancellationPollicies: budget.services[0].raw_data.cancellationPolicyList,
+      insurances: budget.services[0].raw_data.insurances,
+      observations: budget.services[0].raw_data.observations,
+      hotelRemarks: budget.services[0].hotels[0].raw_data.remarks,
+    };
+    const email = await this.notificationsService.sendConfirmationEmail(data, budget.client.email);
+    if (email.status === HttpStatus.OK) {
+      return { status: email.status, message: email.statusText };
+    } else {
+      throw new HttpException({ message: email.statusText, error: email.statusText }, email.status);
+    }
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {

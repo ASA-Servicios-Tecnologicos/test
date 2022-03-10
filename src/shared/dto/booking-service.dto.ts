@@ -118,15 +118,16 @@ export class ManagementBookingServiceDTO {
       name: string;
       address: string;
       postal_code?: any;
+      raw_data: any;
     },
   ];
-  flight: [];
-  safes: [];
-  cars: [];
-  circuits: [];
-  train: [];
-  tickets: [];
-  activity: [];
-  pax: [];
-  raw_data: {};
+  flight: Array<any>;
+  safes: Array<any>;
+  cars: Array<any>;
+  circuits: Array<any>;
+  train: Array<any>;
+  tickets: Array<any>;
+  activity: Array<any>;
+  pax: Array<any>;
+  raw_data: any;
 }

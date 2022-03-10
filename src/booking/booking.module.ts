@@ -22,7 +22,7 @@ import { BookingService } from './booking.service';
     MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
     BookingDocumentsModule,
   ],
-  exports: [],
+  exports: [BookingService],
   controllers: [BookingController],
   providers: [BookingService],
 })

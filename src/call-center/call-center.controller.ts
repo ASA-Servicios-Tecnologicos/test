@@ -27,6 +27,11 @@ export class CallCenterController {
     return this.callCenterService.getDossiersByAgencyId(agencyId, { ...pickBy(filterParams) });
   }
 
+  @Post('email/:dossierId')
+  sendConfirmationEmail(@Param('dossierId') dossierId: string) {
+    return this.callCenterService.sendConfirmationEmail(dossierId);
+  }
+
   @Patch('clients/:id')
   patchDossierClientById(@Param('id') id: string, @Body() dossierClientDto: Partial<DossierClientDTO>) {
     return this.clientsService.patchClientById(`${id}`, dossierClientDto);
