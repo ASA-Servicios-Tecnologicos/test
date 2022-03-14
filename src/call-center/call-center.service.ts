@@ -43,6 +43,22 @@ export class CallCenterService {
       const dateB = new Date(b.dueDate);
       return dateA > dateB ? 1 : -1;
     });
+    const flights = [
+      ...[
+        ...budget.services[0].flight.map((flight) => {
+          return [
+            flight.flight_booking_segment.map((segment) => {
+              return {
+                departureAirportCode: segment.departure,
+                arrivalAirportCode: segment.arrival,
+                departureDate: segment.departure_at,
+                arrivalDate: segment.arrival_at,
+              };
+            }),
+          ];
+        }),
+      ],
+    ];
     const data = {
       buyerName: `${budget.client.final_name}`,
       reference: budget.services[0].locator ?? 'Pendiente',
@@ -52,7 +68,7 @@ export class CallCenterService {
       currency: checkout.payment.amount.currency,
       payments: checkout.payment.installments,
       packageName: booking.packageName,
-      flights: budget.services[0].flight[0].raw_data,
+      flights: flights,
       transfers: budget.services[0].raw_data.transfers,
       passengers: checkout.passengers,
       cancellationPollicies: budget.services[0].raw_data.cancellationPolicyList,

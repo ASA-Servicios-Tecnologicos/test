@@ -82,7 +82,7 @@ export class AppConfigService {
 
   get ALLOWED_ORIGINS(): Array<string> {
     const origins = this.configService.get<string>('tecnoturis-app.ALLOWED_ORIGINS');
-    if (origins.length) {
+    if (origins?.length) {
       return this.configService.get<string>('tecnoturis-app.ALLOWED_ORIGINS').split(', ');
     }
     return [];
