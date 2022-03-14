@@ -17,4 +17,8 @@ export class CheckoutService extends SecuredHttpService {
   async getCheckout(id: string): Promise<CheckoutDTO> {
     return this.getSecured(`${this.appConfigService.CHECKOUT_URL}/${id}`);
   }
+
+  cancelCheckout(id: string) {
+    return this.postSecured(`${this.appConfigService.CHECKOUT_URL}/${id}/cancel`);
+  }
 }

@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { pickBy } from 'lodash';
 import { BookingService } from 'src/booking/booking.service';
 import { BudgetService } from 'src/budget/budget.service';
+import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
@@ -17,6 +18,7 @@ export class CallCenterService {
     private readonly budgetService: BudgetService,
     private readonly bookingService: BookingService,
     private readonly notificationsService: NotificationService,
+    private readonly checkoutService: CheckoutService,
   ) {}
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
@@ -64,6 +66,15 @@ export class CallCenterService {
     } else {
       throw new HttpException({ message: email.statusText, error: email.statusText }, email.status);
     }
+  }
+
+  async cancelDossier(dossierId: string) {
+    const booking = await this.bookingService.findByDossier(dossierId);
+    this.dossiersService.patchDossierById(Number(dossierId), {
+      dossier_situation: 5,
+      observation: 'El expendiente ha sido cancelado',
+    });
+    return this.checkoutService.cancelCheckout(booking.checkoutId);
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {

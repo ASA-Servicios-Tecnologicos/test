@@ -79,4 +79,12 @@ export class AppConfigService {
   get W2M_URL(): string {
     return this.configService.get<string>('tecnoturis-app.W2M_URL');
   }
+
+  get ALLOWED_ORIGINS(): Array<string> {
+    const origins = this.configService.get<string>('tecnoturis-app.ALLOWED_ORIGINS');
+    if (origins.length) {
+      return this.configService.get<string>('tecnoturis-app.ALLOWED_ORIGINS').split(', ');
+    }
+    return [];
+  }
 }

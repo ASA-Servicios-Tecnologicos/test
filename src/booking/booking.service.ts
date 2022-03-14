@@ -420,7 +420,26 @@ export class BookingService {
       currency: checkOut.payment.amount.currency,
       payments: checkOut.payment.installments,
       packageName: booking.packageName,
-      flights: prebookingData.data.flights,
+      flights: [
+        ...[
+          ...prebookingData.data.flights.map((flight) => {
+            return [
+              {
+                departureAirportCode: flight.outward[0].departure.airportCode,
+                arrivalAirportCode: flight.outward[0].arrival.airportCode,
+                departureDate: flight.outward[0].departure.date,
+                arrivalDate: flight.outward[0].arrival.date,
+              },
+              {
+                departureAirportCode: flight.return[0].departure.airportCode,
+                arrivalAirportCode: flight.return[0].arrival.airportCode,
+                departureDate: flight.return[0].departure.date,
+                arrivalDate: flight.return[0].arrival.date,
+              },
+            ];
+          }),
+        ],
+      ],
       transfers: prebookingData.data.transfers,
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
@@ -429,291 +448,5 @@ export class BookingService {
       hotelRemarks: prebookingData.data.hotels[0].remarks,
     };
     this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);
-  }
-
-  private testTemplate() {
-    let data = {
-      buyerName: 'Dani Nieto',
-      reference: '1522189',
-      pricePerPerson: 756.65,
-      personsNumber: 2,
-      amount: 1513.3,
-      currency: 'EUR',
-      payments: [
-        {
-          dueDate: '2022-09-13',
-          amount: { value: 227, currency: 'EUR' },
-          recurrent: true,
-          status: 'PENDING',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-1',
-        },
-        {
-          dueDate: '2022-09-18',
-          amount: { value: 378.33, currency: 'EUR' },
-          recurrent: true,
-          status: 'PENDING',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-2',
-        },
-        {
-          dueDate: '2022-09-21',
-          amount: { value: 756.64, currency: 'EUR' },
-          recurrent: true,
-          status: 'PENDING',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-3',
-        },
-        {
-          dueDate: '2022-02-22',
-          amount: { value: 151.33, currency: 'EUR' },
-          recurrent: false,
-          status: 'COMPLETED',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-0',
-        },
-      ],
-      packageName: 'Playa Mujeres y Costa Mujeres - Absolut',
-      flights: [
-        {
-          totalPrice: 0,
-          outward: [
-            {
-              departure: {
-                date: '2022-10-01T15:30:00',
-                airportCode: 'MAD',
-                offset: { gmt: 1, dst: 2 },
-                airportDescription: null,
-                country: null,
-              },
-              arrival: {
-                date: '2022-10-01T17:55:00',
-                airportCode: 'PUJ',
-                offset: { gmt: -4, dst: -4 },
-                airportDescription: null,
-                country: null,
-              },
-              segmentList: [{ origin: 'MAD', destination: 'PUJ', dateAt: '2022-10-01T17:55:00' }],
-              company: {
-                companyId: 'WFL',
-                companyName: 'WFL',
-                operationCompanyCode: 'WFL',
-                operationCompanyName: null,
-                transportNumber: '3503',
-              },
-              flightClass: { classId: null, className: 'A', classStatus: null },
-            },
-          ],
-          return: [
-            {
-              departure: {
-                date: '2022-10-08T19:55:00',
-                airportCode: 'PUJ',
-                offset: { gmt: -4, dst: -4 },
-                airportDescription: null,
-                country: null,
-              },
-              arrival: {
-                date: '2022-10-09T10:05:00',
-                airportCode: 'MAD',
-                offset: { gmt: 1, dst: 2 },
-                airportDescription: null,
-                country: null,
-              },
-              segmentList: [{ origin: 'PUJ', destination: 'MAD', dateAt: '2022-10-09T10:05:00' }],
-              company: {
-                companyId: 'WFL',
-                companyName: 'WFL',
-                operationCompanyCode: 'WFL',
-                operationCompanyName: null,
-                transportNumber: '3504',
-              },
-              flightClass: { classId: null, className: 'A', classStatus: null },
-            },
-          ],
-          id: 0,
-          packageBookId: '',
-          flightBookId: '',
-          selected: true,
-        },
-      ],
-      passengers: [
-        {
-          passengerId: 415,
-          gender: 'MALE',
-          title: '',
-          name: 'Dani',
-          lastname: 'Nieto',
-          dob: '1997-10-07',
-          document: { documentType: 'DNI', documentNumber: '97755993J', expeditionDate: '2022-02-09', nationality: 'ES' },
-          country: 'ES',
-          room: '1',
-          age: 30,
-          extCode: '1',
-          type: 'ADULT',
-        },
-        {
-          passengerId: 416,
-          gender: 'MALE',
-          title: '',
-          name: 'Sergio',
-          lastname: 'Pedrero',
-          dob: '1996-10-08',
-          document: { documentType: 'DNI', documentNumber: '78712649W', expeditionDate: '2022-02-02', nationality: 'ES' },
-          country: 'ES',
-          room: '1',
-          age: 30,
-          extCode: '2',
-          type: 'ADULT',
-        },
-      ],
-      cancellationPollicies: [
-        {
-          amount: 0,
-          fromDate: '2022-02-22',
-          toDate: '2022-09-23',
-          currency: 'EUR',
-          type: null,
-          text: 'En el caso de indicarse gastos en las Observaciones del alojamiento de esta reserva, ese importe será sumando al importe indicado en estas condiciones hasta 7 días antes de la salida.',
-        },
-        {
-          amount: 0,
-          fromDate: '2022-02-22',
-          toDate: '2022-10-01',
-          currency: null,
-          type: 'ABSOLUTE',
-          text: 'Sin gastos de gestión. Del 2022-02-22 hasta 2022-10-01 con un valor de 0 €',
-        },
-        {
-          amount: 10,
-          fromDate: '2022-09-01',
-          toDate: '2022-09-15',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '10% gastos de penalización 30 días antes la salida. Del 2022-09-01 hasta 2022-09-15 con un valor de 10 %',
-        },
-        {
-          amount: 25,
-          fromDate: '2022-09-16',
-          toDate: '2022-09-20',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '25% gastos de penalización 15 días antes la salida. Del 2022-09-16 hasta 2022-09-20 con un valor de 25 %',
-        },
-        {
-          amount: 50,
-          fromDate: '2022-09-21',
-          toDate: '2022-09-23',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '50% gastos de penalización 10 días antes la salida. Del 2022-09-21 hasta 2022-09-23 con un valor de 50 %',
-        },
-        {
-          amount: 100,
-          fromDate: '2022-09-24',
-          toDate: '2022-10-01',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '100% gastos de penalización 7 días antes la salida. Del 2022-09-24 hasta 2022-10-01 con un valor de 100 %',
-        },
-      ],
-      transfers: [
-        {
-          packageBookId: null,
-          transferBookId: 'WROAbr5084k7JArl-8hT8IuO2Uv3qWDmJbznZtzdI9A=',
-          productCode: 'WROAbr5084k7JArl-8hT8IuO2Uv3qWDmJbznZtzdI9A=',
-          dateAt: '2022-10-01',
-          description: 'Traslado Aeropuerto - Hotel en Punta Cana (Aeropuerto / Whala!Bavaro)',
-          origin: 'Traslado Aeropuerto - Hotel en Punta Cana (Aeropuerto / Whala!Bavaro)',
-          destination: null,
-          price: {
-            passengerRequirement: '',
-            optionToken: null,
-            status: 'CONFIRMED',
-            isCancellable: false,
-            subcategoryList: '',
-            servicePrice: {
-              total: {
-                amount: 0,
-                currency: 'EUR',
-              },
-            },
-          },
-          images: [],
-          selected: true,
-        },
-        {
-          packageBookId: null,
-          transferBookId: 'QVyH4STxbht8gupwXdIflGIWwHFpI3FABMYKvrYGHFQ=',
-          productCode: 'QVyH4STxbht8gupwXdIflGIWwHFpI3FABMYKvrYGHFQ=',
-          dateAt: '2022-10-01',
-          description: 'Asistencia en destino R. Dominicana (Whala!bavaro /  Whala!Bavaro)',
-          origin: 'Asistencia en destino R. Dominicana (Whala!bavaro /  Whala!Bavaro)',
-          destination: null,
-          price: {
-            passengerRequirement: '',
-            optionToken: null,
-            status: 'CONFIRMED',
-            isCancellable: false,
-            subcategoryList: '',
-            servicePrice: {
-              total: {
-                amount: 0,
-                currency: 'EUR',
-              },
-            },
-          },
-          images: [],
-          selected: false,
-        },
-      ],
-    };
-    const formatDatesCancellationPollicies = function (text: string) {
-      const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
-      if (findings) {
-        findings.forEach((finding) => {
-          let splitedDate = finding.split('-');
-          splitedDate = splitedDate.reverse();
-          text = text.replace(finding, splitedDate.join('/'));
-        });
-      }
-      return text;
-    };
-    data.cancellationPollicies = data.cancellationPollicies.map((policy) => {
-      return {
-        ...policy,
-        title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
-        text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
-      };
-    });
-    const lowestDatePolicy = data.cancellationPollicies
-      .filter((policy) => policy.amount !== 0)
-      .find(
-        (policy) =>
-          Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
-          new Date(policy.fromDate).getMilliseconds(),
-      );
-    const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));
-    const datesInText = data.cancellationPollicies[noExpensesPolicy].text.match(/(\d{1,4}([.\/-])\d{1,2}([.\/-])\d{1,4})/g);
-    const date = new Date(lowestDatePolicy.fromDate);
-    date.setDate(date.getDate() - 1);
-    if (datesInText) {
-      data.cancellationPollicies[noExpensesPolicy].text = data.cancellationPollicies[noExpensesPolicy].text.replace(
-        datesInText[1],
-        new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date),
-      );
-    }
-
-    let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
-    let template = Handlebars.compile(flowo_email_confirmation);
-    let emailTemplate = template(data);
-    /* const email: EmailTemplatedDTO = {
-      uuid: uuidv4(),
-      applicationName: 'application-code',
-      from: 'noreply@myfrom.com',
-      to: [chec],
-      subject: 'Email test',
-      locale: 'es_ES',
-      literalProject: 'examples',
-      templateCode: 'test-html',
-    };
-    this.notificationsService.sendMailTemplated(email); */
-    console.log(emailTemplate);
   }
 }

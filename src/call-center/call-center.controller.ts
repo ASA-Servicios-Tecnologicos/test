@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
 import { pickBy } from 'lodash';
 import { DossiersService } from '../dossiers/dossiers.service';
@@ -63,5 +64,11 @@ export class CallCenterController {
   @Delete('services/paxes/:paxId')
   deleteBookingServicePax(@Param('paxId') id: string): Promise<void> {
     return this.bookingServicesService.deleteBookingServicePaxById(Number(id));
+  }
+
+  @Post('dossier/cancel/:dossierId')
+  @ApiOperation({ summary: 'Cancela la reserva y los pagos recurrentes pendientes a nivel de checkout' })
+  cancelDossier(@Param('dossierId') dossierId: string) {
+    return this.callCenterService.cancelDossier(dossierId);
   }
 }
