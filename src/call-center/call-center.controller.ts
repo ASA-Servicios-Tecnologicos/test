@@ -17,7 +17,7 @@ export class CallCenterController {
     private readonly clientsService: ClientService,
     private readonly dossiersService: DossiersService,
     private readonly bookingServicesService: BookingServicesService,
-  ) {}
+  ) { }
 
   @Get('dossiers')
   getDossiersByAgency(@Req() request: Request, @Query() filterParams: CallCenterBookingFilterParamsDTO) {
@@ -46,7 +46,7 @@ export class CallCenterController {
     return this.bookingServicesService.patchBookingServiceById(Number(id), dossierServiceDTO);
   }
 
-  @Patch('services/:id')
+  @Patch('dossier/:id')
   patchDossierById(@Param('id') id: string, @Body() newDossier) {
     return this.dossiersService.patchDossierById(Number(id), newDossier);
   }
