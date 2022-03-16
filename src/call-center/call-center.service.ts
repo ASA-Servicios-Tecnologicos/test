@@ -19,7 +19,7 @@ export class CallCenterService {
     private readonly bookingService: BookingService,
     private readonly notificationsService: NotificationService,
     private readonly checkoutService: CheckoutService,
-  ) {}
+  ) { }
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
     // return { ...managementDossierByAgency, results };
@@ -86,11 +86,15 @@ export class CallCenterService {
 
   async cancelDossier(dossierId: string) {
     const booking = await this.bookingService.findByDossier(dossierId);
-    this.dossiersService.patchDossierById(Number(dossierId), {
-      dossier_situation: 5,
-      observation: 'El expendiente ha sido cancelado',
-    });
-    return this.checkoutService.cancelCheckout(booking.checkoutId);
+    const canceled = await this.checkoutService.cancelCheckout(booking.checkoutId);
+    if (canceled.status === HttpStatus.OK) {
+      await this.dossiersService.patchDossierById(Number(dossierId), {
+        dossier_situation: 5,
+        observation: 'El expendiente ha sido cancelado',
+      });
+    }
+    return canceled.data;
+
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {
