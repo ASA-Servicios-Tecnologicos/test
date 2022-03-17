@@ -51,6 +51,11 @@ export class CallCenterController {
     return this.dossiersService.patchDossierById(Number(id), newDossier);
   }
 
+  @Get('dossier/:id')
+  getDossierById(@Param('id') id: string) {
+    return this.dossiersService.findDossierById(id);
+  }
+
   @Post('services/:id/paxes')
   createBookingServicePax(@Param('id') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
     return this.bookingServicesService.createBookingServicePax(serviceId, pax);

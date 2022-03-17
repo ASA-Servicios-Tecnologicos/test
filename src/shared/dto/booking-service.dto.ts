@@ -122,12 +122,15 @@ export class ManagementBookingServiceDTO {
     },
   ];
   flight: Array<any>;
+  transfer: Array<any>;
   safes: Array<any>;
   cars: Array<any>;
   circuits: Array<any>;
   train: Array<any>;
   tickets: Array<any>;
   activity: Array<any>;
-  pax: Array<any>;
+  paxes: Array<any>;
+  cancellation_policies: Array<any>;
+  relevant_data: any;
   raw_data: any;
 }
