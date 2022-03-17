@@ -314,7 +314,7 @@ export class ManagementBudgetDto {
   @ApiProperty()
   sent_to_sap: boolean;
   @ApiProperty()
-  client: number;
+  client: ManagementClientDTO;
   @ApiProperty({ example: null })
   dossier_status?: any;
   @ApiProperty()

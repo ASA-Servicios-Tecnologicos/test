@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { pickBy } from 'lodash';
 import { BookingService } from 'src/booking/booking.service';
 import { BudgetService } from 'src/budget/budget.service';
+import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
@@ -17,7 +18,8 @@ export class CallCenterService {
     private readonly budgetService: BudgetService,
     private readonly bookingService: BookingService,
     private readonly notificationsService: NotificationService,
-  ) {}
+    private readonly checkoutService: CheckoutService,
+  ) { }
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
     // return { ...managementDossierByAgency, results };
@@ -34,13 +36,29 @@ export class CallCenterService {
 
   async sendConfirmationEmail(dossierId: string) {
     const budget = await this.budgetService.findById(dossierId);
-    const booking = await this.bookingService.findByLocator(budget.services[0].raw_data.bookId);
+    const booking = await this.bookingService.findByDossier(dossierId);
     const checkout = await this.bookingService.getRemoteCheckout(booking.checkoutId);
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
-      return dateA > dateB ? 1 : -1; /*  */
+      return dateA > dateB ? 1 : -1;
     });
+    const flights = [
+      ...[
+        ...budget.services[0].flight.map((flight) => {
+          return [
+            flight.flight_booking_segment.map((segment) => {
+              return {
+                departureAirportCode: segment.departure,
+                arrivalAirportCode: segment.arrival,
+                departureDate: segment.departure_at,
+                arrivalDate: segment.arrival_at,
+              };
+            }),
+          ];
+        }),
+      ],
+    ];
     const data = {
       buyerName: `${budget.client.final_name}`,
       reference: budget.services[0].locator ?? 'Pendiente',
@@ -50,7 +68,7 @@ export class CallCenterService {
       currency: checkout.payment.amount.currency,
       payments: checkout.payment.installments,
       packageName: booking.packageName,
-      flights: budget.services[0].flight[0].raw_data,
+      flights: flights,
       transfers: budget.services[0].raw_data.transfers,
       passengers: checkout.passengers,
       cancellationPollicies: budget.services[0].raw_data.cancellationPolicyList,
@@ -64,6 +82,19 @@ export class CallCenterService {
     } else {
       throw new HttpException({ message: email.statusText, error: email.statusText }, email.status);
     }
+  }
+
+  async cancelDossier(dossierId: string) {
+    const booking = await this.bookingService.findByDossier(dossierId);
+    const canceled = await this.checkoutService.cancelCheckout(booking.checkoutId);
+    if (canceled.status === HttpStatus.OK) {
+      await this.dossiersService.patchDossierById(Number(dossierId), {
+        dossier_situation: 5,
+        observation: 'El expendiente ha sido cancelado',
+      });
+    }
+    return canceled.data;
+
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {
