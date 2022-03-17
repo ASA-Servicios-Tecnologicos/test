@@ -35,7 +35,7 @@ export class CallCenterService {
   }
 
   async sendConfirmationEmail(dossierId: string) {
-    const budget = await this.budgetService.findById(dossierId);
+    const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
     const checkout = await this.bookingService.getRemoteCheckout(booking.checkoutId);
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
@@ -44,39 +44,42 @@ export class CallCenterService {
       return dateA > dateB ? 1 : -1;
     });
     const flights = [
-      ...[
-        ...budget.services[0].flight.map((flight) => {
-          return [
-            flight.flight_booking_segment.map((segment) => {
-              return {
-                departureAirportCode: segment.departure,
-                arrivalAirportCode: segment.arrival,
-                departureDate: segment.departure_at,
-                arrivalDate: segment.arrival_at,
-              };
-            }),
-          ];
-        }),
-      ],
-    ];
+      ...dossier.services[0].flight.map((flight) => {
+        return flight.flight_booking_segment.map((segment) => {
+          return {
+            departureAirportCode: segment.departure,
+            arrivalAirportCode: segment.arrival,
+            departureDate: segment.departure_at,
+            arrivalDate: segment.arrival_at,
+          };
+        });
+      })];
+    const transfers = dossier.services[0].transfer.map(transfer => {
+      return transfer.transfer_booking.map((transferBook) => {
+        return {
+          description: transferBook.from_name,
+          dateAt: transferBook.from_date
+        }
+      })
+    })
     const data = {
-      buyerName: `${budget.client.final_name}`,
-      reference: budget.services[0].locator ?? 'Pendiente',
+      buyerName: `${dossier.client.final_name}`,
+      reference: dossier.services[0].locator ?? 'Pendiente',
       pricePerPerson: checkout.payment.amount.value / checkout.passengers.length,
       personsNumber: checkout.passengers.length,
       amount: checkout.payment.amount.value,
       currency: checkout.payment.amount.currency,
       payments: checkout.payment.installments,
       packageName: booking.packageName,
-      flights: flights,
-      transfers: budget.services[0].raw_data.transfers,
+      flights: flights[0],
+      transfers: transfers[0],
       passengers: checkout.passengers,
-      cancellationPollicies: budget.services[0].raw_data.cancellationPolicyList,
-      insurances: budget.services[0].raw_data.insurances,
-      observations: budget.services[0].raw_data.observations,
-      hotelRemarks: budget.services[0].hotels[0].raw_data.remarks,
+      cancellationPollicies: dossier.services[0].cancellation_policies,
+      insurances: dossier.services[0].raw_data.insurances,
+      observations: dossier.services[0].relevant_data.observations,
+      hotelRemarks: dossier.services[0].relevant_data.remarks.map(remark => remark[Object.keys(remark)[0]].map(remark => { return { text: remark.text } }))[0]
     };
-    const email = await this.notificationsService.sendConfirmationEmail(data, budget.client.email);
+    const email = await this.notificationsService.sendConfirmationEmail(data, dossier.client.email);
     if (email.status === HttpStatus.OK) {
       return { status: email.status, message: email.statusText };
     } else {

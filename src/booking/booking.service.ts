@@ -34,7 +34,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
-  ) {}
+  ) { }
 
   async create(booking: BookingDTO) {
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
@@ -48,7 +48,7 @@ export class BookingService {
         throw new HttpException({ message: netAmount['message'], error: netAmount['error'] }, netAmount['status']);
       }
     }
-    if (!this.verifyBooking(prebookingData, booking) || netAmount !== booking.amount) {
+    if (!this.verifyBooking(prebookingData, booking) /* || netAmount !== booking.amount */) {
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
@@ -234,8 +234,8 @@ export class BookingService {
         checkOut.payment.paymentMethods[0].code === '1'
           ? 4
           : checkOut.payment.paymentMethods[0].code === '2'
-          ? 2
-          : parseInt(checkOut.payment.paymentMethods[0].code),
+            ? 2
+            : parseInt(checkOut.payment.paymentMethods[0].code),
       amount: {
         value: booking.amount,
         currency: booking.currency,
@@ -357,7 +357,7 @@ export class BookingService {
   }
 
   private applyRules(prebooking: PrebookingDTO, booking: BookingDTO | BookingDocument) {
-    if (!prebooking.data.rules) {
+    if (true) {
       return prebooking.data.totalAmount;
     } else {
       const today = new Date();
@@ -421,24 +421,22 @@ export class BookingService {
       payments: checkOut.payment.installments,
       packageName: booking.packageName,
       flights: [
-        ...[
-          ...prebookingData.data.flights.map((flight) => {
-            return [
-              {
-                departureAirportCode: flight.outward[0].departure.airportCode,
-                arrivalAirportCode: flight.outward[0].arrival.airportCode,
-                departureDate: flight.outward[0].departure.date,
-                arrivalDate: flight.outward[0].arrival.date,
-              },
-              {
-                departureAirportCode: flight.return[0].departure.airportCode,
-                arrivalAirportCode: flight.return[0].arrival.airportCode,
-                departureDate: flight.return[0].departure.date,
-                arrivalDate: flight.return[0].arrival.date,
-              },
-            ];
-          }),
-        ],
+        ...prebookingData.data.flights.map((flight) => {
+          return [
+            {
+              departureAirportCode: flight.outward[0].departure.airportCode,
+              arrivalAirportCode: flight.outward[0].arrival.airportCode,
+              departureDate: flight.outward[0].departure.date,
+              arrivalDate: flight.outward[0].arrival.date,
+            },
+            {
+              departureAirportCode: flight.return[0].departure.airportCode,
+              arrivalAirportCode: flight.return[0].arrival.airportCode,
+              departureDate: flight.return[0].departure.date,
+              arrivalDate: flight.return[0].arrival.date,
+            },
+          ];
+        }),
       ],
       transfers: prebookingData.data.transfers,
       passengers: checkOut.passengers,

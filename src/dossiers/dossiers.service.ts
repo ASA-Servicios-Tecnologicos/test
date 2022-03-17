@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { BudgetDto } from 'src/shared/dto/budget.dto';
 import { AppConfigService } from '../configuration/configuration.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
 
@@ -11,6 +12,6 @@ export class DossiersService {
 
 
   findDossierById(id: string) {
-    return this.managementHttpService.get(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`);
+    return this.managementHttpService.get<BudgetDto>(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`);
   }
 }
