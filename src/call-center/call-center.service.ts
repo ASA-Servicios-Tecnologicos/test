@@ -76,8 +76,8 @@ export class CallCenterService {
       passengers: checkout.passengers,
       cancellationPollicies: dossier.services[0].cancellation_policies,
       insurances: dossier.services[0].raw_data.insurances,
-      observations: dossier.services[0].relevant_data.observations,
-      hotelRemarks: dossier.services[0].relevant_data.remarks.map(remark => remark[Object.keys(remark)[0]].map(remark => { return { text: remark.text } }))[0]
+      observations: dossier.services[0].relevant_data?.observations ?? [],
+      hotelRemarks: dossier.services[0].relevant_data?.remarks.map(remark => remark[Object.keys(remark)[0]].map(remark => { return { text: remark.text } }))[0] ?? []
     };
     const email = await this.notificationsService.sendConfirmationEmail(data, dossier.client.email);
     if (email.status === HttpStatus.OK) {
