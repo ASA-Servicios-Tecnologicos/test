@@ -357,7 +357,7 @@ export class BookingService {
   }
 
   private applyRules(prebooking: PrebookingDTO, booking: BookingDTO | BookingDocument) {
-    if (true) {
+    if (!prebooking.data.rules) {
       return prebooking.data.totalAmount;
     } else {
       const today = new Date();
