@@ -67,8 +67,8 @@ export class AppModule {
     consumer
       .apply(...[AuthenticationUserMiddleware])
       .exclude({ path: 'calendar/ota/reference-prices', method: RequestMethod.POST })
-      .forRoutes(ClientsController, CalendarController, BookingController, PaymentsController);
-    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, BookingServicesFlightsController, BookingServicesController, BookingPackagesController, 'budget/:id');
+      .forRoutes(ClientsController, CalendarController, PaymentsController);
+    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, BookingServicesFlightsController, BookingServicesController, 'budget/:id');
     consumer.apply(CookieMiddleware).forRoutes('*');
   }
 }
