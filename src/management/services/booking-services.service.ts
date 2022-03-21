@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../../shared/dto/booking-service.dto';
+import { AddPassengerFlightDto, ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../../shared/dto/booking-service.dto';
 import { CreateUpdateBookingServicePax, Pax } from '../../shared/dto/call-center.dto';
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
 
 @Injectable()
 export class BookingServicesService {
-  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
+  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) { }
 
   getBookingServicesByDossierId(dossierId: string): Promise<ManagementBookingServicesByDossierDTO[]> {
     return this.managementHttpService.get<ManagementBookingServicesByDossierDTO[]>(
@@ -76,5 +76,13 @@ export class BookingServicesService {
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/flight/${flightSegmentId}/`,
       newFlightSegment,
     );
+  }
+
+  addPassengerToFlight(body: AddPassengerFlightDto) {
+    return this.managementHttpService.post(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-flight-pax/`, body);
+  }
+
+  deletePassengerFromFlight(id: string) {
+    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-flight-pax/${id}/`);
   }
 }
