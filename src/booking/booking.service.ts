@@ -410,10 +410,12 @@ export class BookingService {
     return new Date(`${mm}/${dd}/${yyyy}`);
   }
 
-  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string) {
+  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string, dossier = '') {
     const data = {
+      methodType: checkOut.payment.paymentMethods[0].type,
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
       reference: bookId ?? 'Pendiente',
+      dossier: dossier,
       pricePerPerson: checkOut.payment.amount.value / checkOut.passengers.length,
       personsNumber: checkOut.passengers.length,
       amount: checkOut.payment.amount.value,

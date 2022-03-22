@@ -8,9 +8,14 @@ import { HtmlTemplateService } from 'src/shared/services/html-template.service';
 
 @Injectable()
 export class NotificationService extends SecuredHttpService {
+
+  readonly HTML_TEMPLATES = {
+    'CARD': 'src/notifications/templates/flowo_email_confirmation.hbs',
+    'BANK_TRANSFER': 'src/notifications/templates/flowo_email_confirmation_transfer.hbs'
+  }
+
   constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>, private readonly htmlTemplateService: HtmlTemplateService) {
     super(http, appConfigService, cacheService);
-
   }
 
   sendMailRaw(data: EmailDTO) {
@@ -55,7 +60,8 @@ export class NotificationService extends SecuredHttpService {
         );
       }
     }
-    const template = this.htmlTemplateService.generateTemplate('src/notifications/templates/flowo_email_confirmation.hbs', data)
+
+    const template = this.htmlTemplateService.generateTemplate(this.HTML_TEMPLATES[data.methodType], data)
     const email: EmailDTO = {
       uuid: uuidv4(),
       applicationName: 'booking-flowo-tecnoturis',

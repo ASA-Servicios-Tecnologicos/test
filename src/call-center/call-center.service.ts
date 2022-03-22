@@ -63,6 +63,8 @@ export class CallCenterService {
       })
     })
     const data = {
+      methodType: checkout.payment.paymentMethods[0].type,
+      dossier: '',
       buyerName: `${dossier.client.final_name}`,
       reference: dossier.services[0].locator ?? 'Pendiente',
       pricePerPerson: checkout.payment.amount.value / checkout.passengers.length,
