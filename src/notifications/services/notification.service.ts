@@ -35,11 +35,21 @@ export class NotificationService extends SecuredHttpService {
       return text;
     };
     data.cancellationPollicies = data.cancellationPollicies.map((policy) => {
-      return {
-        ...policy,
-        title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
-        text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
-      };
+      const dotIndex = policy.text?.indexOf('.');
+      if (dotIndex > -1 && policy.text.length != dotIndex) {
+        return {
+          ...policy,
+          title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
+          text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
+        };
+      } else {
+        return {
+          ...policy,
+          title: policy.text.replace('gestión', 'cancelación'),
+          text: '',
+        };
+      }
+
     });
     const lowestDatePolicy = data.cancellationPollicies
       .filter((policy) => policy.amount !== 0)
