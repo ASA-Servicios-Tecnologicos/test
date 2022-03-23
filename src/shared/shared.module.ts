@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CacheService } from './services/cache.service';
+import { HtmlTemplateService } from './services/html-template.service';
 
 @Module({
   imports: [],
-  providers: [CacheService],
+  providers: [CacheService, HtmlTemplateService],
   controllers: [],
-  exports: [CacheService],
+  exports: [CacheService, HtmlTemplateService],
 })
-export class SharedModule {}
+export class SharedModule { }

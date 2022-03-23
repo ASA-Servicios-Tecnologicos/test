@@ -16,9 +16,7 @@ import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { DossiersService } from 'src/dossiers/dossiers.service';
 import { DiscountCodeService } from 'src/management/services/dicount-code.service';
-import { readFileSync } from 'fs';
 import { NotificationService } from 'src/notifications/services/notification.service';
-import { EmailDTO } from 'src/shared/dto/email.dto';
 
 @Injectable()
 export class BookingService {
@@ -48,7 +46,7 @@ export class BookingService {
         throw new HttpException({ message: netAmount['message'], error: netAmount['error'] }, netAmount['status']);
       }
     }
-    if (!this.verifyBooking(prebookingData, booking) /* || netAmount !== booking.amount */) {
+    if (!this.verifyBooking(prebookingData, booking) || netAmount !== booking.amount) {
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
@@ -104,20 +102,25 @@ export class BookingService {
       const dateB = new Date(b.dueDate);
       return dateA > dateB ? 1 : -1;
     });
+    if (checkout.payment.methodType === 'BANK_TRANSFER') {
+      return this.saveBooking(prebookingData, booking, checkout);
+    } else {
+      this.saveBooking(prebookingData, booking, checkout);
+      return {
+        payment: checkout.payment,
+        buyer: checkout.buyer,
+        flights: prebookingData.data.flights,
+        hotels: prebookingData.data.hotels,
+        checkIn: prebookingData.data.checkIn,
+        checkOut: prebookingData.data.checkOut,
+        contact: checkout.contact,
+        distribution: prebookingData.data.distribution,
+        packageName: booking.packageName,
+        date: new Date(),
+      };
+    }
 
-    this.saveBooking(prebookingData, booking, checkout);
-    return {
-      payment: checkout.payment,
-      buyer: checkout.buyer,
-      flights: prebookingData.data.flights,
-      hotels: prebookingData.data.hotels,
-      checkIn: prebookingData.data.checkIn,
-      checkOut: prebookingData.data.checkOut,
-      contact: checkout.contact,
-      distribution: prebookingData.data.distribution,
-      packageName: booking.packageName,
-      date: new Date(),
-    };
+
   }
 
   private saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
@@ -144,12 +147,12 @@ export class BookingService {
         },
       },
     };
-    this.managementHttpService
+    return this.managementHttpService
       .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, { timeout: 120000 })
       .then((res) => {
-        this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
+        return this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
-      .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR'));
+      .catch((error) => { return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR') });
   }
 
   private async createBookingInManagement(
@@ -256,7 +259,20 @@ export class BookingService {
     );
     (await update).save();
     this.paymentsService.createDossierPayments(dossierPayments);
-    this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status);
+    this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, bookingManagement[0].dossier);
+    return {
+      dossier: bookingManagement[0].dossier,
+      payment: checkOut.payment,
+      buyer: checkOut.buyer,
+      flights: prebookingData.data.flights,
+      hotels: prebookingData.data.hotels,
+      checkIn: prebookingData.data.checkIn,
+      checkOut: prebookingData.data.checkOut,
+      contact: checkOut.contact,
+      distribution: prebookingData.data.distribution,
+      packageName: booking.packageName,
+      date: new Date(),
+    };
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
@@ -357,7 +373,7 @@ export class BookingService {
   }
 
   private applyRules(prebooking: PrebookingDTO, booking: BookingDTO | BookingDocument) {
-    if (true) {
+    if (!prebooking.data.rules) {
       return prebooking.data.totalAmount;
     } else {
       const today = new Date();
@@ -410,10 +426,12 @@ export class BookingService {
     return new Date(`${mm}/${dd}/${yyyy}`);
   }
 
-  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string) {
+  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string, dossier: number) {
     const data = {
+      methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
       reference: bookId ?? 'Pendiente',
+      dossier: dossier,
       pricePerPerson: checkOut.payment.amount.value / checkOut.passengers.length,
       personsNumber: checkOut.passengers.length,
       amount: checkOut.payment.amount.value,

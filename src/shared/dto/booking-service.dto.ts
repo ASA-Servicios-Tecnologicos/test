@@ -1,3 +1,5 @@
+import { Pax } from "./call-center.dto";
+
 export class ManagementBookingServicesByDossierDTO {
   id: number;
   service: {
@@ -133,4 +135,9 @@ export class ManagementBookingServiceDTO {
   cancellation_policies: Array<any>;
   relevant_data: any;
   raw_data: any;
+}
+
+export class AddPassengerFlightDto {
+  booking_flight_segment: number;
+  pax: Pax;
 }
