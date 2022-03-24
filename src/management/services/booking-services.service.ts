@@ -15,9 +15,9 @@ export class BookingServicesService {
     );
   }
 
-  getBookingServiceById(id: string): Promise<ManagementBookingServiceDTO> {
+  getBookingServiceById(id: string, force: string = null): Promise<ManagementBookingServiceDTO> {
     return this.managementHttpService.get<ManagementBookingServiceDTO>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`, { params: force }
     );
   }
 

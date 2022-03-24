@@ -96,13 +96,14 @@ export class BookingService {
       throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND)
     }
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
-    if (checkout['status']) {
-
+    if (checkout['error']) {
+      throw new HttpException(checkout['error']['message'], checkout['error']['status'])
     }
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
+
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
