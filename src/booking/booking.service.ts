@@ -126,8 +126,6 @@ export class BookingService {
         date: new Date(),
       };
     }
-
-
   }
 
   private saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
@@ -233,7 +231,6 @@ export class BookingService {
       dossier: null,
       client: client,
     };
-
     const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
       createBookDTO,
@@ -355,7 +352,7 @@ export class BookingService {
         birthdate: this.formatBirthdate(passenger.dob),
         documentExpirationDate: '',
         nationality: passenger.document.nationality,
-        gender: passenger.gender,
+        gender: passenger.gender.includes('MALE') ? 2 : 1,
         phoneNumberCode: 34,
         type: passenger.type,
       };
