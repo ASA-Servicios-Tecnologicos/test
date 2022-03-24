@@ -234,38 +234,49 @@ export class BookingService {
     const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
       createBookDTO,
-    )
+    ).catch(error => {
+      console.error(error);
+      return null;
+    })
 
-    const dossierPayments: CreateUpdateDossierPaymentDTO = {
-      dossier: bookingManagement[0].dossier,
-      bookingId: booking.bookingId,
-      paymentMethods:
-        checkOut.payment.paymentMethods[0].code === '1'
-          ? 4
-          : checkOut.payment.paymentMethods[0].code === '2'
-            ? 2
-            : parseInt(checkOut.payment.paymentMethods[0].code),
-      amount: {
-        value: booking.amount,
-        currency: booking.currency,
-      },
-      checkoutId: checkOut.checkoutId,
-      installment: checkOut.payment.installments,
-    };
+    if (bookingManagement) {
+      const dossierPayments: CreateUpdateDossierPaymentDTO = {
+        dossier: bookingManagement[0].dossier,
+        bookingId: booking.bookingId,
+        paymentMethods:
+          checkOut.payment.paymentMethods[0].code === '1'
+            ? 4
+            : checkOut.payment.paymentMethods[0].code === '2'
+              ? 2
+              : parseInt(checkOut.payment.paymentMethods[0].code),
+        amount: {
+          value: booking.amount,
+          currency: booking.currency,
+        },
+        checkoutId: checkOut.checkoutId,
+        installment: checkOut.payment.installments,
+      };
 
-    if (!bookId && bookingManagement[0].dossier) {
-      this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
-        dossier_situation: 7,
-        observation: 'Ha ocurrido un error en la reserva del paquete',
-      });
+      if (!bookId) {
+        this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
+          dossier_situation: 7,
+          observation: 'Ha ocurrido un error en la reserva del paquete',
+        });
+      }
+      const update = await this.bookingModel.findOneAndUpdate(
+        { bookingId: booking.bookingId },
+        { dossier: bookingManagement[0].dossier, locator: bookId },
+      );
+      (await update).save();
+      this.paymentsService.createDossierPayments(dossierPayments);
+    } else {
+      console.error('Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId)
+      const update = await this.bookingModel.findOneAndUpdate(
+        { bookingId: booking.bookingId },
+        { locator: bookId },
+      );
+      (await update).save();
     }
-
-    const update = await this.bookingModel.findOneAndUpdate(
-      { bookingId: booking.bookingId },
-      { dossier: bookingManagement[0].dossier, locator: bookId },
-    );
-    (await update).save();
-    this.paymentsService.createDossierPayments(dossierPayments);
     this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, bookingManagement[0].dossier);
     return {
       dossier: bookingManagement[0].dossier,
