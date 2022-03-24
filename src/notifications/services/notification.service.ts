@@ -24,7 +24,7 @@ export class NotificationService extends SecuredHttpService {
 
   sendConfirmationEmail(data, toEmail: string) {
     const formatDatesCancellationPollicies = function (text: string) {
-      const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
+      const findings = text?.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
       if (findings) {
         findings.forEach((finding) => {
           let splitedDate = finding.split('-');
