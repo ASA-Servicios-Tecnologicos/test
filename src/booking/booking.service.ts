@@ -92,11 +92,18 @@ export class BookingService {
 
   async doBooking(id: string) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
+    if (!booking) {
+      throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND)
+    }
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+    if (checkout['error']) {
+      throw new HttpException(checkout['error']['message'], checkout['error']['status'])
+    }
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
+
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
@@ -119,8 +126,6 @@ export class BookingService {
         date: new Date(),
       };
     }
-
-
   }
 
   private saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
@@ -152,7 +157,9 @@ export class BookingService {
       .then((res) => {
         return this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
-      .catch((error) => { return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR') });
+      .catch((error) => {
+        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR')
+      });
   }
 
   private async createBookingInManagement(
@@ -224,11 +231,10 @@ export class BookingService {
       dossier: null,
       client: client,
     };
-
     const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
       createBookDTO,
-    );
+    )
 
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: bookingManagement[0].dossier,
@@ -246,7 +252,8 @@ export class BookingService {
       checkoutId: checkOut.checkoutId,
       installment: checkOut.payment.installments,
     };
-    if (!bookId) {
+
+    if (!bookId && bookingManagement[0].dossier) {
       this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
         dossier_situation: 7,
         observation: 'Ha ocurrido un error en la reserva del paquete',
@@ -345,6 +352,7 @@ export class BookingService {
         birthdate: this.formatBirthdate(passenger.dob),
         documentExpirationDate: '',
         nationality: passenger.document.nationality,
+        gender: passenger.gender.includes('MALE') ? 2 : 1,
         phoneNumberCode: 34,
         type: passenger.type,
       };
@@ -455,7 +463,7 @@ export class BookingService {
             },
           ];
         }),
-      ],
+      ][0],
       transfers: prebookingData.data.transfers,
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
