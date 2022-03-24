@@ -4,6 +4,7 @@ import { BookingService } from 'src/booking/booking.service';
 import { BudgetService } from 'src/budget/budget.service';
 import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
+import { DossierPaymentMethods } from 'src/shared/dto/email.dto';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
@@ -22,7 +23,6 @@ export class CallCenterService {
   ) { }
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
-    // return { ...managementDossierByAgency, results };
     return this.managementHttpService.get<GetDossiersByClientDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
         pickBy(filterParams),
@@ -37,11 +37,6 @@ export class CallCenterService {
   async sendConfirmationEmail(dossierId: string) {
     const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
-    let checkout = undefined;
-    if (booking) {
-      checkout = await this.bookingService.getRemoteCheckout(booking.checkoutId);
-    }
-
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
         return flight.flight_booking_segment.map((segment) => {
@@ -62,7 +57,7 @@ export class CallCenterService {
       })
     });
     const data = {
-      methodType: checkout?.payment.methodType ?? 'CARD',
+      methodType: this.determinePaymentMethod(dossier.dossier_payments) ?? DossierPaymentMethods['Tarjeta de Credito'],
       dossier: dossier.code,
       buyerName: `${dossier.client.final_name}`,
       reference: dossier.services[0].locator ?? 'Pendiente',
@@ -122,6 +117,13 @@ export class CallCenterService {
     }
     return canceled.data;
 
+  }
+
+  private determinePaymentMethod(payments: Array<any>) {
+    if (payments?.length) {
+      return DossierPaymentMethods[payments[0].payment_method]
+    }
+    return DossierPaymentMethods['Tarjeta de Credito']
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {

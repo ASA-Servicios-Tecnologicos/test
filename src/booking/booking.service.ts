@@ -92,7 +92,13 @@ export class BookingService {
 
   async doBooking(id: string) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
+    if (!booking) {
+      throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND)
+    }
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+    if (checkout['status']) {
+
+    }
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);

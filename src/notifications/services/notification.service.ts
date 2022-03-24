@@ -1,6 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { EmailDTO } from '../../shared/dto/email.dto';
+import { EmailDTO, HTML_TEMPLATES } from '../../shared/dto/email.dto';
 import { SecuredHttpService } from '../../shared/services/secured-http.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CacheService } from 'src/shared/services/cache.service';
@@ -8,11 +8,6 @@ import { HtmlTemplateService } from 'src/shared/services/html-template.service';
 
 @Injectable()
 export class NotificationService extends SecuredHttpService {
-
-  readonly HTML_TEMPLATES = {
-    'CARD': 'src/notifications/templates/flowo_email_confirmation.hbs',
-    'BANK_TRANSFER': 'src/notifications/templates/flowo_email_confirmation_transfer.hbs'
-  }
 
   constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>, private readonly htmlTemplateService: HtmlTemplateService) {
     super(http, appConfigService, cacheService);
@@ -71,7 +66,7 @@ export class NotificationService extends SecuredHttpService {
       }
     }
 
-    const template = this.htmlTemplateService.generateTemplate(this.HTML_TEMPLATES[data.methodType], data)
+    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES[data.methodType], data)
     const email: EmailDTO = {
       uuid: uuidv4(),
       applicationName: 'booking-flowo-tecnoturis',
