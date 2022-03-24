@@ -40,9 +40,11 @@ export class HtmlTemplateService {
         });
 
         Handlebars.registerHelper('formatdate', function (date) {
-            let splitedDate = date.split('-');
-            splitedDate = splitedDate.reverse();
-            return splitedDate.join('/');
+            if (date) {
+                let splitedDate = date.split('-');
+                splitedDate = splitedDate.reverse();
+                return splitedDate.join('/');
+            }
         });
 
         Handlebars.registerHelper('formatPrice', function (price, currency) {
