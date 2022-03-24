@@ -152,7 +152,9 @@ export class BookingService {
       .then((res) => {
         return this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
-      .catch((error) => { return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR') });
+      .catch((error) => {
+        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR')
+      });
   }
 
   private async createBookingInManagement(
@@ -228,7 +230,7 @@ export class BookingService {
     const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
       createBookDTO,
-    );
+    )
 
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: bookingManagement[0].dossier,
@@ -246,7 +248,8 @@ export class BookingService {
       checkoutId: checkOut.checkoutId,
       installment: checkOut.payment.installments,
     };
-    if (!bookId) {
+
+    if (!bookId && bookingManagement[0].dossier) {
       this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
         dossier_situation: 7,
         observation: 'Ha ocurrido un error en la reserva del paquete',
@@ -345,6 +348,7 @@ export class BookingService {
         birthdate: this.formatBirthdate(passenger.dob),
         documentExpirationDate: '',
         nationality: passenger.document.nationality,
+        gender: passenger.gender,
         phoneNumberCode: 34,
         type: passenger.type,
       };
@@ -455,7 +459,7 @@ export class BookingService {
             },
           ];
         }),
-      ],
+      ][0],
       transfers: prebookingData.data.transfers,
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,

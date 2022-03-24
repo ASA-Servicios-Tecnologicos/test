@@ -37,12 +37,11 @@ export class CallCenterService {
   async sendConfirmationEmail(dossierId: string) {
     const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
-    const checkout = await this.bookingService.getRemoteCheckout(booking.checkoutId);
-    checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
-      const dateA = new Date(a.dueDate);
-      const dateB = new Date(b.dueDate);
-      return dateA > dateB ? 1 : -1;
-    });
+    let checkout = undefined;
+    if (booking) {
+      checkout = await this.bookingService.getRemoteCheckout(booking.checkoutId);
+    }
+
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
         return flight.flight_booking_segment.map((segment) => {
@@ -63,20 +62,43 @@ export class CallCenterService {
       })
     });
     const data = {
-      methodType: checkout.payment.methodType ?? 'CARD',
-      dossier: '',
+      methodType: checkout?.payment.methodType ?? 'CARD',
+      dossier: dossier.code,
       buyerName: `${dossier.client.final_name}`,
       reference: dossier.services[0].locator ?? 'Pendiente',
-      pricePerPerson: checkout.payment.amount.value / checkout.passengers.length,
-      personsNumber: checkout.passengers.length,
-      amount: checkout.payment.amount.value,
-      currency: checkout.payment.amount.currency,
-      payments: checkout.payment.installments,
-      packageName: booking.packageName,
+      pricePerPerson: dossier.services[0].total_pvp / dossier.services[0].paxes.length,
+      personsNumber: dossier.services[0].paxes.length,
+      amount: dossier.services[0].total_pvp,
+      currency: dossier.services[0].raw_data.currency,
+      payments: dossier.dossier_payments?.map(payment => {
+        return {
+          dueDate: payment.paid_date,
+          amount: {
+            value: payment.paid_amount,
+            currency: dossier.services[0].raw_data.currency
+          },
+          status: payment.status
+        }
+      }) ?? [],
+      packageName: booking?.packageName ?? '', // Si queremos presciding de booking, de donde sacamos el packageName? 
       flights: flights[0],
       transfers: transfers[0],
-      passengers: checkout.passengers,
-      cancellationPollicies: dossier.services[0].cancellation_policies,
+      passengers: dossier.services[0].paxes?.map(passenger => {
+        return {
+          name: passenger.name,
+          lastName: passenger.last_name,
+          dob: passenger.birthdate,
+          document: {
+            documentType: passenger.type_document,
+            documentNumber: passenger.dni,
+            expeditionDate: '',
+            nationality: passenger.nationality_of_id
+          },
+          country: passenger.nationality,
+          gender: passenger.gender
+        }
+      }) ?? [],
+      cancellationPollicies: dossier.services[0].cancellation_policies ?? [],
       insurances: dossier.services[0].raw_data.insurances,
       observations: dossier.services[0].relevant_data?.observations ?? [],
       hotelRemarks: dossier.services[0].relevant_data?.remarks?.map(remark => remark[Object.keys(remark)[0]].map(remark => { return { text: remark.text } }))[0] ?? []
