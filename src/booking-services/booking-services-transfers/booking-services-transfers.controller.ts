@@ -33,10 +33,10 @@ export class BookingServicesTransfersController {
     return this.bookingServicesTransfers.addPassengerToTransfer(body);
   }
 
-  @Delete('passenger/:bookingFlightSegmentId')
+  @Delete('passenger/:bookingTransferSegmentId')
   @ApiOperation({ summary: 'Borra un pasajero de un traslado' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Pasajero eliminado del traslado' })
-  deletePassengerFromFlight(@Param('bookingFlightSegmentId') id: string) {
+  deletePassengerFromFlight(@Param('bookingTransferSegmentId') id: string) {
     return this.bookingServicesTransfers.deletePassengerFromTransfer(id);
   }
 }
