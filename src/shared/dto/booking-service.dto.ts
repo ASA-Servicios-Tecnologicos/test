@@ -141,3 +141,9 @@ export class AddPassengerFlightDto {
   booking_flight_segment: number;
   pax: Pax;
 }
+
+export class AddPassengerTransferDto {
+  booking_transfer: number;
+  pax: Pax;
+}
+

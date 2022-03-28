@@ -2,6 +2,7 @@ export class CreateHotelBookingRoomDTO {
   hotel_booking_service: number;
   quantity: number;
   regimen: number;
+  room_type_text: string;
   room_type: number;
 }
 
