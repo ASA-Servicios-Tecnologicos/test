@@ -147,3 +147,8 @@ export class AddPassengerTransferDto {
   pax: Pax;
 }
 
+
+export class AddPassengerHotelRoomDto {
+  hotel_room: number;
+  pax: Pax;
+}
