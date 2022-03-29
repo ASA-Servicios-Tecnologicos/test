@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { AddPassengerFlightDto, ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../../shared/dto/booking-service.dto';
-import { CreateUpdateBookingServicePax, Pax } from '../../shared/dto/call-center.dto';
+import { AddPassengerFlightDto, AddPassengerTransferDto, ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../../shared/dto/booking-service.dto';
+import { CreateTransferDTO, CreateUpdateBookingServicePax, Pax, TransferDTO } from '../../shared/dto/call-center.dto';
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
 
@@ -84,5 +84,33 @@ export class BookingServicesService {
 
   deletePassengerFromFlight(id: string) {
     return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-flight-pax/${id}/`);
+  }
+
+  addPassengerToTransfer(body: AddPassengerTransferDto) {
+    return this.managementHttpService.post(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-transfer-pax/`, body);
+  }
+
+  deletePassengerFromTransfer(id: string) {
+    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-transfer-pax/${id}/`);
+  }
+
+  createTransferBookingService(transferBookingServiceId: number, createTransferDTO: CreateTransferDTO): Promise<TransferDTO> {
+    return this.managementHttpService.post<TransferDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/transfer/`, {
+      ...createTransferDTO,
+      transfer_booking_service: transferBookingServiceId,
+    });
+  }
+
+  deleteTransferSegmentById(transferSegmentId: number): Promise<void> {
+    return this.managementHttpService.delete(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/transfer/${transferSegmentId}/`,
+    );
+  }
+
+  putTransferSegmentById(transferSegmentId: number, newTransferSegment: Partial<CreateTransferDTO>) {
+    return this.managementHttpService.put(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/transfer/${transferSegmentId}/`,
+      newTransferSegment,
+    );
   }
 }

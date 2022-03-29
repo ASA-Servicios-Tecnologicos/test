@@ -1,4 +1,3 @@
-//TODO: Type data when test this function
 export class CallCenterBookingFilterParamsDTO {
   code?: string;
   locator?: string;
@@ -121,4 +120,22 @@ export class FlightDTO {
   departure_at: string;
   arrival_at: string;
   airline: string;
+}
+
+export class CreateTransferDTO {
+  transfer_booking_service: number;
+  from_date: string;
+  from_name: string;
+  from_code: any;
+  to_date: any;
+  to_name: string;
+  to_code: any;
+  adults: any;
+  children: any;
+  babies: any;
+  transfer_type: any;
+}
+
+export class TransferDTO {
+
 }

@@ -34,8 +34,8 @@ export class BookingServicesFlightsController {
   }
 
   @Delete('passenger/:bookingFlightSegmentId')
-  @ApiOperation({ summary: 'Borra la relacción ' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Pasajero añadido al vuelo' })
+  @ApiOperation({ summary: 'Borra un pasajero de un vuelo' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Pasajero eliminado del vuelo' })
   deletePassengerFromFlight(@Param('bookingFlightSegmentId') id: string) {
     return this.bookingServicesFlights.deletePassengerFromFlight(id);
   }
