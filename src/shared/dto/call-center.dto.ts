@@ -122,3 +122,11 @@ export class FlightDTO {
   arrival_at: string;
   airline: string;
 }
+
+export class CreateTransferDTO {
+
+}
+
+export class TransferDTO {
+
+}

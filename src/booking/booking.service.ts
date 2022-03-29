@@ -169,7 +169,11 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
-    const client = await this.getOrCreateClient(checkOut);
+
+    const client = await this.getOrCreateClient(checkOut).catch(error => error);
+    if (isNaN(client)) {
+      throw new HttpException(client, HttpStatus.NOT_FOUND);
+    }
 
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
@@ -231,6 +235,7 @@ export class BookingService {
       dossier: null,
       client: client,
     };
+
     const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
       createBookDTO,
@@ -329,8 +334,8 @@ export class BookingService {
           active: false,
         })
         .catch((error) => {
-          console.log(error);
-          return error;
+          console.error(error);
+          throw error;
         });
       return createdClient?.client;
     }

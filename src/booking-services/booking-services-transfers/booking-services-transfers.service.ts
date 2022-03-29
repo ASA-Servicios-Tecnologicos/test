@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { AddPassengerFlightDto, AddPassengerTransferDto } from 'src/shared/dto/booking-service.dto';
+import { AddPassengerTransferDto } from 'src/shared/dto/booking-service.dto';
 import { BookingServicesService } from '../../management/services/booking-services.service';
-import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
+import { CreateTransferDTO, FlightDTO, TransferDTO } from '../../shared/dto/call-center.dto';
 
 @Injectable()
 export class BookingServicesTransfersService {
   constructor(private readonly bookingServicesService: BookingServicesService) { }
 
-  /* createTransfer(flightBookingServiceId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {
-    return this.bookingServicesService.createFlightBookingService(flightBookingServiceId, createFlightDTO);
+  createTransfer(transferBookingServiceId: number, createTransferDTO: CreateTransferDTO): Promise<TransferDTO> {
+    return this.bookingServicesService.createTransferBookingService(transferBookingServiceId, createTransferDTO);
   }
 
-  deleteTransferSegmentById(flightSegmentId: number): Promise<void> {
-    return this.bookingServicesService.deleteFlightSegmentById(flightSegmentId);
+  deleteTransferSegmentById(transferSegmentId: number): Promise<void> {
+    return this.bookingServicesService.deleteTransferSegmentById(transferSegmentId);
   }
 
-  putTransferSegment(flightSegmentId: number, newFlightSegment) {
-    return this.bookingServicesService.putFlightSegmentById(flightSegmentId, newFlightSegment);
-  } */
+  putTransferSegment(transferSegmentId: number, newTransferSegment) {
+    return this.bookingServicesService.putTransferSegmentById(transferSegmentId, newTransferSegment);
+  }
 
   addPassengerToTransfer(body: AddPassengerTransferDto) {
     return this.bookingServicesService.addPassengerToTransfer(body);

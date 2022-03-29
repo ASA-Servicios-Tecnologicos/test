@@ -9,4 +9,4 @@ import { BookingServicesTransfersService } from './booking-services-transfers.se
   providers: [BookingServicesTransfersService],
   exports: [BookingServicesTransfersService],
 })
-export class BookingServicesFlightsModule { }
+export class BookingServicesTransfersModule { }

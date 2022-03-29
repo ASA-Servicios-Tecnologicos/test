@@ -35,7 +35,7 @@ export abstract class SecuredHttpService {
         })
         .pipe(map((result) => result.data.access_token)),
     ).catch((error) => {
-      console.log(error);
+      console.error(error);
       return error;
     });
   }

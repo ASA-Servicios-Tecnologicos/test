@@ -29,41 +29,54 @@ export class NotificationService extends SecuredHttpService {
       }
       return text;
     };
-    data.cancellationPollicies = data.cancellationPollicies.map((policy) => {
-      const dotIndex = policy.text?.indexOf('.');
-      if (dotIndex > -1 && policy.text.length != dotIndex) {
-        return {
-          ...policy,
-          title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
-          text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
-        };
-      } else {
+    data.cancellationPollicies = data.cancellationPollicies?.map((policy) => {
+      try {
+        const dotIndex = policy.text?.indexOf('.');
+        if (dotIndex > -1 && policy.text.length != dotIndex) {
+          return {
+            ...policy,
+            title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
+            text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
+          };
+        } else {
+          return {
+            ...policy,
+            title: policy.text.replace('gestión', 'cancelación'),
+            text: '',
+          };
+        }
+      } catch (error) {
+        console.error('Error al formatear políticas de cancelación: ' + error);
         return {
           ...policy,
           title: policy.text.replace('gestión', 'cancelación'),
-          text: '',
-        };
+          text: ''
+        }
       }
-
     });
-    const lowestDatePolicy = data.cancellationPollicies
-      .filter((policy) => policy.amount !== 0)
-      .find(
-        (policy) =>
-          Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
-          new Date(policy.fromDate).getMilliseconds(),
-      );
-    const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));
-    if (noExpensesPolicy > -1) {
-      const datesInText = data.cancellationPollicies[noExpensesPolicy].text.match(/(\d{1,4}([.\/-])\d{1,2}([.\/-])\d{1,4})/g);
-      const date = new Date(lowestDatePolicy.fromDate);
-      date.setDate(date.getDate() - 1);
-      if (datesInText) {
-        data.cancellationPollicies[noExpensesPolicy].text = data.cancellationPollicies[noExpensesPolicy].text.replace(
-          datesInText[1],
-          new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date),
+    try {
+      const lowestDatePolicy = data.cancellationPollicies
+        .filter((policy) => policy.amount !== 0)
+        .find(
+          (policy) =>
+            Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
+            new Date(policy.fromDate).getMilliseconds(),
         );
+      const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));
+      if (noExpensesPolicy > -1) {
+        const datesInText = data.cancellationPollicies[noExpensesPolicy].text.match(/(\d{1,4}([.\/-])\d{1,2}([.\/-])\d{1,4})/g);
+        const date = new Date(lowestDatePolicy.fromDate);
+        date.setDate(date.getDate() - 1);
+        if (datesInText) {
+          data.cancellationPollicies[noExpensesPolicy].text = data.cancellationPollicies[noExpensesPolicy].text.replace(
+            datesInText[1],
+            new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date),
+          );
+        }
       }
+    } catch (error) {
+      console.error('Error al corregir y formatear la fecha de la primera política de cancelación: ' + error);
+
     }
 
     const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES[data.methodType], data)
