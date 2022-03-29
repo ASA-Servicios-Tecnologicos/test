@@ -107,7 +107,7 @@ export class BookingServicesService {
     );
   }
 
-  putTransferSegmentById(transferSegmentId: number, newTransferSegment: CreateTransferDTO) {
+  putTransferSegmentById(transferSegmentId: number, newTransferSegment: Partial<CreateTransferDTO>) {
     return this.managementHttpService.put(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/transfer/${transferSegmentId}/`,
       newTransferSegment,

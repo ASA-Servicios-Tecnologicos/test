@@ -22,8 +22,8 @@ export class BookingServicesTransfersController {
   }
 
   @Put('segment/:transferSegmentId')
-  putFlightSegment(@Param('transferSegmentId') transferSegmentId: string, @Body() newFlightSegment: CreateFlightDTO) {
-    return this.bookingServicesTransfers.putTransferSegment(Number(transferSegmentId), newFlightSegment);
+  putFlightSegment(@Param('transferSegmentId') transferSegmentId: string, @Body() newTransferSegment: Partial<CreateTransferDTO>) {
+    return this.bookingServicesTransfers.putTransferSegment(Number(transferSegmentId), newTransferSegment);
   }
 
   @Post('passenger')

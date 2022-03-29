@@ -15,7 +15,7 @@ export class BookingServicesTransfersService {
     return this.bookingServicesService.deleteTransferSegmentById(transferSegmentId);
   }
 
-  putTransferSegment(transferSegmentId: number, newTransferSegment) {
+  putTransferSegment(transferSegmentId: number, newTransferSegment: Partial<CreateTransferDTO>) {
     return this.bookingServicesService.putTransferSegmentById(transferSegmentId, newTransferSegment);
   }
 
