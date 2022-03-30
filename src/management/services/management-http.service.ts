@@ -63,7 +63,7 @@ export class ManagementHttpService {
         ...config,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NTYyLCJyb2xlIjp7ImlkIjoyLCJuYW1lIjoiRGlyZWN0b3IgZGUgQWdlbmNpYSIsImFjdGl2ZSI6dHJ1ZX0sImFnZW5jeV9jaGFpbiI6eyJpZCI6MywibmFtZSI6IkZsb3dvIiwic2hhcmVfY2xpZW50cyI6ZmFsc2V9LCJhZ2VuY3kiOnsiaWQiOjMsIm5hbWUiOiJGbG93byBDZW50cmFsIiwiYWdlbmN5X2NoYWluX2lkIjozfSwidXNlcm5hbWUiOiJmbG93b2RldiIsImZpcnN0X25hbWUiOiJGbG93b0RldiIsImxhc3RfbmFtZSI6IkludGVncmF0aW9uIiwiZW1haWwiOiJwcnVlYmFAdGVjbm90dXJpcy5lcyIsImxvZ28iOm51bGwsImNsaWVudCI6bnVsbCwiYWdlbmNpZXNfYXNzb2NpYXRlZCI6W10sImV4cCI6MTY0ODE2Mzg5Nywib3JpZ19pYXQiOjE2NDgxMDYyOTd9.g2SikWVigDKnDSTelrXTKxZ_UDOUlbiPLY87m-UVYZA`,
+          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
         },
       }),
     )
