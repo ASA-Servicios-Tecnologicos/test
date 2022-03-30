@@ -75,7 +75,7 @@ export class CallCenterService {
           status: payment.status
         }
       }) ?? [],
-      packageName: booking?.packageName ?? '', // Si queremos presciding de booking, de donde sacamos el packageName? 
+      packageName: booking?.packageName ?? '',
       flights: flights[0],
       transfers: transfers[0],
       passengers: dossier.services[0].paxes?.map(passenger => {
@@ -86,7 +86,7 @@ export class CallCenterService {
           document: {
             documentType: passenger.type_document,
             documentNumber: passenger.dni,
-            expeditionDate: '',
+            expeditionDate: '', // No disponible
             nationality: passenger.nationality_of_id
           },
           country: passenger.nationality,

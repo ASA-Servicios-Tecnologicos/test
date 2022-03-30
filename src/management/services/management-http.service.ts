@@ -1,4 +1,4 @@
-import { HttpException, HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
@@ -36,7 +36,7 @@ export class ManagementHttpService {
       })
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.post<K>(url, data, {
@@ -63,14 +63,14 @@ export class ManagementHttpService {
         ...config,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
+          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NTYyLCJyb2xlIjp7ImlkIjoyLCJuYW1lIjoiRGlyZWN0b3IgZGUgQWdlbmNpYSIsImFjdGl2ZSI6dHJ1ZX0sImFnZW5jeV9jaGFpbiI6eyJpZCI6MywibmFtZSI6IkZsb3dvIiwic2hhcmVfY2xpZW50cyI6ZmFsc2V9LCJhZ2VuY3kiOnsiaWQiOjMsIm5hbWUiOiJGbG93byBDZW50cmFsIiwiYWdlbmN5X2NoYWluX2lkIjozfSwidXNlcm5hbWUiOiJmbG93b2RldiIsImZpcnN0X25hbWUiOiJGbG93b0RldiIsImxhc3RfbmFtZSI6IkludGVncmF0aW9uIiwiZW1haWwiOiJwcnVlYmFAdGVjbm90dXJpcy5lcyIsImxvZ28iOm51bGwsImNsaWVudCI6bnVsbCwiYWdlbmNpZXNfYXNzb2NpYXRlZCI6W10sImV4cCI6MTY0ODE2Mzg5Nywib3JpZ19pYXQiOjE2NDgxMDYyOTd9.g2SikWVigDKnDSTelrXTKxZ_UDOUlbiPLY87m-UVYZA`,
         },
       }),
     )
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.get<K>(url, {
@@ -109,7 +109,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.patch<K>(url, data, {
@@ -145,7 +145,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.put<K>(url, data, {
@@ -187,7 +187,7 @@ export class ManagementHttpService {
           return;
         }
         // If token has expired then renew request token
-        if (err.response?.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.delete(url, {
