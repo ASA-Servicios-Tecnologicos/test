@@ -1,4 +1,4 @@
-import { HttpException, HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
@@ -36,7 +36,7 @@ export class ManagementHttpService {
       })
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.post<K>(url, data, {
@@ -70,7 +70,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.get<K>(url, {
@@ -109,7 +109,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.patch<K>(url, data, {
@@ -145,7 +145,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.put<K>(url, data, {
@@ -187,7 +187,7 @@ export class ManagementHttpService {
           return;
         }
         // If token has expired then renew request token
-        if (err.response?.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.delete(url, {
