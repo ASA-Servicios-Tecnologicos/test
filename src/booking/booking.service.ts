@@ -248,12 +248,7 @@ export class BookingService {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
         bookingId: booking.bookingId,
-        paymentMethods:
-          checkOut.payment.paymentMethods[0].code === '1'
-            ? 4
-            : checkOut.payment.paymentMethods[0].code === '2'
-              ? 2
-              : parseInt(checkOut.payment.paymentMethods[0].code),
+        paymentMethods: checkOut.payment.methodType === 'CARD' ? 4 : checkOut.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
         amount: {
           value: booking.amount,
           currency: booking.currency,
