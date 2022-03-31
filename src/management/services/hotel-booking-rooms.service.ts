@@ -28,10 +28,10 @@ export class HotelBookingRoomsService {
 
 
   addPassengerToHotelRoom(body: AddPassengerHotelRoomDto) {
-    return this.managementHttpService.post(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-rooms-pax/`, body);
+    return this.managementHttpService.post(`${this.appConfigService.BASE_URL}/management/api/v1/hotel-booking-rooms-pax/`, body);
   }
 
   deletePassengerFromHotelRoom(roomId: string, paxId: string) {
-    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-rooms-pax/${roomId}/${paxId}`);
+    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/hotel-booking-rooms-pax/${roomId}/${paxId}/`);
   }
 }
