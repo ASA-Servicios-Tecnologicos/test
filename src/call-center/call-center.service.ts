@@ -4,6 +4,8 @@ import { BookingService } from 'src/booking/booking.service';
 import { BudgetService } from 'src/budget/budget.service';
 import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
+import { PaymentsService } from 'src/payments/payments.service';
+import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { DossierPaymentMethods } from 'src/shared/dto/email.dto';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
@@ -20,6 +22,7 @@ export class CallCenterService {
     private readonly bookingService: BookingService,
     private readonly notificationsService: NotificationService,
     private readonly checkoutService: CheckoutService,
+    private readonly paymentsService: PaymentsService
   ) { }
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
@@ -114,9 +117,17 @@ export class CallCenterService {
         dossier_situation: 5,
         observation: 'El expendiente ha sido cancelado',
       });
+      const dossierPayments: CreateUpdateDossierPaymentDTO = {
+        dossier: booking.dossier,
+        bookingId: canceled.data.booking.bookingId,
+        checkoutId: canceled.data.checkoutId,
+        installment: canceled.data.payment.installments,
+        paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : canceled.data.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
+        amount: canceled.data.payment.amount,
+      };
+      await this.paymentsService.updateDossierPayments(dossierPayments)
+      return canceled.data;
     }
-    return canceled.data;
-
   }
 
   private determinePaymentMethod(payments: Array<any>) {
