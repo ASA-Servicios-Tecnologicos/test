@@ -17,6 +17,7 @@ import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dt
 import { DossiersService } from 'src/dossiers/dossiers.service';
 import { DiscountCodeService } from 'src/management/services/dicount-code.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
+import { DossierDto } from 'src/shared/dto/dossier.dto';
 
 @Injectable()
 export class BookingService {
@@ -229,7 +230,7 @@ export class BookingService {
             airportArrivalCity: '',
             airportArrivalName: '',
           },
-          paxes: this.buildPaxesReserveV2(checkOut.passengers),
+          paxes: this.buildPaxesReserveV2(checkOut.passengers, false),
         },
       ],
       dossier: null,
@@ -241,6 +242,7 @@ export class BookingService {
       createBookDTO,
     ).catch(error => {
       console.error(error);
+      console.error('Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId)
       return null;
     })
 
@@ -270,16 +272,26 @@ export class BookingService {
       (await update).save();
       this.paymentsService.createDossierPayments(dossierPayments);
     } else {
-      console.error('Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId)
       const update = await this.bookingModel.findOneAndUpdate(
         { bookingId: booking.bookingId },
         { locator: bookId },
       );
       (await update).save();
     }
-    this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, bookingManagement[0].dossier);
+    let dossier: DossierDto;
+    if (bookingManagement) {
+      dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
+      if (dossier?.code) {
+        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, dossier.code);
+      } else {
+        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente');
+      }
+    } else {
+      this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente');
+    }
+
     return {
-      dossier: bookingManagement[0].dossier,
+      dossier: dossier?.code ? dossier.code : 'Nº expediente',
       payment: checkOut.payment,
       buyer: checkOut.buyer,
       flights: prebookingData.data.flights,
@@ -348,7 +360,7 @@ export class BookingService {
     return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
   }
 
-  private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>) {
+  private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>, formatBirthdate = true) {
     return passengers.map((passenger) => {
       return {
         abbreviation: passenger.title,
@@ -360,7 +372,7 @@ export class BookingService {
         email: '',
         documentType: passenger.document.documentType,
         documentNumber: passenger.document.documentNumber,
-        birthdate: this.formatBirthdate(passenger.dob),
+        birthdate: formatBirthdate ? this.formatBirthdate(passenger.dob) : passenger.dob,
         documentExpirationDate: '',
         nationality: passenger.document.nationality,
         gender: passenger.gender.includes('MALE') ? 2 : 1,
@@ -445,7 +457,7 @@ export class BookingService {
     return new Date(`${mm}/${dd}/${yyyy}`);
   }
 
-  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string, dossier: number) {
+  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string, dossier: string) {
     const data = {
       methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
