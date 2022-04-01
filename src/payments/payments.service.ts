@@ -21,7 +21,7 @@ export class PaymentsService {
     private bookingModel: Model<BookingDocument>,
     private bookingDocumentsService: BookingDocumentsService,
     private dossiersService: DossiersService,
-  ) {}
+  ) { }
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
     return this.managementHttpService.post<Array<DossierPayment>>(
@@ -51,12 +51,7 @@ export class PaymentsService {
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
       installment: checkout.payment.installments,
-      paymentMethods:
-        checkout.payment.paymentMethods[0].code === '1'
-          ? 4
-          : checkout.payment.paymentMethods[0].code === '2'
-          ? 2
-          : parseInt(checkout.payment.paymentMethods[0].code),
+      paymentMethods: checkout.payment.methodType === 'CARD' ? 4 : checkout.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
       amount: checkout.payment.amount,
     };
     const errorPayments = checkout.payment.installments

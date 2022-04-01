@@ -2,6 +2,7 @@ export class CallCenterBookingFilterParamsDTO {
   code?: string;
   locator?: string;
   client?: string;
+  client_id?: string;
   opening_date_from?: string;
   opening_date_to?: string;
   page?: string;
