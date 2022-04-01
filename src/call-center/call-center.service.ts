@@ -89,7 +89,7 @@ export class CallCenterService {
           document: {
             documentType: passenger.type_document,
             documentNumber: passenger.dni,
-            expeditionDate: '', // No disponible
+            documentExpirationDate: passenger.expiration_document,
             nationality: passenger.nationality_of_id
           },
           country: passenger.nationality,
