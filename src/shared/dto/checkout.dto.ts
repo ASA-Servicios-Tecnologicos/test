@@ -54,7 +54,8 @@ export interface CheckoutPassenger {
 export interface CheckoutDocument {
   documentType: string;
   documentNumber: string;
-  expeditionDate: string;
+  expeditionDate?: string;
+  expirationDate: string;
   nationality: string;
 }
 
