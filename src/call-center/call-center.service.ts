@@ -111,6 +111,9 @@ export class CallCenterService {
 
   async cancelDossier(dossierId: string) {
     const booking = await this.bookingService.findByDossier(dossierId);
+    if (!booking) {
+      throw new HttpException('No se ha encontrado ningun booking con dossier ' + dossierId, HttpStatus.NOT_FOUND);
+    }
     const canceled = await this.checkoutService.cancelCheckout(booking.checkoutId);
     if (canceled.status === HttpStatus.OK) {
       await this.dossiersService.patchDossierById(Number(dossierId), {
