@@ -9,7 +9,9 @@ export class PackagesProvidersService {
   constructor(private readonly appConfigService: AppConfigService, private readonly managementHttpService: ManagementHttpService) {}
 
   getPackageProviders(queryParams?: BookingPackagesProvidersFilters) {
-    return this.managementHttpService.get(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/packages`, { params: queryParams });
+    return this.managementHttpService.get(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/packages/flowo`, {
+      params: queryParams,
+    });
   }
 
   postPreBookings(data: PostPreBookingsPackagesProvidersDTO): Promise<any> {

@@ -80,6 +80,9 @@ export class NotificationService extends SecuredHttpService {
     }
 
     const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES[data.methodType], data)
+    const locator = data.reference;
+    const number_dossier = data.dossier;
+
     const email: EmailDTO = {
       uuid: uuidv4(),
       applicationName: 'booking-flowo-tecnoturis',
@@ -88,6 +91,7 @@ export class NotificationService extends SecuredHttpService {
       subject: 'Enhorabuena, tu viaje con Flowo ha sido confirmado',
       body: template,
       contentType: 'HTML',
+      metadata: { locator: locator, number_dossier: number_dossier }
     };
     return this.sendMailRaw(email);
   }

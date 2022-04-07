@@ -155,6 +155,5 @@ export class HtmlTemplateService {
           templateCode: 'test-html',
         };
         this.notificationsService.sendMailTemplated(email); */
-        console.log(emailTemplate);
     }
 }
