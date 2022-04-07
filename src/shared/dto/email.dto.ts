@@ -1,3 +1,6 @@
+import { DossierClientDTO } from "./dossier-client.dto";
+import { PrebookingDTO } from "./pre-booking.dto";
+
 export interface EmailDTO {
   uuid: string;
   applicationName: string;
@@ -8,6 +11,7 @@ export interface EmailDTO {
   contentType: 'HTML' | 'TEXT';
   urlAttachments?: Attachment[];
   rawAttachments?: RawAttachment[];
+  metadata?: Metadata;
 }
 
 export interface Attachment {
@@ -20,6 +24,10 @@ export interface RawAttachment {
   base64: string;
 }
 
+export interface Metadata {
+  locator: string;
+  number_dossier: number;
+}
 
 export const HTML_TEMPLATES = {
   'CARD': 'src/notifications/templates/flowo_email_confirmation.hbs',

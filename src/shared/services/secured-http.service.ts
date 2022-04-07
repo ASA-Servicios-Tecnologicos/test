@@ -6,6 +6,7 @@ import { CheckoutDTO } from '../dto/checkout.dto';
 import { CacheService } from './cache.service';
 import { INSTANA_MONITORING_COOKIE } from '../shared.constants';
 
+
 export abstract class SecuredHttpService {
   constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>) {
     this.http.axiosRef.interceptors.request.use((config) => {
@@ -42,6 +43,7 @@ export abstract class SecuredHttpService {
 
   protected async postSecured(url: string, data?: any) {
     const token = await this.getSessionToken();
+
     return lastValueFrom(
       this.http.post(url, data, {
         headers: {
@@ -52,6 +54,8 @@ export abstract class SecuredHttpService {
         },
       }),
     ).catch((error) => {
+      console.log(error);
+
       throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
     });
   }
