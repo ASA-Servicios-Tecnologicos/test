@@ -62,6 +62,7 @@ export abstract class SecuredHttpService {
 
   protected async getSecured(url: string, body?) {
     const token = await this.getSessionToken();
+    console.log(url)
     return lastValueFrom(
       this.http
         .get(url, {
@@ -75,6 +76,7 @@ export abstract class SecuredHttpService {
         })
         .pipe(map((res) => res.data)),
     ).catch((error) => {
+      console.log(error)
       throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
     });
   }
