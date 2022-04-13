@@ -33,7 +33,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
-  ) { }
+  ) {}
 
   async create(booking: BookingDTO) {
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
@@ -94,11 +94,11 @@ export class BookingService {
   async doBooking(id: string) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
     if (!booking) {
-      throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND)
+      throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND);
     }
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
     if (checkout['error']) {
-      throw new HttpException(checkout['error']['message'], checkout['error']['status'])
+      throw new HttpException(checkout['error']['message'], checkout['error']['status']);
     }
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
@@ -159,7 +159,7 @@ export class BookingService {
         return this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
       .catch((error) => {
-        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR')
+        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR');
       });
   }
 
@@ -170,8 +170,7 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
-
-    const client = await this.getOrCreateClient(checkOut).catch(error => error);
+    const client = await this.getOrCreateClient(checkOut).catch((error) => error);
     if (isNaN(client)) {
       throw new HttpException(client, HttpStatus.NOT_FOUND);
     }
@@ -237,14 +236,15 @@ export class BookingService {
       client: client,
     };
 
-    const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
-      createBookDTO,
-    ).catch(error => {
-      console.error(error);
-      console.error('Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId)
-      return null;
-    })
+    const bookingManagement = await this.managementHttpService
+      .post<Array<ManagementBookDTO>>(`${this.appConfigService.BASE_URL}/management/api/v1/booking/`, createBookDTO)
+      .catch((error) => {
+        console.error(error);
+        console.error(
+          'Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId,
+        );
+        return null;
+      });
 
     if (bookingManagement) {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
@@ -272,10 +272,7 @@ export class BookingService {
       (await update).save();
       this.paymentsService.createDossierPayments(dossierPayments);
     } else {
-      const update = await this.bookingModel.findOneAndUpdate(
-        { bookingId: booking.bookingId },
-        { locator: bookId },
-      );
+      const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId });
       (await update).save();
     }
     let dossier: DossierDto;
@@ -373,7 +370,11 @@ export class BookingService {
         documentType: passenger.document.documentType,
         documentNumber: passenger.document.documentNumber,
         birthdate: formatBirthdate ? this.formatBirthdate(passenger.dob) : passenger.dob,
-        documentExpirationDate: passenger.document.expirationDate ? formatBirthdate ? this.formatBirthdate(passenger.document.expirationDate) : passenger.document.expirationDate : '',
+        documentExpirationDate: passenger.document.expirationDate
+          ? formatBirthdate
+            ? this.formatBirthdate(passenger.document.expirationDate)
+            : passenger.document.expirationDate
+          : '',
         nationality: passenger.country,
         nationality_of_id: passenger.document.nationality,
         gender: passenger.gender.includes('MALE') ? 2 : 1,
@@ -458,7 +459,14 @@ export class BookingService {
     return new Date(`${mm}/${dd}/${yyyy}`);
   }
 
-  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string, dossier: string) {
+  private sendConfirmationEmail(
+    prebookingData: PrebookingDTO,
+    booking: Booking,
+    checkOut: CheckoutDTO,
+    bookId: string,
+    status: string,
+    dossier: string,
+  ) {
     const data = {
       methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
@@ -478,14 +486,12 @@ export class BookingService {
               arrivalAirportCode: flight.outward[0].arrival.airportCode,
               departureDate: flight.outward[0].departure.date,
               arrivalDate: flight.outward[0].arrival.date,
-              passengers: data.personsNumber
             },
             {
               departureAirportCode: flight.return[0].departure.airportCode,
               arrivalAirportCode: flight.return[0].arrival.airportCode,
               departureDate: flight.return[0].departure.date,
               arrivalDate: flight.return[0].arrival.date,
-              passengers: data.personsNumber
             },
           ];
         }),
