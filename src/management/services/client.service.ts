@@ -16,8 +16,9 @@ export class ClientService {
   }
 
   getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
+    let usernameEncode = username.includes('+'.charAt(0)) ? username.replace('+', '%2B') : username;
     return this.managementHttpService.get<GetManagementClientInfoByUsernameDTO>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/client/me/?username=${username}`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/client/me/?username=${usernameEncode}`,
     );
   }
 
