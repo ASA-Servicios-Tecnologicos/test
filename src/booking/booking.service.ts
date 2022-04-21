@@ -6,7 +6,7 @@ import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { v4 as uuidv4 } from 'uuid';
 import { AppConfigService } from 'src/configuration/configuration.service';
-import { CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
+import { CheckoutBuyer, CheckoutContact, CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
 import { PrebookingDTO } from 'src/shared/dto/pre-booking.dto';
 import { ClientService } from 'src/management/services/client.service';
@@ -18,6 +18,7 @@ import { DossiersService } from 'src/dossiers/dossiers.service';
 import { DiscountCodeService } from 'src/management/services/dicount-code.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { DossierDto } from 'src/shared/dto/dossier.dto';
+import { OtaClientDTO } from 'src/shared/dto/ota-client.dto';
 
 @Injectable()
 export class BookingService {
@@ -302,6 +303,48 @@ export class BookingService {
     };
   }
 
+  public async getClientOrCreate(client: OtaClientDTO): Promise<number> {
+    const checkoutContact: CheckoutContact = {
+      address: undefined,
+      phone: {
+        phone: +client.phone,
+        prefix: client.prefix,
+      },
+      email: client.mail,
+      newsletter: false,
+    };
+
+    const checkoutBuyer: CheckoutBuyer = {
+      gender: '',
+      name: client.name,
+      title: '',
+      lastname: client.surname,
+      dob: '',
+      country: '',
+      document: undefined,
+    };
+
+    const checkOut: CheckoutDTO = {
+      checkoutURL: '',
+      booking: {
+        bookingId: '',
+        okURL: '',
+        koURL: '',
+        backURL: '',
+        amount: undefined,
+        startDate: '',
+        endDate: '',
+      },
+      checkoutId: '',
+      passengers: [],
+      payment: undefined,
+      buyer: checkoutBuyer,
+      contact: checkoutContact,
+    };
+
+    return this.getOrCreateClient(checkOut);
+  }
+
   private async getOrCreateClient(checkOut: CheckoutDTO) {
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
@@ -326,7 +369,7 @@ export class BookingService {
         .createExternalClient({
           agency: integrationClient.agency.id,
           agency_chain: integrationClient.agency.agency_chain_id,
-          dni: checkOut.buyer.document.documentNumber,
+          dni: checkOut.buyer.document?.documentNumber,
           email: checkOut.contact.email,
           first_name: checkOut.buyer.name,
           last_name: checkOut.buyer.lastname,
