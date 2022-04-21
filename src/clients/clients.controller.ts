@@ -52,6 +52,11 @@ export class ClientsController {
     return this.clientService.subscribeToNewsletter(username, newsletterRequestDTO);
   }
 
+  @Post('/add-newsletter')
+  AddToNewsletter(@Body() newsletterRequestDTO: { email: string }) {
+    return this.clientService.AddToNewsletter(newsletterRequestDTO);
+  }
+
   @Post(['', ':username'])
   createClient(@Req() request: Request, @Body() createClient: CreateExternalUserDTO) {
     return this.externalClientsService.createExternalClient({
