@@ -1,3 +1,5 @@
+import { Pax } from "./call-center.dto";
+
 export class ManagementBookingServicesByDossierDTO {
   id: number;
   service: {
@@ -118,15 +120,35 @@ export class ManagementBookingServiceDTO {
       name: string;
       address: string;
       postal_code?: any;
+      raw_data: any;
     },
   ];
-  flight: [];
-  safes: [];
-  cars: [];
-  circuits: [];
-  train: [];
-  tickets: [];
-  activity: [];
-  pax: [];
-  raw_data: {};
+  flight: Array<any>;
+  transfer: Array<any>;
+  safes: Array<any>;
+  cars: Array<any>;
+  circuits: Array<any>;
+  train: Array<any>;
+  tickets: Array<any>;
+  activity: Array<any>;
+  paxes: Array<any>;
+  cancellation_policies: Array<any>;
+  relevant_data: any;
+  raw_data: any;
+}
+
+export class AddPassengerFlightDto {
+  booking_flight_segment: number;
+  pax: Pax;
+}
+
+export class AddPassengerTransferDto {
+  booking_transfer: number;
+  pax: Pax;
+}
+
+
+export class AddPassengerHotelRoomDto {
+  hotel_room: number;
+  pax: Pax;
 }

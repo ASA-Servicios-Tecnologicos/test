@@ -14,15 +14,14 @@ export class BookingPackagesProvidersFilters {
   destinationType: string;
   providers: string;
 }
-// TODO: PENDING TYPE ALL
+
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('booking-packages')
 export class BookingPackagesController {
   constructor(private readonly bookingPackagesService: BookingPackagesService) {}
 
   @Post('providers/pre-bookings')
-  postPreBookingsPackagesProviders(
-    @Body() postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO,
-  ): Promise<PreBookingsPackagesProvidersResponseDTO> {
+  postPreBookingsPackagesProviders(@Body() postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO): Promise<any> {
     return this.bookingPackagesService.postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO);
   }
 

@@ -78,6 +78,8 @@ export class BookingDTO {
   @ApiProperty()
   koUrl: string;
   @ApiProperty()
+  backURL: string;
+  @ApiProperty()
   discount?: DiscountDTO;
   @ApiProperty()
   cancellationPolicies: Array<CancellationPolicyDTO>;

@@ -1,14 +1,18 @@
-//TODO: Type data when test this function
 export class CallCenterBookingFilterParamsDTO {
   code?: string;
   locator?: string;
   client?: string;
+  client_id?: string;
   opening_date_from?: string;
   opening_date_to?: string;
   page?: string;
   dossier_status?: number;
   dossier_situation?: number;
-  all_data?: boolean;
+  payment_method?: number;
+  payment_status?: number;
+  check_in?: string;
+  check_out?: string;
+  product_code?: string;
 }
 
 export class GetDossiersByClientDTO {
@@ -117,4 +121,22 @@ export class FlightDTO {
   departure_at: string;
   arrival_at: string;
   airline: string;
+}
+
+export class CreateTransferDTO {
+  transfer_booking_service: number;
+  from_date: string;
+  from_name: string;
+  from_code: any;
+  to_date: any;
+  to_name: string;
+  to_code: any;
+  adults: any;
+  children: any;
+  babies: any;
+  transfer_type: any;
+}
+
+export class TransferDTO {
+
 }

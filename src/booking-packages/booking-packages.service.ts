@@ -9,15 +9,13 @@ export class BookingPackagesService {
   constructor(
     private readonly packagesNewBlueService: PackagesNewblueService,
     private readonly packagesProvidersService: PackagesProvidersService,
-  ) {}
+  ) { }
 
   getBookingPackagesProviders(queryParams: BookingPackagesProvidersFilters) {
     return this.packagesProvidersService.getPackageProviders(queryParams);
   }
 
-  postPrebookingsPackagesProviders(
-    postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO,
-  ): Promise<PreBookingsPackagesProvidersResponseDTO> {
+  postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO): Promise<any> {
     return this.packagesProvidersService.postPreBookings(postPreBookingsPackagesProvidersDTO);
   }
 

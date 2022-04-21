@@ -16,10 +16,8 @@ import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { DossiersService } from 'src/dossiers/dossiers.service';
 import { DiscountCodeService } from 'src/management/services/dicount-code.service';
-import Handlebars from 'handlebars';
-import { readFileSync } from 'fs';
 import { NotificationService } from 'src/notifications/services/notification.service';
-import { EmailTemplatedDTO } from 'src/shared/dto/email-templated.dto';
+import { DossierDto } from 'src/shared/dto/dossier.dto';
 
 @Injectable()
 export class BookingService {
@@ -35,68 +33,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
-  ) {
-    Handlebars.registerHelper('toOrdinal', function (options) {
-      let index = parseInt(options.fn(this)) + 1;
-      let ordinalTextMapping = [
-        // unidades
-        ['', 'primer', 'segundo', 'tercer', 'cuarto', 'quinto', 'sexto', 'séptimo', 'octavo', 'noveno'],
-        // decenas
-        ['', 'décimo', 'vigésimo', 'trigésimo', 'cuadragésimo', 'quincuagésimo', 'sexagésimo', 'septuagésimo', 'octagésimo', 'nonagésimo'],
-      ];
-      let ordinal = '';
-      let digits = [...index.toString()];
-      digits.forEach((digit, i) => {
-        let digit_ordinal = ordinalTextMapping[digits.length - i - 1][+digit];
-        if (!digit_ordinal) return;
-
-        ordinal += digit_ordinal + ' ';
-      });
-      return ordinal.trim();
-    });
-
-    Handlebars.registerHelper('paymentStatus', function (options) {
-      let status = options.fn(this);
-      return status === 'COMPLETED' ? 'Pagado' : '';
-    });
-
-    Handlebars.registerHelper('paymentStausIcon', function (status, options) {
-      return status === 'COMPLETED' ? options.fn(this) : options.inverse(this);
-    });
-
-    Handlebars.registerHelper('capitalizeFirstLetter', function (options) {
-      let str = options.fn(this).trim();
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    });
-
-    Handlebars.registerHelper('formatdate', function (date) {
-      let splitedDate = date.split('-');
-      splitedDate = splitedDate.reverse();
-      return splitedDate.join('/');
-    });
-
-    Handlebars.registerHelper('formatPrice', function (price, currency) {
-      if (currency) {
-        return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, style: 'currency', currency: currency }).format(price);
-      } else {
-        return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2 }).format(price);
-      }
-    });
-
-    Handlebars.registerHelper('formatFullDate', function (stringDate) {
-      const date = new Date(stringDate);
-      return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
-    });
-
-    Handlebars.registerHelper('formatHourDate', function (stringDate) {
-      const date = new Date(stringDate);
-      return new Intl.DateTimeFormat('es-ES', { hour: 'numeric', minute: 'numeric' }).format(date);
-    });
-
-    Handlebars.registerHelper('fullName', function (passenger) {
-      return `${passenger.gender === 'MALE' ? 'Sr.' : passenger.gender === 'FEMALE' ? 'Sra.' : ''} ${passenger.name} ${passenger.lastname}`;
-    });
-  }
+  ) { }
 
   async create(booking: BookingDTO) {
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
@@ -129,6 +66,7 @@ export class BookingService {
         market: booking.market,
         koURL: `${booking.koUrl}?bookingId=${booking.bookingId}`,
         okURL: `${booking.okUrl}?bookingId=${booking.bookingId}`,
+        backURL: booking.backURL,
         distribution: booking.distribution,
         cancellationPolicies: booking.cancellationPolicies,
       },
@@ -149,32 +87,46 @@ export class BookingService {
     return this.bookingModel.findOne({ bookingId: id }).exec();
   }
 
+  findByDossier(dossier: string) {
+    return this.bookingModel.findOne({ dossier: parseInt(dossier) }).exec();
+  }
+
   async doBooking(id: string) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
+    if (!booking) {
+      throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND)
+    }
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+    if (checkout['error']) {
+      throw new HttpException(checkout['error']['message'], checkout['error']['status'])
+    }
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
+
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
       return dateA > dateB ? 1 : -1;
     });
-
-    this.saveBooking(prebookingData, booking, checkout);
-    return {
-      payment: checkout.payment,
-      buyer: checkout.buyer,
-      flights: prebookingData.data.flights,
-      hotels: prebookingData.data.hotels,
-      checkIn: prebookingData.data.checkIn,
-      checkOut: prebookingData.data.checkOut,
-      contact: checkout.contact,
-      distribution: prebookingData.data.distribution,
-      packageName: booking.packageName,
-      date: new Date(),
-    };
+    if (checkout.payment.methodType === 'BANK_TRANSFER') {
+      return this.saveBooking(prebookingData, booking, checkout);
+    } else {
+      this.saveBooking(prebookingData, booking, checkout);
+      return {
+        payment: checkout.payment,
+        buyer: checkout.buyer,
+        flights: prebookingData.data.flights,
+        hotels: prebookingData.data.hotels,
+        checkIn: prebookingData.data.checkIn,
+        checkOut: prebookingData.data.checkOut,
+        contact: checkout.contact,
+        distribution: prebookingData.data.distribution,
+        packageName: booking.packageName,
+        date: new Date(),
+      };
+    }
   }
 
   private saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
@@ -201,12 +153,14 @@ export class BookingService {
         },
       },
     };
-    this.managementHttpService
+    return this.managementHttpService
       .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, { timeout: 120000 })
       .then((res) => {
-        this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
+        return this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
-      .catch((error) => this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR'));
+      .catch((error) => {
+        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR')
+      });
   }
 
   private async createBookingInManagement(
@@ -216,7 +170,11 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
-    const client = await this.getOrCreateClient(checkOut);
+
+    const client = await this.getOrCreateClient(checkOut).catch(error => error);
+    if (isNaN(client)) {
+      throw new HttpException(client, HttpStatus.NOT_FOUND);
+    }
 
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
@@ -272,7 +230,7 @@ export class BookingService {
             airportArrivalCity: '',
             airportArrivalName: '',
           },
-          paxes: this.buildPaxesReserveV2(checkOut.passengers),
+          paxes: this.buildPaxesReserveV2(checkOut.passengers, false),
         },
       ],
       dossier: null,
@@ -282,29 +240,69 @@ export class BookingService {
     const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
       createBookDTO,
-    );
+    ).catch(error => {
+      console.error(error);
+      console.error('Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId)
+      return null;
+    })
 
-    const dossierPayments: CreateUpdateDossierPaymentDTO = {
-      dossier: bookingManagement[0].dossier,
-      bookingId: booking.bookingId,
-      amount: {
-        value: booking.amount,
-        currency: booking.currency,
-      },
-      checkoutId: checkOut.checkoutId,
-      installment: checkOut.payment.installments,
-    };
-    if (!bookId) {
-      this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
-        dossier_situation: 7,
-        observation: 'Ha ocurrido un error en la reserva del paquete',
-      });
+    if (bookingManagement) {
+      const dossierPayments: CreateUpdateDossierPaymentDTO = {
+        dossier: bookingManagement[0].dossier,
+        bookingId: booking.bookingId,
+        paymentMethods: checkOut.payment.methodType === 'CARD' ? 4 : checkOut.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
+        amount: {
+          value: booking.amount,
+          currency: booking.currency,
+        },
+        checkoutId: checkOut.checkoutId,
+        installment: checkOut.payment.installments,
+      };
+
+      if (!bookId) {
+        this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
+          dossier_situation: 7,
+          observation: 'Ha ocurrido un error en la reserva del paquete',
+        });
+      }
+      const update = await this.bookingModel.findOneAndUpdate(
+        { bookingId: booking.bookingId },
+        { dossier: bookingManagement[0].dossier, locator: bookId },
+      );
+      (await update).save();
+      this.paymentsService.createDossierPayments(dossierPayments);
+    } else {
+      const update = await this.bookingModel.findOneAndUpdate(
+        { bookingId: booking.bookingId },
+        { locator: bookId },
+      );
+      (await update).save();
+    }
+    let dossier: DossierDto;
+    if (bookingManagement) {
+      dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
+      if (dossier?.code) {
+        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, dossier.code);
+      } else {
+        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente');
+      }
+    } else {
+      this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente');
     }
 
-    const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { dossier: bookingManagement[0].dossier });
-    (await update).save();
-    this.paymentsService.createDossierPayments(dossierPayments);
-    this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status);
+    return {
+      dossier: dossier?.code ? dossier.code : 'Nº expediente',
+      payment: checkOut.payment,
+      buyer: checkOut.buyer,
+      flights: prebookingData.data.flights,
+      hotels: prebookingData.data.hotels,
+      checkIn: prebookingData.data.checkIn,
+      checkOut: prebookingData.data.checkOut,
+      contact: checkOut.contact,
+      distribution: prebookingData.data.distribution,
+      packageName: booking.packageName,
+      date: new Date(),
+    };
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
@@ -343,8 +341,8 @@ export class BookingService {
           active: false,
         })
         .catch((error) => {
-          console.log(error);
-          return error;
+          console.error(error);
+          throw error;
         });
       return createdClient?.client;
     }
@@ -362,7 +360,7 @@ export class BookingService {
     return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
   }
 
-  private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>) {
+  private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>, formatBirthdate = true) {
     return passengers.map((passenger) => {
       return {
         abbreviation: passenger.title,
@@ -374,9 +372,11 @@ export class BookingService {
         email: '',
         documentType: passenger.document.documentType,
         documentNumber: passenger.document.documentNumber,
-        birthdate: this.formatBirthdate(passenger.dob),
-        documentExpirationDate: '',
-        nationality: passenger.document.nationality,
+        birthdate: formatBirthdate ? this.formatBirthdate(passenger.dob) : passenger.dob,
+        documentExpirationDate: passenger.document.expirationDate ? formatBirthdate ? this.formatBirthdate(passenger.document.expirationDate) : passenger.document.expirationDate : '',
+        nationality: passenger.country,
+        nationality_of_id: passenger.document.nationality,
+        gender: passenger.gender.includes('MALE') ? 2 : 1,
         phoneNumberCode: 34,
         type: passenger.type,
       };
@@ -458,321 +458,43 @@ export class BookingService {
     return new Date(`${mm}/${dd}/${yyyy}`);
   }
 
-  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string) {
+  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string, dossier: string) {
     const data = {
+      methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
       reference: bookId ?? 'Pendiente',
+      dossier: dossier,
       pricePerPerson: checkOut.payment.amount.value / checkOut.passengers.length,
       personsNumber: checkOut.passengers.length,
       amount: checkOut.payment.amount.value,
       currency: checkOut.payment.amount.currency,
       payments: checkOut.payment.installments,
       packageName: booking.packageName,
-      flights: prebookingData.data.flights,
+      flights: [
+        ...prebookingData.data.flights.map((flight) => {
+          return [
+            {
+              departureAirportCode: flight.outward[0].departure.airportCode,
+              arrivalAirportCode: flight.outward[0].arrival.airportCode,
+              departureDate: flight.outward[0].departure.date,
+              arrivalDate: flight.outward[0].arrival.date,
+            },
+            {
+              departureAirportCode: flight.return[0].departure.airportCode,
+              arrivalAirportCode: flight.return[0].arrival.airportCode,
+              departureDate: flight.return[0].departure.date,
+              arrivalDate: flight.return[0].arrival.date,
+            },
+          ];
+        }),
+      ][0],
       transfers: prebookingData.data.transfers,
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
+      insurances: prebookingData.data.insurances,
+      observations: prebookingData.data.observations,
+      hotelRemarks: prebookingData.data.hotels[0].remarks,
     };
-    const formatDatesCancellationPollicies = function (text: string) {
-      const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
-      if (findings) {
-        findings.forEach((finding) => {
-          let splitedDate = finding.split('-');
-          splitedDate = splitedDate.reverse();
-          text = text.replace(finding, splitedDate.join('/'));
-        });
-      }
-      return text;
-    };
-    data.cancellationPollicies = data.cancellationPollicies.map((policy) => {
-      return {
-        ...policy,
-        title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
-        text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
-      };
-    });
-
-    let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
-    let template = Handlebars.compile(flowo_email_confirmation);
-    let emailTemplate = template(data);
-    const email: EmailTemplatedDTO = {
-      uuid: uuidv4(),
-      applicationName: 'booking-flowo-tecnoturis',
-      from: 'noreply@mg.flowo.com',
-      to: [checkOut.contact.email],
-      subject: 'Enhorabuena, tu viaje con Flowo ha sido confirmado',
-      body: emailTemplate,
-      contentType: 'HTML',
-    };
-    this.notificationsService.sendMailTemplated(email);
-  }
-
-  private testTemplate() {
-    let data = {
-      buyerName: 'Dani Nieto',
-      reference: '1522189',
-      pricePerPerson: 756.65,
-      personsNumber: 2,
-      amount: 1513.3,
-      currency: 'EUR',
-      payments: [
-        {
-          dueDate: '2022-09-13',
-          amount: { value: 227, currency: 'EUR' },
-          recurrent: true,
-          status: 'PENDING',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-1',
-        },
-        {
-          dueDate: '2022-09-18',
-          amount: { value: 378.33, currency: 'EUR' },
-          recurrent: true,
-          status: 'PENDING',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-2',
-        },
-        {
-          dueDate: '2022-09-21',
-          amount: { value: 756.64, currency: 'EUR' },
-          recurrent: true,
-          status: 'PENDING',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-3',
-        },
-        {
-          dueDate: '2022-02-22',
-          amount: { value: 151.33, currency: 'EUR' },
-          recurrent: false,
-          status: 'COMPLETED',
-          orderCode: '7ecebb4d-01ca-4737-b5fc-97bc12de73de-0',
-        },
-      ],
-      packageName: 'Playa Mujeres y Costa Mujeres - Absolut',
-      flights: [
-        {
-          totalPrice: 0,
-          outward: [
-            {
-              departure: {
-                date: '2022-10-01T15:30:00',
-                airportCode: 'MAD',
-                offset: { gmt: 1, dst: 2 },
-                airportDescription: null,
-                country: null,
-              },
-              arrival: {
-                date: '2022-10-01T17:55:00',
-                airportCode: 'PUJ',
-                offset: { gmt: -4, dst: -4 },
-                airportDescription: null,
-                country: null,
-              },
-              segmentList: [{ origin: 'MAD', destination: 'PUJ', dateAt: '2022-10-01T17:55:00' }],
-              company: {
-                companyId: 'WFL',
-                companyName: 'WFL',
-                operationCompanyCode: 'WFL',
-                operationCompanyName: null,
-                transportNumber: '3503',
-              },
-              flightClass: { classId: null, className: 'A', classStatus: null },
-            },
-          ],
-          return: [
-            {
-              departure: {
-                date: '2022-10-08T19:55:00',
-                airportCode: 'PUJ',
-                offset: { gmt: -4, dst: -4 },
-                airportDescription: null,
-                country: null,
-              },
-              arrival: {
-                date: '2022-10-09T10:05:00',
-                airportCode: 'MAD',
-                offset: { gmt: 1, dst: 2 },
-                airportDescription: null,
-                country: null,
-              },
-              segmentList: [{ origin: 'PUJ', destination: 'MAD', dateAt: '2022-10-09T10:05:00' }],
-              company: {
-                companyId: 'WFL',
-                companyName: 'WFL',
-                operationCompanyCode: 'WFL',
-                operationCompanyName: null,
-                transportNumber: '3504',
-              },
-              flightClass: { classId: null, className: 'A', classStatus: null },
-            },
-          ],
-          id: 0,
-          packageBookId: '',
-          flightBookId: '',
-          selected: true,
-        },
-      ],
-      passengers: [
-        {
-          passengerId: 415,
-          gender: 'MALE',
-          title: '',
-          name: 'Dani',
-          lastname: 'Nieto',
-          dob: '1997-10-07',
-          document: { documentType: 'DNI', documentNumber: '97755993J', expeditionDate: '2022-02-09', nationality: 'ES' },
-          country: 'ES',
-          room: '1',
-          age: 30,
-          extCode: '1',
-          type: 'ADULT',
-        },
-        {
-          passengerId: 416,
-          gender: 'MALE',
-          title: '',
-          name: 'Sergio',
-          lastname: 'Pedrero',
-          dob: '1996-10-08',
-          document: { documentType: 'DNI', documentNumber: '78712649W', expeditionDate: '2022-02-02', nationality: 'ES' },
-          country: 'ES',
-          room: '1',
-          age: 30,
-          extCode: '2',
-          type: 'ADULT',
-        },
-      ],
-      cancellationPollicies: [
-        {
-          amount: 0,
-          fromDate: '2022-02-22',
-          toDate: '2022-09-23',
-          currency: 'EUR',
-          type: null,
-          text: 'En el caso de indicarse gastos en las Observaciones del alojamiento de esta reserva, ese importe será sumando al importe indicado en estas condiciones hasta 7 días antes de la salida.',
-        },
-        {
-          amount: 0,
-          fromDate: '2022-02-22',
-          toDate: '2022-10-01',
-          currency: null,
-          type: 'ABSOLUTE',
-          text: 'Sin gastos de gestión. Del 2022-02-22 hasta 2022-10-01 con un valor de 0 €',
-        },
-        {
-          amount: 10,
-          fromDate: '2022-09-01',
-          toDate: '2022-09-15',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '10% gastos de penalización 30 días antes la salida. Del 2022-09-01 hasta 2022-09-15 con un valor de 10 %',
-        },
-        {
-          amount: 25,
-          fromDate: '2022-09-16',
-          toDate: '2022-09-20',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '25% gastos de penalización 15 días antes la salida. Del 2022-09-16 hasta 2022-09-20 con un valor de 25 %',
-        },
-        {
-          amount: 50,
-          fromDate: '2022-09-21',
-          toDate: '2022-09-23',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '50% gastos de penalización 10 días antes la salida. Del 2022-09-21 hasta 2022-09-23 con un valor de 50 %',
-        },
-        {
-          amount: 100,
-          fromDate: '2022-09-24',
-          toDate: '2022-10-01',
-          currency: null,
-          type: 'PERCENTAGE',
-          text: '100% gastos de penalización 7 días antes la salida. Del 2022-09-24 hasta 2022-10-01 con un valor de 100 %',
-        },
-      ],
-      transfers: [
-        {
-          packageBookId: null,
-          transferBookId: 'WROAbr5084k7JArl-8hT8IuO2Uv3qWDmJbznZtzdI9A=',
-          productCode: 'WROAbr5084k7JArl-8hT8IuO2Uv3qWDmJbznZtzdI9A=',
-          dateAt: '2022-10-01',
-          description: 'Traslado Aeropuerto - Hotel en Punta Cana (Aeropuerto / Whala!Bavaro)',
-          origin: 'Traslado Aeropuerto - Hotel en Punta Cana (Aeropuerto / Whala!Bavaro)',
-          destination: null,
-          price: {
-            passengerRequirement: '',
-            optionToken: null,
-            status: 'CONFIRMED',
-            isCancellable: false,
-            subcategoryList: '',
-            servicePrice: {
-              total: {
-                amount: 0,
-                currency: 'EUR',
-              },
-            },
-          },
-          images: [],
-          selected: true,
-        },
-        {
-          packageBookId: null,
-          transferBookId: 'QVyH4STxbht8gupwXdIflGIWwHFpI3FABMYKvrYGHFQ=',
-          productCode: 'QVyH4STxbht8gupwXdIflGIWwHFpI3FABMYKvrYGHFQ=',
-          dateAt: '2022-10-01',
-          description: 'Asistencia en destino R. Dominicana (Whala!bavaro /  Whala!Bavaro)',
-          origin: 'Asistencia en destino R. Dominicana (Whala!bavaro /  Whala!Bavaro)',
-          destination: null,
-          price: {
-            passengerRequirement: '',
-            optionToken: null,
-            status: 'CONFIRMED',
-            isCancellable: false,
-            subcategoryList: '',
-            servicePrice: {
-              total: {
-                amount: 0,
-                currency: 'EUR',
-              },
-            },
-          },
-          images: [],
-          selected: false,
-        },
-      ],
-    };
-    const formatDatesCancellationPollicies = function (text: string) {
-      const findings = text.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
-      if (findings) {
-        findings.forEach((finding) => {
-          let splitedDate = finding.split('-');
-          splitedDate = splitedDate.reverse();
-          text = text.replace(finding, splitedDate.join('/'));
-        });
-      }
-      return text;
-    };
-    data.cancellationPollicies = data.cancellationPollicies.map((policy) => {
-      return {
-        ...policy,
-        title: policy.text.split('.')[0].replace('gestión', 'cancelación'),
-        text: formatDatesCancellationPollicies(policy.text.split('.')[1]).replace('gestión', 'cancelación'),
-      };
-    });
-
-    let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation.hbs', 'utf8');
-    let template = Handlebars.compile(flowo_email_confirmation);
-    let emailTemplate = template(data);
-    /* const email: EmailTemplatedDTO = {
-      uuid: uuidv4(),
-      applicationName: 'application-code',
-      from: 'noreply@myfrom.com',
-      to: [chec],
-      subject: 'Email test',
-      locale: 'es_ES',
-      literalProject: 'examples',
-      templateCode: 'test-html',
-    };
-    this.notificationsService.sendMailTemplated(email); */
-    console.log(emailTemplate);
+    this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);
   }
 }

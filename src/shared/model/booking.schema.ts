@@ -50,6 +50,9 @@ export class Booking {
   @Prop({ required: true })
   koUrl: string;
 
+  @Prop({ required: true })
+  backURL: string;
+
   @Prop()
   dicountCode?: string;
 
@@ -70,6 +73,9 @@ export class Booking {
 
   @Prop()
   dossier?: number;
+
+  @Prop()
+  locator?: string;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

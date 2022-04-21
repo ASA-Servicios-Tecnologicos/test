@@ -1,6 +1,5 @@
 import { HttpModule, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BookingModule } from './booking/booking.module';
 import { BudgetModule } from './budget/budget.module';
@@ -24,6 +23,14 @@ import { BookingPackagesModule } from './booking-packages/booking-packages.modul
 import { BookingServicesModule } from './booking-services/booking-services.module';
 import { BookingServicesFlightsController } from './booking-services/booking-services-flights/booking-services-flights.controller';
 import { ManagementSetupModule } from './management/management-setup/management-setup.module';
+import { BookingDocumentsModule } from './booking-documents/booking-documents.module';
+import { CookieMiddleware } from './middlewares/cookie.middleware';
+import { BookingPackagesController } from './booking-packages/booking-packages.controller';
+import { BookingController } from './booking/booking.controller';
+import { PaymentsController } from './payments/payments.controller';
+import { BookingServicesController } from './booking-services/booking-services.controller';
+import { BookingServicesHotelRoomsController } from './booking-services/booking-services-hotel-rooms/booking-services-hotel-rooms.controller';
+import { BookingServicesTransfersController } from './booking-services/booking-services-transfers/booking-services-transfers.controller';
 
 @Module({
   imports: [
@@ -43,6 +50,7 @@ import { ManagementSetupModule } from './management/management-setup/management-
     BookingPackagesModule,
     BookingServicesModule,
     ManagementSetupModule,
+    BookingDocumentsModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
@@ -52,7 +60,7 @@ import { ManagementSetupModule } from './management/management-setup/management-
     }),
   ],
 
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService],
   exports: [],
 })
@@ -61,7 +69,8 @@ export class AppModule {
     consumer
       .apply(...[AuthenticationUserMiddleware])
       .exclude({ path: 'calendar/ota/reference-prices', method: RequestMethod.POST })
-      .forRoutes(ClientsController, CalendarController);
-    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, BookingServicesFlightsController);
+      .forRoutes(ClientsController, CalendarController, PaymentsController);
+    consumer.apply(...[AuthenticationCallCenterMiddleware]).forRoutes(CallCenterController, BookingServicesFlightsController, BookingServicesController, BookingServicesHotelRoomsController, BookingServicesTransfersController, 'budget/:id');
+    consumer.apply(CookieMiddleware).forRoutes('*');
   }
 }

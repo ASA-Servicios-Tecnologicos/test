@@ -183,6 +183,7 @@ export class ManagementBudgetHotelDTO {
   providerCode: string;
   partyInfo: string;
   extras: [] = [];
+  remarks: Array<{ type: any; text: string }>;
 }
 
 export class ManagementBudgetPackageDataDTO {
@@ -313,7 +314,7 @@ export class ManagementBudgetDto {
   @ApiProperty()
   sent_to_sap: boolean;
   @ApiProperty()
-  client: number;
+  client: ManagementClientDTO;
   @ApiProperty({ example: null })
   dossier_status?: any;
   @ApiProperty()
@@ -399,4 +400,6 @@ export class BudgetDto {
   pax_reserves: number;
   @ApiProperty()
   services: ManagementBookingServiceDTO[];
+  @ApiProperty()
+  dossier_payments?: Array<any>;
 }

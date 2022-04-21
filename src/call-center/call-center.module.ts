@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
+import { BookingModule } from 'src/booking/booking.module';
+import { BudgetModule } from 'src/budget/budget.module';
+import { CheckoutModule } from 'src/checkout/checkout.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 import { AppConfigModule } from '../configuration/configuration.module';
 import { DossiersModule } from '../dossiers/dossiers.module';
 import { ManagementModule } from '../management/management.module';
@@ -7,7 +11,16 @@ import { CallCenterController } from './call-center.controller';
 import { CallCenterService } from './call-center.service';
 
 @Module({
-  imports: [AppConfigModule, ManagementModule, PaymentsModule, DossiersModule],
+  imports: [
+    AppConfigModule,
+    ManagementModule,
+    PaymentsModule,
+    DossiersModule,
+    BudgetModule,
+    NotificationsModule,
+    BookingModule,
+    CheckoutModule,
+  ],
   controllers: [CallCenterController],
   providers: [CallCenterService],
   exports: [],

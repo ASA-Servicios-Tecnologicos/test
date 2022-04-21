@@ -1,11 +1,25 @@
-import { HttpException, HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
+import { CacheService } from 'src/shared/services/cache.service';
+import { INSTANA_MONITORING_COOKIE } from 'src/shared/shared.constants';
 
 @Injectable()
 export class ManagementHttpService {
-  constructor(private readonly httpService: HttpService, private managementService: ManagementService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private managementService: ManagementService,
+    private cacheService: CacheService<any>,
+  ) {
+    this.httpService.axiosRef.interceptors.request.use((config) => {
+      const cookie = this.cacheService.get(INSTANA_MONITORING_COOKIE);
+      if (this.cacheService.get(INSTANA_MONITORING_COOKIE)) {
+        config.headers['monit-tsid'] = cookie;
+      }
+      return config;
+    });
+  }
 
   async post<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
     return firstValueFrom(
@@ -22,7 +36,7 @@ export class ManagementHttpService {
       })
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.post<K>(url, data, {
@@ -56,7 +70,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.get<K>(url, {
@@ -95,7 +109,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.patch<K>(url, data, {
@@ -131,7 +145,7 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.put<K>(url, data, {
@@ -173,7 +187,7 @@ export class ManagementHttpService {
           return;
         }
         // If token has expired then renew request token
-        if (err.response?.data?.detail === 'Signature has expired.') {
+        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.delete(url, {

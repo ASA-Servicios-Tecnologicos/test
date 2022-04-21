@@ -3,7 +3,7 @@ import { AppConfigService } from './configuration/configuration.service';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly configService: AppConfigService) {}
+  constructor(private readonly configService: AppConfigService) { }
 
   getHello(): string {
     return `

@@ -2,10 +2,10 @@ import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BookingDTO } from '../shared/dto/booking.dto';
 import { BookingService } from './booking.service';
-
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('booking')
 export class BookingController {
-  constructor(private bookingService: BookingService) {}
+  constructor(private bookingService: BookingService) { }
   @Post()
   @ApiOperation({ summary: 'Crear un booking y obtener un checkout id' })
   @ApiResponse({ status: 201, description: 'Booking creado.' })
@@ -31,12 +31,4 @@ export class BookingController {
   findBookingByCheckoutId(@Param('checkoutId') checkoutId: string) {
     return this.bookingService.getRemoteCheckout(checkoutId);
   }
-
-  @Post('confirm/:id')
-  confirmBooking(@Param('id') id: string) {
-    return;
-  }
-
-  // Jefer datos de booking
-  // Jose Angel insertar en management booking
 }

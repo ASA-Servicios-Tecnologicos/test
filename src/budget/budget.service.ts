@@ -16,7 +16,7 @@ export class BudgetService {
     private managementHttpService: ManagementHttpService,
     private readonly bookingServicesService: BookingServicesService,
     private readonly clientService: ClientService,
-  ) {}
+  ) { }
 
   create(createBudgetDTO: CreateBudgetDto): Promise<CreateBudgetResponseDTO> {
     return this.createManagementBudget(this.mapOtaBudgetToManagementBudget(createBudgetDTO));
@@ -59,7 +59,7 @@ export class BudgetService {
       }),
     );
 
-    const managementClientDTO: ManagementClientDTO = await this.clientService.getClientById(`${managementBudgetDTO.client}`);
+    const managementClientDTO: ManagementClientDTO = await this.clientService.getClientById(`${managementBudgetDTO.client.id}`);
 
     const budget: BudgetDto = { ...managementBudgetDTO, client: managementClientDTO, services: managementBookingServicesDetailedDTO };
     return budget;

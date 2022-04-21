@@ -1,12 +1,13 @@
 import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { AppConfigService } from 'src/configuration/configuration.service';
 import { DiscountCode, DiscountDTO } from 'src/shared/dto/booking.dto';
+import { CacheService } from 'src/shared/services/cache.service';
 import { SecuredHttpService } from 'src/shared/services/secured-http.service';
 
 @Injectable()
 export class DiscountCodeService extends SecuredHttpService {
-  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService) {
-    super(http, appConfigService);
+  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>) {
+    super(http, appConfigService, cacheService);
   }
 
   private async find(discountApplied: DiscountDTO) {

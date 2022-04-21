@@ -8,7 +8,7 @@ import { CreateExternalUserDTO } from '../shared/dto/external-user.dto';
 import { CreateFavouriteByUser } from '../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { DEFAULT_EMPTY_PASSWORD_EXTERNAL_CLIENT, DEFAULT_ROL_EXTERNAL_CLIENT } from './clients.constants';
-
+// TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('clients')
 export class ClientsController {
   constructor(private readonly clientService: ClientService, private readonly externalClientsService: ExternalClientService) {}
@@ -52,7 +52,7 @@ export class ClientsController {
     return this.clientService.subscribeToNewsletter(username, newsletterRequestDTO);
   }
 
-  @Post()
+  @Post(['', ':username'])
   createClient(@Req() request: Request, @Body() createClient: CreateExternalUserDTO) {
     return this.externalClientsService.createExternalClient({
       ...createClient,

@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
  */
 @Injectable()
 export class AppConfigService {
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) { }
 
   get port(): number {
     return Number(this.configService.get<number>('tecnoturis-app.port'));
@@ -74,5 +74,17 @@ export class AppConfigService {
 
   get MANAGEMENT_PASSWORD(): string {
     return this.configService.get<string>('tecnoturis-app.MANAGEMENT_PASSWORD');
+  }
+
+  get W2M_URL(): string {
+    return this.configService.get<string>('tecnoturis-app.W2M_URL');
+  }
+
+  get ALLOWED_ORIGINS(): Array<string> {
+    const origins = this.configService.get<string>('tecnoturis-app.ALLOWED_ORIGINS');
+    if (origins?.length) {
+      return this.configService.get<string>('tecnoturis-app.ALLOWED_ORIGINS').split(', ');
+    }
+    return [];
   }
 }
