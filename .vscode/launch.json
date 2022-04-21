@@ -1,24 +1,26 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "launch",
-            "runtimeVersion": "16.14.2",
-            "name": "Debug Nest Framework",
-            "args": [
-                "${workspaceFolder}/src/main.ts"
-            ],
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register"
-            ],
-            "autoAttachChildProcesses": true,
-            "console": "integratedTerminal"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "type": "node",
+          "request": "launch",
+          "runtimeExecutable": "/home/jeffer/.nvm/versions/node/v16.14.0/bin/node",
+          "name": "Debug Nest Framework",
+          "args": [
+              "${workspaceFolder}/src/main.ts"
+          ],
+          "runtimeArgs": [
+              "--nolazy",
+              "-r",
+              "ts-node/register",
+              "-r",
+              "tsconfig-paths/register"
+          ],
+          "sourceMaps": true,
+          "envFile": "${workspaceFolder}/.env",
+          "cwd": "${workspaceRoot}",
+          "console": "integratedTerminal",
+          "protocol": "inspector"
+      }
+  ]
 }
