@@ -36,7 +36,7 @@ export class BudgetService {
   private async mapOtaBudgetToManagementBudget(createBudgetDTO: CreateBudgetDto): Promise<CreateManagementBudgetDto> {
     const clienId = await this._bookingService.getClientOrCreate(createBudgetDTO.client);
     const createManagementBudgetDto: CreateManagementBudgetDto = {
-      client: clienId, // TODO: Add or get client business logic,
+      client: clienId,
       packageData: [createBudgetDTO.preBookings], // "packageData" is "preBooking" model in frontend
     };
     return createManagementBudgetDto;
