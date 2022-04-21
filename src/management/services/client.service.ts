@@ -16,8 +16,9 @@ export class ClientService {
   }
 
   getClientInfoByUsername(username: string): Promise<GetManagementClientInfoByUsernameDTO> {
+    let usernameEncode = username.includes('+'.charAt(0)) ? username.replace('+', '%2B') : username;
     return this.managementHttpService.get<GetManagementClientInfoByUsernameDTO>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/client/me/?username=${username}`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/client/me/?username=${usernameEncode}`,
     );
   }
 
@@ -70,6 +71,13 @@ export class ClientService {
     const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
     return this.managementHttpService.put(
       `${this.appConfigService.BASE_URL}/management/api/v1/client/${client.id}/newsletter/`,
+      newsletterRequestDTO,
+    );
+  }
+
+  async AddToNewsletter(newsletterRequestDTO: { email: string }) {
+    return this.managementHttpService.post(
+      `${this.appConfigService.BASE_URL}/management/api/v1/client/external/add-newsletter/`,
       newsletterRequestDTO,
     );
   }
