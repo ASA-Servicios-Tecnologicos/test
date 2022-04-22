@@ -388,10 +388,14 @@
 																	{{arrivalAirportCode}}
 																	{{formatHourDate arrivalDate}}</span></span>
 														</p>
+														{{!-- TODO: Change icon by user group. --}}
+														<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/user.png"
+															alt="passengers" style="margin-bottom: -2px;">
+														<span>{{passengers_adults}} Adultos </span>
+														<span>{{passenger_kids}} niños </span>
 														<hr
 															style="border: 0;background-color: transparent; border-top: 1px dashed #EBEBEB; margin: 17px 0; color: transparent;">
 														{{/each}}
-
 														<p
 															style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 18px; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 0; margin-bottom: 9px;">
 															<span
@@ -410,7 +414,12 @@
 															<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/day.png"
 																alt="calendar day" style="margin-bottom: -2px;"><span
 																style="font-size: 14px;">{{formatFullDate
-																dateAt}}</span>
+																dateAt}}</span><br>
+															{{!-- TODO: Change icon by user group. --}}
+															<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/user.png"
+																alt="passengers" style="margin-bottom: -2px;">
+															<span>{{passengers_adults}} Adultos </span>
+															<span>{{passenger_kids}} niños </span>
 														</p>
 														<hr
 															style="border: 0;background-color: transparent; border-top: 1px dashed #EBEBEB; margin: 17px 0; color: transparent;">

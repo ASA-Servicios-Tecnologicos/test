@@ -14,6 +14,9 @@ import { CallCenterBookingFilterParamsDTO, GetDossiersByClientDTO } from '../sha
 
 @Injectable()
 export class CallCenterService {
+  private adults: number = 0
+  private kids: number = 0;
+
   constructor(
     private readonly appConfigService: AppConfigService,
     private readonly managementHttpService: ManagementHttpService,
@@ -40,6 +43,10 @@ export class CallCenterService {
   async sendConfirmationEmail(dossierId: string) {
     const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
+
+    dossier.services[0].paxes.map((data) => {
+      (data.age >= 18 ? this.adults += 1 : this.kids += 1)
+    });
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
         return flight.flight_booking_segment.map((segment) => {
@@ -48,6 +55,9 @@ export class CallCenterService {
             arrivalAirportCode: segment.arrival,
             departureDate: segment.departure_at,
             arrivalDate: segment.arrival_at,
+            passengers: dossier.services[0].paxes.length,
+            passengers_adults: this.adults,
+            passenger_kids: this.kids,
           };
         });
       })];
@@ -55,10 +65,15 @@ export class CallCenterService {
       return transfer.transfer_booking.map((transferBook) => {
         return {
           description: transferBook.from_name,
-          dateAt: transferBook.from_date
+          dateAt: transferBook.from_date,
+          passengers_adults: this.adults,
+          passenger_kids: this.kids,
         }
       })
     });
+    this.adults = 0;
+    this.kids = 0;
+
     const data = {
       methodType: this.determinePaymentMethod(dossier.dossier_payments) ?? DossierPaymentMethods['Tarjeta de Credito'],
       dossier: dossier.code,
