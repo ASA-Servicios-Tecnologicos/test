@@ -6,7 +6,7 @@ import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { v4 as uuidv4 } from 'uuid';
 import { AppConfigService } from 'src/configuration/configuration.service';
-import { CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
+import { CheckoutBuyer, CheckoutContact, CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
 import { PrebookingDTO } from 'src/shared/dto/pre-booking.dto';
 import { ClientService } from 'src/management/services/client.service';
@@ -18,6 +18,7 @@ import { DossiersService } from 'src/dossiers/dossiers.service';
 import { DiscountCodeService } from 'src/management/services/dicount-code.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { DossierDto } from 'src/shared/dto/dossier.dto';
+import { OtaClientDTO } from 'src/shared/dto/ota-client.dto';
 
 @Injectable()
 export class BookingService {
@@ -33,7 +34,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
-  ) { }
+  ) {}
 
   async create(booking: BookingDTO) {
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
@@ -94,11 +95,11 @@ export class BookingService {
   async doBooking(id: string) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
     if (!booking) {
-      throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND)
+      throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND);
     }
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
     if (checkout['error']) {
-      throw new HttpException(checkout['error']['message'], checkout['error']['status'])
+      throw new HttpException(checkout['error']['message'], checkout['error']['status']);
     }
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
@@ -159,7 +160,7 @@ export class BookingService {
         return this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
       .catch((error) => {
-        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR')
+        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR');
       });
   }
 
@@ -170,8 +171,7 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
-
-    const client = await this.getOrCreateClient(checkOut).catch(error => error);
+    const client = await this.getOrCreateClient(checkOut).catch((error) => error);
     if (isNaN(client)) {
       throw new HttpException(client, HttpStatus.NOT_FOUND);
     }
@@ -237,14 +237,15 @@ export class BookingService {
       client: client,
     };
 
-    const bookingManagement = await this.managementHttpService.post<Array<ManagementBookDTO>>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/booking/`,
-      createBookDTO,
-    ).catch(error => {
-      console.error(error);
-      console.error('Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId)
-      return null;
-    })
+    const bookingManagement = await this.managementHttpService
+      .post<Array<ManagementBookDTO>>(`${this.appConfigService.BASE_URL}/management/api/v1/booking/`, createBookDTO)
+      .catch((error) => {
+        console.error(error);
+        console.error(
+          'Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId,
+        );
+        return null;
+      });
 
     if (bookingManagement) {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
@@ -272,10 +273,7 @@ export class BookingService {
       (await update).save();
       this.paymentsService.createDossierPayments(dossierPayments);
     } else {
-      const update = await this.bookingModel.findOneAndUpdate(
-        { bookingId: booking.bookingId },
-        { locator: bookId },
-      );
+      const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId });
       (await update).save();
     }
     let dossier: DossierDto;
@@ -305,6 +303,48 @@ export class BookingService {
     };
   }
 
+  public async getClientOrCreate(client: OtaClientDTO): Promise<number> {
+    const checkoutContact: CheckoutContact = {
+      address: undefined,
+      phone: {
+        phone: +client.phone,
+        prefix: client.prefix,
+      },
+      email: client.mail,
+      newsletter: false,
+    };
+
+    const checkoutBuyer: CheckoutBuyer = {
+      gender: '',
+      name: client.name,
+      title: '',
+      lastname: client.surname,
+      dob: '',
+      country: '',
+      document: undefined,
+    };
+
+    const checkOut: CheckoutDTO = {
+      checkoutURL: '',
+      booking: {
+        bookingId: '',
+        okURL: '',
+        koURL: '',
+        backURL: '',
+        amount: undefined,
+        startDate: '',
+        endDate: '',
+      },
+      checkoutId: '',
+      passengers: [],
+      payment: undefined,
+      buyer: checkoutBuyer,
+      contact: checkoutContact,
+    };
+
+    return this.getOrCreateClient(checkOut);
+  }
+
   private async getOrCreateClient(checkOut: CheckoutDTO) {
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
@@ -329,7 +369,7 @@ export class BookingService {
         .createExternalClient({
           agency: integrationClient.agency.id,
           agency_chain: integrationClient.agency.agency_chain_id,
-          dni: checkOut.buyer.document.documentNumber,
+          dni: checkOut.buyer.document?.documentNumber,
           email: checkOut.contact.email,
           first_name: checkOut.buyer.name,
           last_name: checkOut.buyer.lastname,
@@ -373,7 +413,11 @@ export class BookingService {
         documentType: passenger.document.documentType,
         documentNumber: passenger.document.documentNumber,
         birthdate: formatBirthdate ? this.formatBirthdate(passenger.dob) : passenger.dob,
-        documentExpirationDate: passenger.document.expirationDate ? formatBirthdate ? this.formatBirthdate(passenger.document.expirationDate) : passenger.document.expirationDate : '',
+        documentExpirationDate: passenger.document.expirationDate
+          ? formatBirthdate
+            ? this.formatBirthdate(passenger.document.expirationDate)
+            : passenger.document.expirationDate
+          : '',
         nationality: passenger.country,
         nationality_of_id: passenger.document.nationality,
         gender: passenger.gender.includes('MALE') ? 2 : 1,
@@ -458,7 +502,14 @@ export class BookingService {
     return new Date(`${mm}/${dd}/${yyyy}`);
   }
 
-  private sendConfirmationEmail(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO, bookId: string, status: string, dossier: string) {
+  private sendConfirmationEmail(
+    prebookingData: PrebookingDTO,
+    booking: Booking,
+    checkOut: CheckoutDTO,
+    bookId: string,
+    status: string,
+    dossier: string,
+  ) {
     const data = {
       methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
@@ -478,14 +529,12 @@ export class BookingService {
               arrivalAirportCode: flight.outward[0].arrival.airportCode,
               departureDate: flight.outward[0].departure.date,
               arrivalDate: flight.outward[0].arrival.date,
-              passengers: data.personsNumber
             },
             {
               departureAirportCode: flight.return[0].departure.airportCode,
               arrivalAirportCode: flight.return[0].arrival.airportCode,
               departureDate: flight.return[0].departure.date,
               arrivalDate: flight.return[0].arrival.date,
-              passengers: data.personsNumber
             },
           ];
         }),

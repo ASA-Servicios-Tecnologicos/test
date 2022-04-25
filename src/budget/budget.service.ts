@@ -1,4 +1,5 @@
 import { HttpService, Injectable } from '@nestjs/common';
+import { BookingService } from 'src/booking/booking.service';
 import { AppConfigService } from '../configuration/configuration.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
 import { ClientService } from '../management/services/client.service';
@@ -16,10 +17,11 @@ export class BudgetService {
     private managementHttpService: ManagementHttpService,
     private readonly bookingServicesService: BookingServicesService,
     private readonly clientService: ClientService,
-  ) { }
+    private readonly _bookingService: BookingService,
+  ) {}
 
-  create(createBudgetDTO: CreateBudgetDto): Promise<CreateBudgetResponseDTO> {
-    return this.createManagementBudget(this.mapOtaBudgetToManagementBudget(createBudgetDTO));
+  async create(createBudgetDTO: CreateBudgetDto): Promise<CreateBudgetResponseDTO> {
+    return this.createManagementBudget(await this.mapOtaBudgetToManagementBudget(createBudgetDTO));
   }
 
   findById(id: string) {
@@ -31,9 +33,10 @@ export class BudgetService {
    * @param createBudgetDTO
    * @returns
    */
-  private mapOtaBudgetToManagementBudget(createBudgetDTO: CreateBudgetDto): CreateManagementBudgetDto {
+  private async mapOtaBudgetToManagementBudget(createBudgetDTO: CreateBudgetDto): Promise<CreateManagementBudgetDto> {
+    const clienId = await this._bookingService.getClientOrCreate(createBudgetDTO.client);
     const createManagementBudgetDto: CreateManagementBudgetDto = {
-      client: 822, // TODO: Add or get client business logic,
+      client: clienId,
       packageData: [createBudgetDTO.preBookings], // "packageData" is "preBooking" model in frontend
     };
     return createManagementBudgetDto;
