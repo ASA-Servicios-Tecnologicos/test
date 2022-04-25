@@ -21,7 +21,7 @@ export class PaymentsService {
     private bookingModel: Model<BookingDocument>,
     private bookingDocumentsService: BookingDocumentsService,
     private dossiersService: DossiersService,
-  ) { }
+  ) {}
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
     return this.managementHttpService.post<Array<DossierPayment>>(
@@ -45,8 +45,9 @@ export class PaymentsService {
 
   async updateDossierPaymentsByCheckout(checkoutId: string) {
     const checkout = await this.checkoutService.getCheckout(checkoutId);
-    console.log(checkout)
+    console.log(checkout);
     const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId });
+    console.log(booking);
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: booking.dossier,
       bookingId: checkout.booking.bookingId,
