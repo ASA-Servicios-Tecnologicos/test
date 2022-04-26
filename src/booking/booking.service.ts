@@ -23,6 +23,8 @@ import t from 'typy';
 
 @Injectable()
 export class BookingService {
+  private adults: number = 0;
+  private kids: number = 0;
   constructor(
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
@@ -515,6 +517,9 @@ export class BookingService {
     dossier: string,
   ) {
     const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
+    checkOut.passengers.map((data: any) => {
+      data.age >= 18 ? (this.adults += 1) : (this.kids += 1);
+    });
     const data = {
       methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
@@ -534,17 +539,27 @@ export class BookingService {
               arrivalAirportCode: flight.outward[0].arrival.airportCode,
               departureDate: flight.outward[0].departure.date,
               arrivalDate: flight.outward[0].arrival.date,
+              passengers_adults: this.adults,
+              passenger_kids: this.kids,
             },
             {
               departureAirportCode: flight.return[0].departure.airportCode,
               arrivalAirportCode: flight.return[0].arrival.airportCode,
               departureDate: flight.return[0].departure.date,
               arrivalDate: flight.return[0].arrival.date,
+              passengers_adults: this.adults,
+              passenger_kids: this.kids,
             },
           ];
         }),
       ][0],
-      transfers: prebookingData.data.transfers,
+      transfers: prebookingData.data.transfers.map((transfer) => {
+        return {
+          ...transfer,
+          passengers_adults: this.adults,
+          passenger_kids: this.kids,
+        };
+      }),
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
       insurances: prebookingData.data.insurances,
@@ -552,6 +567,8 @@ export class BookingService {
       hotelRemarks: prebookingData.data.hotels[0].remarks,
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
+    this.adults = 0;
+    this.kids = 0;
 
     this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);
   }
