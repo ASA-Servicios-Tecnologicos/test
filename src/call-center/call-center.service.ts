@@ -7,6 +7,7 @@ import { NotificationService } from 'src/notifications/services/notification.ser
 import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { DossierPaymentMethods } from 'src/shared/dto/email.dto';
+import t from 'typy';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
@@ -14,7 +15,7 @@ import { CallCenterBookingFilterParamsDTO, GetDossiersByClientDTO } from '../sha
 
 @Injectable()
 export class CallCenterService {
-  private adults: number = 0
+  private adults: number = 0;
   private kids: number = 0;
 
   constructor(
@@ -25,8 +26,8 @@ export class CallCenterService {
     private readonly bookingService: BookingService,
     private readonly notificationsService: NotificationService,
     private readonly checkoutService: CheckoutService,
-    private readonly paymentsService: PaymentsService
-  ) { }
+    private readonly paymentsService: PaymentsService,
+  ) {}
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
     return this.managementHttpService.get<GetDossiersByClientDTO>(
@@ -44,8 +45,15 @@ export class CallCenterService {
     const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
 
+    const checkout = await this.checkoutService.getCheckout('CHK-FL-0000000341');
+    if (checkout['error']) {
+      throw new HttpException(checkout['error']['message'], checkout['error']['status']);
+    }
+
+    const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
+
     dossier.services[0].paxes.map((data) => {
-      (data.age >= 18 ? this.adults += 1 : this.kids += 1)
+      data.age >= 18 ? (this.adults += 1) : (this.kids += 1);
     });
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
@@ -60,16 +68,17 @@ export class CallCenterService {
             passenger_kids: this.kids,
           };
         });
-      })];
-    const transfers = dossier.services[0].transfer.map(transfer => {
+      }),
+    ];
+    const transfers = dossier.services[0].transfer.map((transfer) => {
       return transfer.transfer_booking.map((transferBook) => {
         return {
           description: transferBook.from_name,
           dateAt: transferBook.from_date,
           passengers_adults: this.adults,
           passenger_kids: this.kids,
-        }
-      })
+        };
+      });
     });
     this.adults = 0;
     this.kids = 0;
@@ -83,38 +92,46 @@ export class CallCenterService {
       personsNumber: dossier.services[0].paxes.length,
       amount: dossier.services[0].total_pvp,
       currency: dossier.services[0].raw_data.currency,
-      payments: dossier.dossier_payments?.map(payment => {
-        return {
-          dueDate: payment.paid_date,
-          amount: {
-            value: payment.paid_amount,
-            currency: dossier.services[0].raw_data.currency
-          },
-          status: payment.status
-        }
-      }) ?? [],
+      payments:
+        dossier.dossier_payments?.map((payment) => {
+          return {
+            dueDate: payment.paid_date,
+            amount: {
+              value: payment.paid_amount,
+              currency: dossier.services[0].raw_data.currency,
+            },
+            status: payment.status,
+          };
+        }) ?? [],
       packageName: booking?.packageName ?? '',
       flights: flights[0],
       transfers: transfers[0],
-      passengers: dossier.services[0].paxes?.map(passenger => {
-        return {
-          name: passenger.name,
-          lastName: passenger.last_name,
-          dob: passenger.birthdate,
-          document: {
-            documentType: passenger.type_document,
-            documentNumber: passenger.dni,
-            documentExpirationDate: passenger.expiration_document,
-            nationality: passenger.nationality_of_id
-          },
-          country: passenger.nationality,
-          gender: passenger.gender
-        }
-      }) ?? [],
+      passengers:
+        dossier.services[0].paxes?.map((passenger) => {
+          return {
+            name: passenger.name,
+            lastName: passenger.last_name,
+            dob: passenger.birthdate,
+            document: {
+              documentType: passenger.type_document,
+              documentNumber: passenger.dni,
+              documentExpirationDate: passenger.expiration_document,
+              nationality: passenger.nationality_of_id,
+            },
+            country: passenger.nationality,
+            gender: passenger.gender,
+          };
+        }) ?? [],
       cancellationPollicies: dossier.services[0].cancellation_policies ?? [],
       insurances: dossier.services[0].raw_data.insurances,
       observations: dossier.services[0].relevant_data?.observations ?? [],
-      hotelRemarks: dossier.services[0].relevant_data?.remarks?.map(remark => remark[Object.keys(remark)[0]].map(remark => { return { text: remark.text } }))[0] ?? []
+      methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
+      hotelRemarks:
+        dossier.services[0].relevant_data?.remarks?.map((remark) =>
+          remark[Object.keys(remark)[0]].map((remark) => {
+            return { text: remark.text };
+          }),
+        )[0] ?? [],
     };
     const email = await this.notificationsService.sendConfirmationEmail(data, dossier.client.email);
     if (email.status === HttpStatus.OK) {
@@ -143,16 +160,16 @@ export class CallCenterService {
         paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : canceled.data.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
         amount: canceled.data.payment.amount,
       };
-      await this.paymentsService.updateDossierPayments(dossierPayments)
+      await this.paymentsService.updateDossierPayments(dossierPayments);
       return canceled.data;
     }
   }
 
   private determinePaymentMethod(payments: Array<any>) {
     if (payments?.length) {
-      return DossierPaymentMethods[payments[0].payment_method]
+      return DossierPaymentMethods[payments[0].payment_method];
     }
-    return DossierPaymentMethods['Tarjeta de Credito']
+    return DossierPaymentMethods['Tarjeta de Credito'];
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {

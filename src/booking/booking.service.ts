@@ -19,6 +19,7 @@ import { DiscountCodeService } from 'src/management/services/dicount-code.servic
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { DossierDto } from 'src/shared/dto/dossier.dto';
 import { OtaClientDTO } from 'src/shared/dto/ota-client.dto';
+import t from 'typy';
 
 @Injectable()
 export class BookingService {
@@ -105,7 +106,7 @@ export class BookingService {
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
-
+    const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
@@ -126,6 +127,7 @@ export class BookingService {
         distribution: prebookingData.data.distribution,
         packageName: booking.packageName,
         date: new Date(),
+        methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
       };
     }
   }
@@ -276,6 +278,7 @@ export class BookingService {
       const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId });
       (await update).save();
     }
+    const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
     let dossier: DossierDto;
     if (bookingManagement) {
       dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
@@ -300,6 +303,7 @@ export class BookingService {
       distribution: prebookingData.data.distribution,
       packageName: booking.packageName,
       date: new Date(),
+      methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
   }
 
@@ -510,6 +514,7 @@ export class BookingService {
     status: string,
     dossier: string,
   ) {
+    const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
     const data = {
       methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
@@ -545,6 +550,7 @@ export class BookingService {
       insurances: prebookingData.data.insurances,
       observations: prebookingData.data.observations,
       hotelRemarks: prebookingData.data.hotels[0].remarks,
+      methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
 
     this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);

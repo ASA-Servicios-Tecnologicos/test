@@ -8,8 +8,12 @@ import { HtmlTemplateService } from 'src/shared/services/html-template.service';
 
 @Injectable()
 export class NotificationService extends SecuredHttpService {
-
-  constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>, private readonly htmlTemplateService: HtmlTemplateService) {
+  constructor(
+    readonly http: HttpService,
+    readonly appConfigService: AppConfigService,
+    readonly cacheService: CacheService<any>,
+    private readonly htmlTemplateService: HtmlTemplateService,
+  ) {
     super(http, appConfigService, cacheService);
   }
 
@@ -50,8 +54,8 @@ export class NotificationService extends SecuredHttpService {
         return {
           ...policy,
           title: policy.text.replace('gestión', 'cancelación'),
-          text: ''
-        }
+          text: '',
+        };
       }
     });
     try {
@@ -76,10 +80,9 @@ export class NotificationService extends SecuredHttpService {
       }
     } catch (error) {
       console.error('Error al corregir y formatear la fecha de la primera política de cancelación: ' + error);
-
     }
 
-    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES[data.methodType], data)
+    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES[data.methodType], data);
     const locator = data.reference;
     const number_dossier = data.dossier;
 
@@ -91,7 +94,7 @@ export class NotificationService extends SecuredHttpService {
       subject: 'Enhorabuena, tu viaje con Flowo ha sido confirmado',
       body: template,
       contentType: 'HTML',
-      metadata: { locator: locator, number_dossier: number_dossier }
+      metadata: { locator: locator, number_dossier: number_dossier },
     };
     return this.sendMailRaw(email);
   }
