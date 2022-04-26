@@ -19,9 +19,12 @@ import { DiscountCodeService } from 'src/management/services/dicount-code.servic
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { DossierDto } from 'src/shared/dto/dossier.dto';
 import { OtaClientDTO } from 'src/shared/dto/ota-client.dto';
+import t from 'typy';
 
 @Injectable()
 export class BookingService {
+  private adults: number = 0;
+  private kids: number = 0;
   constructor(
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
@@ -105,7 +108,7 @@ export class BookingService {
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
-
+    const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
@@ -126,6 +129,7 @@ export class BookingService {
         distribution: prebookingData.data.distribution,
         packageName: booking.packageName,
         date: new Date(),
+        methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
       };
     }
   }
@@ -276,6 +280,7 @@ export class BookingService {
       const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId });
       (await update).save();
     }
+    const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
     let dossier: DossierDto;
     if (bookingManagement) {
       dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
@@ -300,6 +305,7 @@ export class BookingService {
       distribution: prebookingData.data.distribution,
       packageName: booking.packageName,
       date: new Date(),
+      methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
   }
 
@@ -510,6 +516,10 @@ export class BookingService {
     status: string,
     dossier: string,
   ) {
+    const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
+    checkOut.passengers.map((data: any) => {
+      data.age >= 18 ? (this.adults += 1) : (this.kids += 1);
+    });
     const data = {
       methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
@@ -529,23 +539,36 @@ export class BookingService {
               arrivalAirportCode: flight.outward[0].arrival.airportCode,
               departureDate: flight.outward[0].departure.date,
               arrivalDate: flight.outward[0].arrival.date,
+              passengers_adults: this.adults,
+              passenger_kids: this.kids,
             },
             {
               departureAirportCode: flight.return[0].departure.airportCode,
               arrivalAirportCode: flight.return[0].arrival.airportCode,
               departureDate: flight.return[0].departure.date,
               arrivalDate: flight.return[0].arrival.date,
+              passengers_adults: this.adults,
+              passenger_kids: this.kids,
             },
           ];
         }),
       ][0],
-      transfers: prebookingData.data.transfers,
+      transfers: prebookingData.data.transfers.map((transfer) => {
+        return {
+          ...transfer,
+          passengers_adults: this.adults,
+          passenger_kids: this.kids,
+        };
+      }),
       passengers: checkOut.passengers,
       cancellationPollicies: prebookingData.data.cancellationPolicyList,
       insurances: prebookingData.data.insurances,
       observations: prebookingData.data.observations,
       hotelRemarks: prebookingData.data.hotels[0].remarks,
+      methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
+    this.adults = 0;
+    this.kids = 0;
 
     this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);
   }
