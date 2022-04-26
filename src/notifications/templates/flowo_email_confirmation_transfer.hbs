@@ -199,7 +199,7 @@
 														style="margin: 0; font-size: 12px; line-height: 1.5; word-break: break-word; mso-line-height-alt: 18px; margin-top: 0; margin-bottom: 0;">
 														<img style="margin-bottom: -3px;"
 															src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/phone.png"
-															alt="phone number">91000919291000
+															alt="phone number">910009192
 													</p>
 												</div>
 											</div>
@@ -257,8 +257,7 @@
 														<td>
 															<p
 																style="margin: 7px 20px 20px 20px; font-size: 16px; line-height: 1.5; text-align: left; word-break: break-word; mso-line-height-alt: 24px;">
-																<span style="font-size: 16px;">¡Gracias por reservar con
-																	Flowo! Su viaje ha quedado reservado pendiente del
+																<span style="font-size: 16px;">Su viaje ha quedado reservado pendiente del
 																	pago por transferencia.</span>
 															</p>
 														</td>
@@ -291,6 +290,22 @@
 															<strong>EURO</strong></span>
 
 													</p>
+
+													<table style="background-color: #F2F2F2; border-radius: 10px;margin-bottom: 7px;">
+														<tr>
+															<td>
+																<p style="margin: 15px; font-size: 16px;"><img
+																		style="margin-bottom: -2px;"
+																		src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/code.png"
+																		alt="code"> <strong>Referencia de
+																		compra:</strong> <span
+																		style="color: #FF736C;"><strong>{{reference}}</strong></span>
+																</p>
+															</td>
+														</tr>
+													</table>
+
+
 													{{#moreThanOnePayment payments}}
 													<p
 														style="margin: 0; font-size: 14px; line-height: 1.5; text-align: left; word-break: break-word; mso-line-height-alt: 21px; margin-top: 0; margin-bottom: 10px;">
@@ -350,7 +365,9 @@
 															</span>
 															<span
 																style="font-size: 16px; text-transform: uppercase; display:block;">
-																<strong>NOMBRE BANCO</strong>
+																<strong>{{../methodsDetails.entity}}</strong>
+																
+																
 															</span>
 														</p>
 														<hr
@@ -362,7 +379,7 @@
 															</span>
 															<span
 																style="font-size: 16px; text-transform: uppercase;display:block;">
-																<strong>DIRECCIÓN ENTIDAD</strong>
+																<strong>{{../methodsDetails.address}}</strong>
 															</span>
 														</p>
 														<hr
@@ -374,7 +391,7 @@
 															</span>
 															<span
 																style="font-size: 16px; text-transform: uppercase;display:block;">
-																<strong>CODIGO BIC/ SWIFT BANCO</strong>
+																<strong>{{../methodsDetails.bic}}</strong>
 															</span>
 														</p>
 														<hr
@@ -386,7 +403,7 @@
 															</span>
 															<span
 																style="font-size: 16px; text-transform: uppercase;display:block;">
-																<strong>NÚMERO IBAN DE LA CC</strong>
+																<strong>{{../methodsDetails.iban}}</strong>
 															</span>
 														</p>
 														<hr
@@ -398,7 +415,7 @@
 															</span>
 															<span
 																style="font-size: 16px; text-transform: uppercase;display:block;">
-																<strong>FLOWO TRAVEL, S.L.U</strong>
+																<strong>{{../methodsDetails.recipient}}</strong>
 															</span>
 														</p>
 														<hr
@@ -468,6 +485,244 @@
 							</div>
 						</div>
 					</div>
+
+
+					<div style="background-color:#EAECED;">
+						<div class="block-grid "
+							style="min-width: 320px; max-width: 500px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; Margin: 0 auto; background-color: #ffffff;">
+							<div
+								style="border-collapse: collapse;display: table;width: 100%;background-color:#ffffff;background-image:undefined;background-position:undefined;background-repeat:undefined">
+								<div
+									style="color:#000000;font-family:Lato, Helvetica Neue, Helvetica, sans-serif;line-height:1.8;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;">
+									<div
+										style="font-size: 12px; line-height: 1.8; color: #000000; font-family: Lato, Helvetica Neue, Helvetica, sans-serif; mso-line-height-alt: 22px; border: 1px solid #EBEBEB;">
+										<div class="txtTinyMce-wrapper" style="margin: 20px 15px;">
+
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 22px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 20px;">
+												<strong><span
+														style="font-size: 22px;">{{packageName}}</span></strong>
+											</p>
+
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 18px; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 0; margin-bottom: 9px;">
+												<span
+													style="font-size: 18px;"><strong>Vuelos</strong></span>
+											</p>
+											{{#each flights}}
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px; white-space: nowrap;">
+												<span style="font-size: 14px;"> <img
+														src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/plane.png"
+														alt="plane"
+														style="margin-bottom: -2px;"><strong>{{departureAirportCode}}
+														- {{arrivalAirportCode}}</strong></span>
+											</p>
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px; white-space: nowrap;">
+												<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/day.png"
+													alt="calendar day" style="margin-bottom: -2px;"><span
+													style="font-size: 14px;">{{formatFullDate
+													this.departureDate}}<span><img
+															src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/clock.png"
+															alt="clock time"
+															style="margin-bottom: -2px; margin-left: 20px;">{{departureAirportCode}}
+														{{formatHourDate departureDate}} -
+														{{arrivalAirportCode}}
+														{{formatHourDate arrivalDate}}</span></span>
+											</p>
+											{{!-- TODO: Change icon by user group. --}}
+											<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/user.png"
+												alt="passengers" style="margin-bottom: -2px;">
+											<span>{{passengers_adults}} Adultos </span>
+											<span>{{passenger_kids}} niños </span>
+											<hr
+												style="border: 0;background-color: transparent; border-top: 1px dashed #EBEBEB; margin: 17px 0; color: transparent;">
+											{{/each}}
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 18px; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 0; margin-bottom: 9px;">
+												<span
+													style="font-size: 18px;"><strong>Traslados</strong></span>
+											</p>
+											{{#each transfers}}
+											<p
+												style="margin: 0; line-height: 1.8; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px;">
+												<span style="font-size: 14px;"> <img
+														src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/bus.png"
+														alt="transfers"
+														style="margin-bottom: -2px;"><strong>{{description}}</strong></span>
+											</p>
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px; white-space: nowrap;">
+												<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/day.png"
+													alt="calendar day" style="margin-bottom: -2px;"><span
+													style="font-size: 14px;">{{formatFullDate
+													dateAt}}</span><br>
+												{{!-- TODO: Change icon by user group. --}}
+												<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/user.png"
+													alt="passengers" style="margin-bottom: -2px;">
+												<span>{{passengers_adults}} Adultos </span>
+												<span>{{passenger_kids}} niños </span>
+											</p>
+											<hr
+												style="border: 0;background-color: transparent; border-top: 1px dashed #EBEBEB; margin: 17px 0; color: transparent;">
+											{{/each}}
+
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; font-size: 18px; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 0;">
+												<span
+													style="font-size: 18px;"><strong>Viajeros</strong></span>
+											</p>
+											{{#each passengers}}
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; font-size: 14px; mso-line-height-alt: 25px; margin-top: 9px; margin-bottom: 0;">
+												<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/user.png"
+													alt="passenger"
+													style="margin-bottom: -2px;"><strong><span
+														style="font-size: 14px;">{{fullName
+														this}}</span></strong>
+											</p>
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; font-size: 14px; mso-line-height-alt: 25px; margin-top: 6px; margin-bottom: 0;">
+												<span style="font-size: 14px;">Fecha de nacimiento:
+													{{formatdate dob}}&nbsp;</span>
+											</p>
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; font-size: 14px; mso-line-height-alt: 25px; margin-top: 6px; margin-bottom: 0;">
+												<span style="font-size: 14px;">Documento de identidad:
+													{{document.documentNumber}}&nbsp;</span>
+											</p>
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; font-size: 14px; mso-line-height-alt: 25px; margin-top: 6px; margin-bottom: 0;">
+												<span style="font-size: 14px;">Fecha de expiración de
+													documento: {{formatdate
+													this.document.expirationDate}}&nbsp;</span>
+											</p>
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; font-size: 14px; mso-line-height-alt: 25px; margin-top: 6px; margin-bottom: 0;">
+												<span style="font-size: 14px;">Nacionalidad del documento:
+													{{document.nationality}}</span>
+											</p>
+											<p
+												style="margin: 0; line-height: 1.8; word-break: break-word; font-size: 14px; mso-line-height-alt: 25px; margin-top: 6px; margin-bottom: 0;">
+												<span style="font-size: 14px;">Nacionalidad del pasajero:
+													{{country}}</span>
+											</p>
+											{{/each}}
+
+											<hr
+												style="border: 0; width: 100%; height: 1px; background-color:#EBEBEB; margin: 20px 0; color: transparent;">
+											<p
+												style="margin: 0; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px;">
+												<strong><span style="font-size: 18px;">Observaciones y notas
+														importantes</span></strong>
+											</p>
+											<ul style="margin: 0; padding-left: 20px; list-style: disc;">
+												{{#each observations}}
+												<li
+													style="font-size: 14px; line-height: 1.8; mso-line-height-alt: 32px; margin-top: 14px;">
+													<span style="font-size: 14px;"><span
+															style="font-size: 14px;">{{text}}</a></strong></span></span><strong><span
+															style="font-size: 18px;">&nbsp;</span></strong>
+												</li>
+												{{/each}}
+											</ul>
+
+											<hr
+												style="border: 0; width: 100%; height: 1px; background-color:#EBEBEB; margin: 20px 0; color: transparent;">
+											<p
+												style="margin: 0; font-size: 18px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 17px;">
+												<span style="font-size: 18px;"><strong>Políticas de
+														cancelación</strong></span>
+											</p>
+											{{#each cancellationPollicies}}
+											{{#if amount}}
+											<table
+												style="background-color: #FFF4F3; border-radius: 14px; width: 100%; margin-top: 12px;">
+												<tr>
+													<td>
+														<p
+															style="margin: 20px 20px 0 20px; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px; color: #FE261B;">
+															<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/daycancel.png"
+																alt="cancellation"
+																style="margin-bottom: -2px;"><span
+																style="font-size: 14px;"><strong>{{title}}</strong></span>
+														</p>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<p
+															style="margin: 0 20px 20px 20px; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px;">
+															<span style="font-size: 14px;">{{text}}</span>
+														</p>
+													</td>
+												</tr>
+											</table>
+											{{else}}
+											<table
+												style="background-color: #ECFBF9; border-radius: 14px; width: 100%; margin-top: 12px;">
+												<tr>
+													<td>
+														<p
+															style="margin: 20px 20px 0 20px; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px; color: #1D9886;">
+															<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/daycheck.png"
+																alt="free cancellation"
+																style="margin-bottom: -2px;"><span
+																style="font-size: 14px;"><strong>{{title}}</strong></span>
+														</p>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<p
+															style="margin: 0 20px 20px 20px; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px;">
+															<span style="font-size: 14px;">{{text}}</span>
+														</p>
+													</td>
+												</tr>
+											</table>
+											{{/if}}
+											{{/each}}
+											{{#each hotelRemarks}}
+											<p
+												style="margin: 15px 0 0 0; line-height: 1.8; word-break: break-word; font-size: 14px; mso-line-height-alt: 25px;">
+												<img style="margin-bottom: -3px;"
+													src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/info.png"
+													alt="info observations">{{{text}}}
+											</p>
+											{{/each}}
+
+											<hr
+												style="border: 0; width: 100%; height: 1px; background-color:#EBEBEB; margin: 20px 0; color: transparent;">
+											<p
+												style="margin: 0; font-size: 18px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 17px;">
+												<span
+													style="font-size: 18px;"><strong>Seguros</strong></span>
+											</p>
+
+											<table
+												style="background-color: #ECFBF9; border-radius: 14px; width: 100%;">
+												<tr>
+													<td>
+														<p
+															style="margin: 20px; font-size: 14px; line-height: 1.8; word-break: break-word; mso-line-height-alt: 25px; color: #1D9886;">
+															<img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/insurance.png"
+																alt="insurance"
+																style="margin-bottom: -2px;"><span
+																style="font-size: 14px;"><strong>{{insurances.insured.name}}</strong></span>
+														</p>
+													</td>
+												</tr>
+											</table>
+
+										</div>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+											
 					<div style="background-color:#EAECED;">
 						<div class="block-grid "
 							style="min-width: 320px; max-width: 500px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; Margin: 0 auto; background-color: #ffffff;">
@@ -536,8 +791,7 @@
 													<!-- <p style="margin: 0; line-height: 1.2; word-break: break-word; mso-line-height-alt: 17px; margin-top: 0; margin-bottom: 0;">&nbsp;</p> -->
 													<p
 														style="margin: 0; line-height: 1.2; word-break: break-word; mso-line-height-alt: 17px; margin-top: 0; margin-bottom: 12px;">
-														Un cordial saludo de parte del equipo de FLOWO TRAVEL,
-														S.L.U.&nbsp;&nbsp;</p>
+														Un cordial saludo de parte del equipo de FLOWO. &nbsp;&nbsp;</p>
 												</div>
 											</div>
 											<!--[if mso]></td></tr></table><![endif]-->
