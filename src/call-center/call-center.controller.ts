@@ -17,7 +17,7 @@ export class CallCenterController {
     private readonly clientsService: ClientService,
     private readonly dossiersService: DossiersService,
     private readonly bookingServicesService: BookingServicesService,
-  ) { }
+  ) {}
 
   @Get('dossiers')
   getDossiersByAgency(@Req() request: Request, @Query() filterParams: CallCenterBookingFilterParamsDTO) {
