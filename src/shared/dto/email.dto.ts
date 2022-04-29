@@ -31,7 +31,8 @@ export interface Metadata {
 
 export const HTML_TEMPLATES = {
   'CARD': 'src/notifications/templates/flowo_email_confirmation.hbs',
-  'BANK_TRANSFER': 'src/notifications/templates/flowo_email_confirmation_transfer.hbs'
+  'BANK_TRANSFER': 'src/notifications/templates/flowo_email_confirmation_transfer.hbs',
+  'CONFIRM_NEWSLETTER': 'src/notifications/templates/subscribed_newsletter.hbs'
 }
 
 export enum DossierPaymentMethods {
