@@ -20,6 +20,7 @@ import { NotificationService } from 'src/notifications/services/notification.ser
 import { DossierDto } from 'src/shared/dto/dossier.dto';
 import { OtaClientDTO } from 'src/shared/dto/ota-client.dto';
 import t from 'typy';
+import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 
 @Injectable()
 export class BookingService {
@@ -35,6 +36,7 @@ export class BookingService {
     private dossiersService: DossiersService,
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
+    private bookingDocumentsService: BookingDocumentsService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -284,6 +286,10 @@ export class BookingService {
       dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
       if (dossier?.code) {
         this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, dossier.code);
+        const pendingPayments = checkOut.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
+        if (!pendingPayments.length) {
+          this.sendBonoEmail(bookId, checkOut.contact, checkOut.buyer);
+        }
       } else {
         this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente');
       }
@@ -305,6 +311,9 @@ export class BookingService {
       date: new Date(),
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
+  }
+  private sendBonoEmail(locator: string, contact: CheckoutContact, buyer: CheckoutBuyer) {
+    this.bookingDocumentsService.sendBonoEmail('NBLUE', locator, contact, buyer);
   }
 
   public async getClientOrCreate(client: OtaClientDTO): Promise<number> {
