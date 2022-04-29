@@ -23,8 +23,6 @@ import t from 'typy';
 
 @Injectable()
 export class BookingService {
-  private adults: number = 0;
-  private kids: number = 0;
   constructor(
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
@@ -517,9 +515,21 @@ export class BookingService {
     dossier: string,
   ) {
     const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
-    checkOut.passengers.map((data: any) => {
-      data.age >= 18 ? (this.adults += 1) : (this.kids += 1);
+
+    let adults = 0;
+    let kids = 0;
+
+    checkOut.passengers.forEach((data: any) => {
+      data.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
     });
+
+    const hotel = prebookingData.data.hotels[0];
+    const starValue = +hotel.category.value;
+    const stars: number[] = [];
+    for (let i = 1; i <= starValue; i++) {
+      stars.push(i);
+    }
+
     const data = {
       methodType: checkOut.payment.methodType ?? 'CARD',
       buyerName: `${checkOut.buyer.name} ${checkOut.buyer.lastname}`,
@@ -539,16 +549,16 @@ export class BookingService {
               arrivalAirportCode: flight.outward[0].arrival.airportCode,
               departureDate: flight.outward[0].departure.date,
               arrivalDate: flight.outward[0].arrival.date,
-              passengers_adults: this.adults,
-              passenger_kids: this.kids,
+              passengers_adults: adults,
+              passenger_kids: kids,
             },
             {
               departureAirportCode: flight.return[0].departure.airportCode,
               arrivalAirportCode: flight.return[0].arrival.airportCode,
               departureDate: flight.return[0].departure.date,
               arrivalDate: flight.return[0].arrival.date,
-              passengers_adults: this.adults,
-              passenger_kids: this.kids,
+              passengers_adults: adults,
+              passenger_kids: kids,
             },
           ];
         }),
@@ -556,8 +566,8 @@ export class BookingService {
       transfers: prebookingData.data.transfers.map((transfer) => {
         return {
           ...transfer,
-          passengers_adults: this.adults,
-          passenger_kids: this.kids,
+          passengers_adults: adults,
+          passenger_kids: kids,
         };
       }),
       passengers: checkOut.passengers,
@@ -565,10 +575,13 @@ export class BookingService {
       insurances: prebookingData.data.insurances,
       observations: prebookingData.data.observations,
       hotelRemarks: prebookingData.data.hotels[0].remarks,
+      hotel: hotel,
+      room: hotel.rooms[0],
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
+      adults,
+      kids,
+      stars,
     };
-    this.adults = 0;
-    this.kids = 0;
 
     this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);
   }
