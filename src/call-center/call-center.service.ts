@@ -8,6 +8,7 @@ import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { DossierPaymentMethods } from 'src/shared/dto/email.dto';
 import t from 'typy';
+import { child } from 'winston';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
@@ -15,9 +16,6 @@ import { CallCenterBookingFilterParamsDTO, GetDossiersByClientDTO } from '../sha
 
 @Injectable()
 export class CallCenterService {
-  private adults: number = 0;
-  private kids: number = 0;
-
   constructor(
     private readonly appConfigService: AppConfigService,
     private readonly managementHttpService: ManagementHttpService,
@@ -52,8 +50,11 @@ export class CallCenterService {
 
     const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
 
-    dossier.services[0].paxes.map((data) => {
-      data.age >= 18 ? (this.adults += 1) : (this.kids += 1);
+    let adults = 0;
+    let kids = 0;
+
+    dossier.services[0].paxes.forEach((data) => {
+      data.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
     });
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
@@ -64,8 +65,8 @@ export class CallCenterService {
             departureDate: segment.departure_at,
             arrivalDate: segment.arrival_at,
             passengers: dossier.services[0].paxes.length,
-            passengers_adults: this.adults,
-            passenger_kids: this.kids,
+            passengers_adults: adults,
+            passenger_kids: kids,
           };
         });
       }),
@@ -75,13 +76,18 @@ export class CallCenterService {
         return {
           description: transferBook.from_name,
           dateAt: transferBook.from_date,
-          passengers_adults: this.adults,
-          passenger_kids: this.kids,
+          passengers_adults: adults,
+          passenger_kids: kids,
         };
       });
     });
-    this.adults = 0;
-    this.kids = 0;
+
+    const hotel = dossier.services[0].hotels[0];
+    const starValue = +hotel.raw_data.category.value;
+    const stars: number[] = [];
+    for (let i = 1; i <= starValue; i++) {
+      stars.push(i);
+    }
 
     const data = {
       methodType: this.determinePaymentMethod(dossier.dossier_payments) ?? DossierPaymentMethods['Tarjeta de Credito'],
@@ -132,6 +138,11 @@ export class CallCenterService {
             return { text: remark.text };
           }),
         )[0] ?? [],
+      hotel: hotel,
+      room: hotel.hotel_rooms[0],
+      adults,
+      kids,
+      stars,
     };
     const email = await this.notificationsService.sendConfirmationEmail(data, dossier.client.email);
     if (email.status === HttpStatus.OK) {

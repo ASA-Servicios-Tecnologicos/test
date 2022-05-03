@@ -241,7 +241,7 @@
 											<div
 												style="color:#000000;font-family:Lato, Helvetica Neue, Helvetica, sans-serif;line-height:1.5;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;">
 
-												<table style="border-radius: 20px; background: #ECFBF9;width: 100%;">
+												<table style="border-radius: 20px; background: #E7FDF0;width: 100%;">
 													<tr>
 														<td>
 															<p
@@ -353,8 +353,25 @@
 														<p
 															style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 22px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 20px;">
 															<strong><span
-																	style="font-size: 22px;">{{packageName}}</span></strong>
+																	style="font-size: 22px;">{{packageName}}</span> </strong>
 														</p>
+
+														<p style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 18px; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 0; margin-bottom: 9px;"><span style="font-size: 18px;"><strong>Alojamiento</strong></span></p>
+														<p style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px; white-space: wrap;"><span style="font-size: 14px;"> <img src="https://dstatic.w2m.com/assets/flowo/dist/img/emails/hotel.png" alt="plane" style="margin-bottom: -2px;">
+															<strong>{{hotel.name}} 
+																<span style="white-space: nowrap;">
+																	{{#each stars}}
+																		<img style="margin-right: 2px; width: 11px; height: auto;" src="https://dstatic.w2m.com/assets/flowo/dist/img/emails/star.png" alt="hotel stars">
+																	{{/each}}
+																</span> 
+															</strong>
+															</span>
+														</p>
+														{{!-- <p style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px; white-space: wrap;"> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero dicta a recusandae, vitae tempore eum </p> --}}
+														<p style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px; white-space: wrap;"><span><img src="https://dstatic.w2m.com/assets/flowo/dist/img/emails/mapmarker.png" alt="clock time" style="margin-bottom: -2px;">{{hotel.address}}</span></p>
+														<p style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 14px; mso-line-height-alt: 25px; margin-top: 0; margin-bottom: 6px; white-space: wrap;"> <img src="https://dstatic.w2m.com/assets/flowo/dist/img/emails/board.png" alt="calendar day" style="margin-bottom: -2px;"><span style="font-size: 14px;">{{room.regimen_text}} </span></p>
+														<p style=""><img src="https://sadesignw2m.blob.core.windows.net/flowo/img/emails/paxes.png" alt="pax" style="margin-bottom: -2px;"> {{adults}} Adultos {{kids}} niños</p>
+														<hr style="border: 0;background-color: transparent; border-top: 1px dashed #EBEBEB; margin: 17px 0; color: transparent;">
 
 														<p
 															style="margin: 0; line-height: 1.8; word-break: break-word; text-align: left; font-size: 18px; mso-line-height-alt: 32px; margin-top: 0; margin-bottom: 0; margin-bottom: 9px;">
@@ -513,7 +530,7 @@
 														</table>
 														{{else}}
 														<table
-															style="background-color: #ECFBF9; border-radius: 14px; width: 100%; margin-top: 12px;">
+															style="background-color: #E7FDF0; border-radius: 14px; width: 100%; margin-top: 12px;">
 															<tr>
 																<td>
 																	<p
@@ -554,7 +571,7 @@
 														</p>
 
 														<table
-															style="background-color: #ECFBF9; border-radius: 14px; width: 100%;">
+															style="background-color: #E7FDF0; border-radius: 14px; width: 100%;">
 															<tr>
 																<td>
 																	<p
