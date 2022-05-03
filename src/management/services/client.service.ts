@@ -5,11 +5,12 @@ import { DossierClientDTO } from '../../shared/dto/dossier-client.dto';
 import { GetManagementDossiersByClientId } from '../../shared/dto/dossier.dto';
 import { CreateFavouriteByUser } from '../../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO, IntegrationClientDTO } from '../../shared/dto/management-client.dto';
+import { NotificationService } from 'src/notifications/services/notification.service';
 import { ManagementHttpService } from './management-http.service';
 
 @Injectable()
 export class ClientService {
-  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
+  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService, private notificationService: NotificationService) {}
 
   getClientById(clientId: string): Promise<ManagementClientDTO> {
     return this.managementHttpService.get<ManagementClientDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${clientId}/`);
@@ -72,10 +73,11 @@ export class ClientService {
     return this.managementHttpService.put(
       `${this.appConfigService.BASE_URL}/management/api/v1/client/${client.id}/newsletter/`,
       newsletterRequestDTO,
-    );
-  }
-
-  async AddToNewsletter(newsletterRequestDTO: { email: string }) {
+      );
+    }
+    
+    async AddToNewsletter(newsletterRequestDTO: { email: string }) {
+    this.notificationService.sendNewsletterConfirmation(newsletterRequestDTO.email);
     return this.managementHttpService.post(
       `${this.appConfigService.BASE_URL}/management/api/v1/client/external/add-newsletter/`,
       newsletterRequestDTO,
