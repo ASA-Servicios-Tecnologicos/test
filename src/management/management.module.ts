@@ -12,6 +12,7 @@ import { ManagementSetupService } from './management-setup/management-setup.serv
 import { ManagementService } from './services/management.service';
 import { PackagesNewblueService } from './services/packages-newblue.service';
 import { PackagesProvidersService } from './services/packages-providers.service';
+import { NotificationService } from './../notifications/services/notification.service';
 @Module({
   imports: [AppConfigModule, HttpModule, SharedModule],
   controllers: [],
@@ -27,6 +28,7 @@ import { PackagesProvidersService } from './services/packages-providers.service'
     PackagesProvidersService,
     PackagesNewblueService,
     ManagementSetupService,
+    NotificationService
   ],
   exports: [
     ManagementService,
