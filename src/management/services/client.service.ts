@@ -70,14 +70,14 @@ export class ClientService {
 
   async subscribeToNewsletter(username: string, newsletterRequestDTO: { permit_email: boolean }) {
     const client: GetManagementClientInfoByUsernameDTO = await this.getClientInfoByUsername(username);
-    this.notificationService.sendNewsletterConfirmation(client.email);
     return this.managementHttpService.put(
       `${this.appConfigService.BASE_URL}/management/api/v1/client/${client.id}/newsletter/`,
       newsletterRequestDTO,
-    );
-  }
-
-  async AddToNewsletter(newsletterRequestDTO: { email: string }) {
+      );
+    }
+    
+    async AddToNewsletter(newsletterRequestDTO: { email: string }) {
+    this.notificationService.sendNewsletterConfirmation(newsletterRequestDTO.email);
     return this.managementHttpService.post(
       `${this.appConfigService.BASE_URL}/management/api/v1/client/external/add-newsletter/`,
       newsletterRequestDTO,
