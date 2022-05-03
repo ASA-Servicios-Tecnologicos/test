@@ -323,8 +323,8 @@
 												<p
 													style="margin: 0; font-size: 14px; line-height: 1.5; text-align: left; word-break: break-word; mso-line-height-alt: 36px; margin-top: 0; margin-bottom: 10px;">
 													<span style="font-size: 14px;">
-														<strong>{{normalizeIndex @index }}- Antes del {{formatdate
-															dueDate}} </strong>
+														<strong>{{normalizeIndex @index }}- 
+																{{#if @first }} Hasta 7 días a partir del {{else}} Antes del {{/if}} {{formatdate dueDate}} </strong>
 													</span>
 												</p>
 												{{/moreThanOnePayment}}
