@@ -3,6 +3,7 @@ import { pickBy } from 'lodash';
 import { BookingService } from 'src/booking/booking.service';
 import { BudgetService } from 'src/budget/budget.service';
 import { CheckoutService } from 'src/checkout/services/checkout.service';
+import { BookingServicesService } from 'src/management/services/booking-services.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
@@ -25,6 +26,7 @@ export class CallCenterService {
     private readonly notificationsService: NotificationService,
     private readonly checkoutService: CheckoutService,
     private readonly paymentsService: PaymentsService,
+    private readonly bookingServicesService: BookingServicesService,
   ) {}
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
@@ -43,11 +45,14 @@ export class CallCenterService {
     const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
 
-    const checkout = await this.checkoutService.getCheckout('CHK-FL-0000000341');
+    const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
     if (checkout['error']) {
       throw new HttpException(checkout['error']['message'], checkout['error']['status']);
     }
 
+    let dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode).catch((error) => {
+      console.log(error);
+    });
     const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
 
     let adults = 0;
@@ -110,6 +115,8 @@ export class CallCenterService {
           };
         }) ?? [],
       packageName: booking?.packageName ?? '',
+      hotelCode: booking?.hotelCode ?? '',
+      contentInfo: dataContentApi !== undefined ? dataContentApi : {},
       flights: flights[0],
       transfers: transfers[0],
       passengers:
