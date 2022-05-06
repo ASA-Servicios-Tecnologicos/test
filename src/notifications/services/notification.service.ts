@@ -99,9 +99,9 @@ export class NotificationService extends SecuredHttpService {
     return this.sendMailRaw(email);
   }
 
-  sendNewsletterConfirmation(email){
-    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['CONFIRM_NEWSLETTER'], '')
-    const emailData : EmailDTO = {
+  sendNewsletterConfirmation(email) {
+    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['CONFIRM_NEWSLETTER'], '');
+    const emailData: EmailDTO = {
       uuid: uuidv4(),
       applicationName: 'booking-flowo-tecnoturis',
       from: 'noreply@mg.flowo.com',
@@ -109,9 +109,8 @@ export class NotificationService extends SecuredHttpService {
       subject: '¡Gracias por unirte a la newsletter de Flowo!',
       body: template,
       contentType: 'HTML',
-    }
+    };
 
-    return this.sendMailRaw(emailData)
-
+    return this.sendMailRaw(emailData);
   }
 }

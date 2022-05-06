@@ -48,6 +48,8 @@ spec:
               value: e2a08581-3dcb-4f0f-8bae-6a6df707ed72
             - name: CHECKOUT_URL
               value: https://api.w2m.com/integration/checkout/api/v1/checkout/
+            - name: CONTENT_URL
+              value: https://api.w2m.com/integration/public/cms-content-api/api/v1
             - name: MANAGEMENT_USERNAME
               value: flowostg
             - name: MANAGEMENT_PASSWORD

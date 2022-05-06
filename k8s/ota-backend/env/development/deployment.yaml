@@ -50,6 +50,8 @@ spec:
               value: b7a2b1a9-662b-4388-8b01-4fc48ccae048
             - name: CHECKOUT_URL
               value: https://pre-api.w2m.com/integration/checkout/api/v1/checkout/
+            - name: CONTENT_URL
+              value: https://pre-api.w2m.com/integration/public/cms-content-api/api/v1
             - name: MANAGEMENT_USERNAME
               value: flowodev
             - name: MANAGEMENT_PASSWORD

@@ -1,13 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { ContentAPI } from 'src/shared/dto/content-api.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { AddPassengerFlightDto, AddPassengerTransferDto, ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } from '../../shared/dto/booking-service.dto';
+import {
+  AddPassengerFlightDto,
+  AddPassengerTransferDto,
+  ManagementBookingServiceDTO,
+  ManagementBookingServicesByDossierDTO,
+} from '../../shared/dto/booking-service.dto';
 import { CreateTransferDTO, CreateUpdateBookingServicePax, Pax, TransferDTO } from '../../shared/dto/call-center.dto';
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
 
 @Injectable()
 export class BookingServicesService {
-  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) { }
+  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
 
   getBookingServicesByDossierId(dossierId: string): Promise<ManagementBookingServicesByDossierDTO[]> {
     return this.managementHttpService.get<ManagementBookingServicesByDossierDTO[]>(
@@ -17,7 +23,7 @@ export class BookingServicesService {
 
   getBookingServiceById(id: string, force: string = 'false'): Promise<ManagementBookingServiceDTO> {
     return this.managementHttpService.get<ManagementBookingServiceDTO>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`,
     );
   }
 
@@ -83,15 +89,22 @@ export class BookingServicesService {
   }
 
   deletePassengerFromFlight(id: string) {
-    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-flight-pax/${id}/`);
+    return this.managementHttpService.delete(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-flight-pax/${id}/`,
+    );
   }
 
   addPassengerToTransfer(body: AddPassengerTransferDto) {
-    return this.managementHttpService.post(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-transfer-pax/`, body);
+    return this.managementHttpService.post(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-transfer-pax/`,
+      body,
+    );
   }
 
   deletePassengerFromTransfer(id: string) {
-    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-transfer-pax/${id}/`);
+    return this.managementHttpService.delete(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/booking-transfer-pax/${id}/`,
+    );
   }
 
   createTransferBookingService(transferBookingServiceId: number, createTransferDTO: CreateTransferDTO): Promise<TransferDTO> {
@@ -111,6 +124,12 @@ export class BookingServicesService {
     return this.managementHttpService.put(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/transfer/${transferSegmentId}/`,
       newTransferSegment,
+    );
+  }
+
+  getInformationContentApi(hotelCode: string): Promise<ContentAPI> {
+    return this.managementHttpService.get<ContentAPI>(
+      `${this.appConfigService.CONTENT_URL}/hotels/${hotelCode}?codeType=JP&locale=es&origin=JP&path=flowo&imgSize=fullHd`,
     );
   }
 }
