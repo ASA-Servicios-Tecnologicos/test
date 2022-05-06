@@ -21,6 +21,8 @@ import { DossierDto } from 'src/shared/dto/dossier.dto';
 import { OtaClientDTO } from 'src/shared/dto/ota-client.dto';
 import t from 'typy';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
+import { BookingServicesService } from 'src/management/services/booking-services.service';
+import { ContentAPI } from 'src/shared/dto/content-api.dto';
 
 @Injectable()
 export class BookingService {
@@ -37,6 +39,7 @@ export class BookingService {
     private discountCodeService: DiscountCodeService,
     private notificationsService: NotificationService,
     private bookingDocumentsService: BookingDocumentsService,
+    private readonly bookingServicesService: BookingServicesService,
   ) {}
 
   async create(booking: BookingDTO) {
@@ -81,6 +84,7 @@ export class BookingService {
       ...booking,
       bookingId: booking.bookingId,
       checkoutId: checkout.checkoutId,
+      hotelCode: t(prebookingData, 'data.hotels[0].hotelId').safeString,
     };
     const createdBooking = new this.bookingModel(prebooking);
     await createdBooking.save();
@@ -280,21 +284,24 @@ export class BookingService {
       const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId });
       (await update).save();
     }
+    const dataContentApi: any = await this.bookingServicesService.getInformationContentApi(booking.hotelCode).catch((error) => {
+      console.log(error);
+    });
     const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
     let dossier: DossierDto;
     if (bookingManagement) {
       dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
       if (dossier?.code) {
-        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, dossier.code);
+        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, dossier.code, dataContentApi);
         const pendingPayments = checkOut.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
         if (!pendingPayments.length) {
           this.sendBonoEmail(bookId, checkOut.contact, checkOut.buyer);
         }
       } else {
-        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente');
+        this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente', dataContentApi);
       }
     } else {
-      this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente');
+      this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente', dataContentApi);
     }
 
     return {
@@ -522,6 +529,7 @@ export class BookingService {
     bookId: string,
     status: string,
     dossier: string,
+    contentInfo: ContentAPI,
   ) {
     const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
 
@@ -587,6 +595,7 @@ export class BookingService {
       hotel: hotel,
       room: hotel.rooms[0],
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
+      contentInfo: contentInfo !== undefined ? contentInfo : {},
       adults,
       kids,
       stars,
