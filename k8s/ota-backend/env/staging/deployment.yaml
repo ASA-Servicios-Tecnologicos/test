@@ -55,7 +55,7 @@ spec:
             - name: MANAGEMENT_PASSWORD
               value: 'WaeN$p74XD'
             - name: BASE_URL
-              value: https://agenciasb2b.w2m.com/api-rest
+              value: https://pre-agenciasb2b.tecnoturis.es/api-rest
             - name: DISCOUNT_CODE_URL
               value: https://stg-api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
             - name: EMAIL_RAW_URL
@@ -63,7 +63,7 @@ spec:
             - name: W2M_URL
               value: https://stg-api.w2m.com
             - name: ALLOWED_ORIGINS
-              value: 'https://booking.pre-www.internal.flowo.com, https://booking.stg-www.internal.flowo.com, https://callcenter-pre.tecnoturis.es, https://callcenter-stg.tecnoturis.es, http://localhost:4200, http://flowo-pre.tecnoturis.es/api-rest/ota, http://booking.stg-www.internal.flowo.com/api-rest/ota'
+              value: 'https://booking.pre-www.internal.flowo.com, https://booking.stg-www.internal.flowo.com, https://callcenter-pre.tecnoturis.es, https://callcenter-stg.tecnoturis.es, http://localhost:4200, http://flowo-pre.tecnoturis.es/api-rest/ota, http://booking.stg-www.internal.flowo.com/api-rest/ota, https://flowo.com'
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
