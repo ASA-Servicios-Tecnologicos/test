@@ -63,7 +63,7 @@ spec:
             - name: W2M_URL
               value: https://api.w2m.com
             - name: ALLOWED_ORIGINS
-              value: 'https://booking.flowo.com, https://callcenter-pro.tecnoturis.es, https://checkout.flowo.com, https://flowo.tecnoturis.es, https://flowo.com'
+              value: 'https://booking.flowo.com, https://callcenter.tecnoturis.es, https://checkout.flowo.com, https://flowo.tecnoturis.es, https://flowo.com'
           image: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
           name: ota-backend
           ports:
