@@ -21,7 +21,7 @@ export class PaymentsService {
     private bookingModel: Model<BookingDocument>,
     private bookingDocumentsService: BookingDocumentsService,
     private dossiersService: DossiersService,
-  ) { }
+  ) {}
 
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
     return this.managementHttpService.post<Array<DossierPayment>>(
@@ -36,17 +36,19 @@ export class PaymentsService {
     );
   }
 
-  updateDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
-    return this.managementHttpService.put<Array<DossierPayment>>(
+  async updateDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
+    const dossiers = await this.managementHttpService.put<Array<DossierPayment>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierPayments.dossier}/`,
       dossierPayments,
     );
+    return dossiers;
   }
 
   async updateDossierPaymentsByCheckout(checkoutId: string) {
     const checkout = await this.checkoutService.getCheckout(checkoutId);
-    console.log(checkout)
+    console.log(checkout);
     const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId });
+    console.log(booking);
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: booking.dossier,
       bookingId: checkout.booking.bookingId,

@@ -3,10 +3,13 @@ import { pickBy } from 'lodash';
 import { BookingService } from 'src/booking/booking.service';
 import { BudgetService } from 'src/budget/budget.service';
 import { CheckoutService } from 'src/checkout/services/checkout.service';
+import { BookingServicesService } from 'src/management/services/booking-services.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { PaymentsService } from 'src/payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { DossierPaymentMethods } from 'src/shared/dto/email.dto';
+import t from 'typy';
+import { child } from 'winston';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
@@ -22,8 +25,9 @@ export class CallCenterService {
     private readonly bookingService: BookingService,
     private readonly notificationsService: NotificationService,
     private readonly checkoutService: CheckoutService,
-    private readonly paymentsService: PaymentsService
-  ) { }
+    private readonly paymentsService: PaymentsService,
+    private readonly bookingServicesService: BookingServicesService,
+  ) {}
 
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
     return this.managementHttpService.get<GetDossiersByClientDTO>(
@@ -40,6 +44,23 @@ export class CallCenterService {
   async sendConfirmationEmail(dossierId: string) {
     const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
+
+    const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+    if (checkout['error']) {
+      throw new HttpException(checkout['error']['message'], checkout['error']['status']);
+    }
+
+    let dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode).catch((error) => {
+      console.log(error);
+    });
+    const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
+
+    let adults = 0;
+    let kids = 0;
+
+    dossier.services[0].paxes.forEach((data) => {
+      data.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
+    });
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
         return flight.flight_booking_segment.map((segment) => {
@@ -48,17 +69,31 @@ export class CallCenterService {
             arrivalAirportCode: segment.arrival,
             departureDate: segment.departure_at,
             arrivalDate: segment.arrival_at,
+            passengers: dossier.services[0].paxes.length,
+            passengers_adults: adults,
+            passenger_kids: kids,
           };
         });
-      })];
-    const transfers = dossier.services[0].transfer.map(transfer => {
+      }),
+    ];
+    const transfers = dossier.services[0].transfer.map((transfer) => {
       return transfer.transfer_booking.map((transferBook) => {
         return {
           description: transferBook.from_name,
-          dateAt: transferBook.from_date
-        }
-      })
+          dateAt: transferBook.from_date,
+          passengers_adults: adults,
+          passenger_kids: kids,
+        };
+      });
     });
+
+    const hotel = dossier.services[0].hotels[0];
+    const starValue = +hotel.raw_data.category.value;
+    const stars: number[] = [];
+    for (let i = 1; i <= starValue; i++) {
+      stars.push(i);
+    }
+
     const data = {
       methodType: this.determinePaymentMethod(dossier.dossier_payments) ?? DossierPaymentMethods['Tarjeta de Credito'],
       dossier: dossier.code,
@@ -68,38 +103,53 @@ export class CallCenterService {
       personsNumber: dossier.services[0].paxes.length,
       amount: dossier.services[0].total_pvp,
       currency: dossier.services[0].raw_data.currency,
-      payments: dossier.dossier_payments?.map(payment => {
-        return {
-          dueDate: payment.paid_date,
-          amount: {
-            value: payment.paid_amount,
-            currency: dossier.services[0].raw_data.currency
-          },
-          status: payment.status
-        }
-      }) ?? [],
+      payments:
+        dossier.dossier_payments?.map((payment) => {
+          return {
+            dueDate: payment.paid_date,
+            amount: {
+              value: payment.paid_amount,
+              currency: dossier.services[0].raw_data.currency,
+            },
+            status: payment.status,
+          };
+        }) ?? [],
       packageName: booking?.packageName ?? '',
+      hotelCode: booking?.hotelCode ?? '',
+      contentInfo: dataContentApi !== undefined ? dataContentApi : {},
       flights: flights[0],
       transfers: transfers[0],
-      passengers: dossier.services[0].paxes?.map(passenger => {
-        return {
-          name: passenger.name,
-          lastName: passenger.last_name,
-          dob: passenger.birthdate,
-          document: {
-            documentType: passenger.type_document,
-            documentNumber: passenger.dni,
-            documentExpirationDate: passenger.expiration_document,
-            nationality: passenger.nationality_of_id
-          },
-          country: passenger.nationality,
-          gender: passenger.gender
-        }
-      }) ?? [],
+      passengers:
+        dossier.services[0].paxes?.map((passenger) => {
+          return {
+            name: passenger.name,
+            lastName: passenger.last_name,
+            dob: passenger.birthdate,
+            document: {
+              documentType: passenger.type_document,
+              documentNumber: passenger.dni,
+              documentExpirationDate: passenger.expiration_document,
+              nationality: passenger.nationality_of_id,
+            },
+            country: passenger.nationality,
+            gender: passenger.gender,
+          };
+        }) ?? [],
       cancellationPollicies: dossier.services[0].cancellation_policies ?? [],
       insurances: dossier.services[0].raw_data.insurances,
       observations: dossier.services[0].relevant_data?.observations ?? [],
-      hotelRemarks: dossier.services[0].relevant_data?.remarks?.map(remark => remark[Object.keys(remark)[0]].map(remark => { return { text: remark.text } }))[0] ?? []
+      methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
+      hotelRemarks:
+        dossier.services[0].relevant_data?.remarks?.map((remark) =>
+          remark[Object.keys(remark)[0]].map((remark) => {
+            return { text: remark.text };
+          }),
+        )[0] ?? [],
+      hotel: hotel,
+      room: hotel.hotel_rooms[0],
+      adults,
+      kids,
+      stars,
     };
     const email = await this.notificationsService.sendConfirmationEmail(data, dossier.client.email);
     if (email.status === HttpStatus.OK) {
@@ -128,16 +178,16 @@ export class CallCenterService {
         paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : canceled.data.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
         amount: canceled.data.payment.amount,
       };
-      await this.paymentsService.updateDossierPayments(dossierPayments)
+      await this.paymentsService.updateDossierPayments(dossierPayments);
       return canceled.data;
     }
   }
 
   private determinePaymentMethod(payments: Array<any>) {
     if (payments?.length) {
-      return DossierPaymentMethods[payments[0].payment_method]
+      return DossierPaymentMethods[payments[0].payment_method];
     }
-    return DossierPaymentMethods['Tarjeta de Credito']
+    return DossierPaymentMethods['Tarjeta de Credito'];
   }
 
   private mapFilterParamsToQueryParams(filterParams: CallCenterBookingFilterParamsDTO): string {
