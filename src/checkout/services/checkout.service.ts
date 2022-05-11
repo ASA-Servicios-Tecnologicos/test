@@ -26,7 +26,6 @@ export class CheckoutService extends SecuredHttpService {
   }
 
   async getCheckoutByDossierId(dossierId: number):Promise<string>{
-    console.log("ha")
     const booking = await this.bookingModel.findOne({ dossier: dossierId });
     const checkoutId = booking?.toObject().checkoutId;
 
