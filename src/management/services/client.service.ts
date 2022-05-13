@@ -81,8 +81,7 @@ export class ClientService {
       `${this.appConfigService.BASE_URL}/management/api/v1/client/external/add-newsletter/`,
       newsletterRequestDTO,
     );
-    console.log(response)
-    if (response !== "Este email ya esta suscrito a la newsletter") {
+    if (response !== "Este email ya esta suscrito a la newsletter.") {
       this.notificationService.sendNewsletterConfirmation(newsletterRequestDTO.email); 
     }
   }
