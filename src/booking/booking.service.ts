@@ -324,6 +324,7 @@ export class BookingService {
       packageCountry: booking.packageCountry,
       packageCategory: booking.packageCategory,
       dicountCode: booking.dicountCode,
+      bookId,
       date: new Date(),
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
