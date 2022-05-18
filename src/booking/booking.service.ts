@@ -82,6 +82,7 @@ export class BookingService {
     const checkout = (await this.checkoutService.doCheckout(body))['data'];
     const prebooking: Booking = {
       ...booking,
+      dicountCode: booking.discount ? booking.discount.couponCode : '',
       bookingId: booking.bookingId,
       checkoutId: checkout.checkoutId,
       hotelCode: t(prebookingData, 'data.hotels[0].hotelId').safeString,
@@ -132,6 +133,10 @@ export class BookingService {
         contact: checkout.contact,
         distribution: prebookingData.data.distribution,
         packageName: booking.packageName,
+        programId: booking.programId,
+        packageCountry: booking.packageCountry,
+        packageCategory: booking.packageCategory,
+        dicountCode: booking.dicountCode,
         date: new Date(),
         methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
       };
@@ -315,6 +320,10 @@ export class BookingService {
       contact: checkOut.contact,
       distribution: prebookingData.data.distribution,
       packageName: booking.packageName,
+      programId: booking.programId,
+      packageCountry: booking.packageCountry,
+      packageCategory: booking.packageCategory,
+      dicountCode: booking.dicountCode,
       date: new Date(),
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
