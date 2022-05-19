@@ -119,28 +119,30 @@ export class BookingService {
       const dateB = new Date(b.dueDate);
       return dateA > dateB ? 1 : -1;
     });
-    if (checkout.payment.methodType === 'BANK_TRANSFER') {
-      return this.saveBooking(prebookingData, booking, checkout);
-    } else {
-      this.saveBooking(prebookingData, booking, checkout);
-      return {
-        payment: checkout.payment,
-        buyer: checkout.buyer,
-        flights: prebookingData.data.flights,
-        hotels: prebookingData.data.hotels,
-        checkIn: prebookingData.data.checkIn,
-        checkOut: prebookingData.data.checkOut,
-        contact: checkout.contact,
-        distribution: prebookingData.data.distribution,
-        packageName: booking.packageName,
-        programId: booking.programId,
-        packageCountry: booking.packageCountry,
-        packageCategory: booking.packageCategory,
-        dicountCode: booking.dicountCode,
-        date: new Date(),
-        methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
-      };
-    }
+
+    return this.saveBooking(prebookingData, booking, checkout);
+    // if (checkout.payment.methodType === 'BANK_TRANSFER') {
+    //   return this.saveBooking(prebookingData, booking, checkout);
+    // } else {
+    //   this.saveBooking(prebookingData, booking, checkout);
+    //   return {
+    //     payment: checkout.payment,
+    //     buyer: checkout.buyer,
+    //     flights: prebookingData.data.flights,
+    //     hotels: prebookingData.data.hotels,
+    //     checkIn: prebookingData.data.checkIn,
+    //     checkOut: prebookingData.data.checkOut,
+    //     contact: checkout.contact,
+    //     distribution: prebookingData.data.distribution,
+    //     packageName: booking.packageName,
+    //     programId: booking.programId,
+    //     packageCountry: booking.packageCountry,
+    //     packageCategory: booking.packageCategory,
+    //     dicountCode: booking.dicountCode,
+    //     date: new Date(),
+    //     methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
+    //   };
+    // }
   }
 
   private saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
