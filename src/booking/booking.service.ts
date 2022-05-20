@@ -325,6 +325,7 @@ export class BookingService {
       programId: booking.programId,
       packageCountry: booking.packageCountry,
       packageCategory: booking.packageCategory,
+      packageDestination: booking.packageDestination,
       dicountCode: booking.dicountCode,
       bookId,
       date: new Date(),

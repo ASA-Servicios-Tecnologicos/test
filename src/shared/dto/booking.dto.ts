@@ -103,6 +103,8 @@ export class BookingDTO {
   packageCategory: string;
   @ApiProperty()
   packageCountry: string;
+  @ApiProperty()
+  packageDestination: string;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
 }
 

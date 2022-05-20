@@ -85,6 +85,9 @@ export class Booking {
 
   @Prop()
   packageCategory: string;
+
+  @Prop()
+  packageDestination: string;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
