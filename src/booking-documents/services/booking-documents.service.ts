@@ -23,7 +23,7 @@ export class BookingDocumentsService {
     return this.managementHttp.post<DocumentsDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/voucher/`, body);
   }
 
-  async sendBonoEmail(brandCode: string, locator: string, contact: CheckoutContact, buyer: CheckoutBuyer) {
+  async sendBonoEmail(dosierCode: string, brandCode: string, locator: string, contact: CheckoutContact, buyer: CheckoutBuyer) {
     const bonoDocuments = await this.findDocumentsByBooking(brandCode, locator).catch((error) => error);
     if (bonoDocuments.status === HttpStatus.OK) {
       const email: EmailDTO = {
@@ -31,7 +31,7 @@ export class BookingDocumentsService {
         applicationName: 'booking-flowo-tecnoturis',
         from: 'noreply@mg.flowo.com',
         to: [contact.email],
-        subject: `Te enviamos la documentación de tu reserva ${locator}`,
+        subject: `Te enviamos la documentación de tu reserva ${dosierCode}`,
         body: `
         Documentación de tu reserva
         \n
