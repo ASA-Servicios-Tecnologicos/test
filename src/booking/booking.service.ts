@@ -154,7 +154,7 @@ export class BookingService {
           detailedPricing: prebookingData.data.detailedPricing,
         },
       },
-      agencyInfo: { clientReference: dossier?.code, agent: 'Flowo' },
+      agencyInfo: { clientReference: dossier?.code, agent: 'flowo.com' },
     };
 
     return this.managementHttpService
