@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PackagesNewblueService } from '../management/services/packages-newblue.service';
 import { PackagesProvidersService } from '../management/services/packages-providers.service';
 import { PostPreBookingsPackagesProvidersDTO, PreBookingsPackagesProvidersResponseDTO } from '../shared/dto/booking-packages.dto';
-import { BookingPackagesProvidersFilters } from './booking-packages.controller';
+import { BookingPackagesProvidersFilters, HeadersDTO } from './booking-packages.controller';
 
 @Injectable()
 export class BookingPackagesService {
@@ -11,8 +11,8 @@ export class BookingPackagesService {
     private readonly packagesProvidersService: PackagesProvidersService,
   ) { }
 
-  getBookingPackagesProviders(queryParams: BookingPackagesProvidersFilters) {
-    return this.packagesProvidersService.getPackageProviders(queryParams);
+  getBookingPackagesProviders(queryParams?: BookingPackagesProvidersFilters, headers?:HeadersDTO, ) {
+    return this.packagesProvidersService.getPackageProviders(queryParams, headers);
   }
 
   postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO): Promise<any> {

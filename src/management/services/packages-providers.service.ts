@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { BookingPackagesProvidersFilters } from '../../booking-packages/booking-packages.controller';
+import { BookingPackagesProvidersFilters, HeadersDTO } from '../../booking-packages/booking-packages.controller';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { PostPreBookingsPackagesProvidersDTO, PreBookingsPackagesProvidersResponseDTO } from '../../shared/dto/booking-packages.dto';
 import { ManagementHttpService } from './management-http.service';
@@ -8,9 +8,10 @@ import { ManagementHttpService } from './management-http.service';
 export class PackagesProvidersService {
   constructor(private readonly appConfigService: AppConfigService, private readonly managementHttpService: ManagementHttpService) {}
 
-  getPackageProviders(queryParams?: BookingPackagesProvidersFilters) {
+  getPackageProviders(queryParams?: BookingPackagesProvidersFilters, headers?:HeadersDTO) {
     return this.managementHttpService.get(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/packages/flowo`, {
       params: queryParams,
+      headers
     });
   }
 

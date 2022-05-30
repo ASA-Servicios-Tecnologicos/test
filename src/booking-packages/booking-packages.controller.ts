@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Headers } from '@nestjs/common';
 import { PostPreBookingsPackagesProvidersDTO, PreBookingsPackagesProvidersResponseDTO } from '../shared/dto/booking-packages.dto';
 import { BookingPackagesService } from './booking-packages.service';
 
@@ -13,6 +13,9 @@ export class BookingPackagesProvidersFilters {
   pageSize: string;
   destinationType: string;
   providers: string;
+}
+export class HeadersDTO {
+  'monit-tsid' ?: string;
 }
 
 // TODO: Pending ADD  Swagger Document endpoints and request payload validators
@@ -31,7 +34,8 @@ export class BookingPackagesController {
   }
 
   @Get('providers')
-  getBookingPackagesProviders(@Query() queryParams?: BookingPackagesProvidersFilters) {
-    return this.bookingPackagesService.getBookingPackagesProviders(queryParams);
+  getBookingPackagesProviders(@Query() queryParams?: BookingPackagesProvidersFilters, @Headers() headers?:HeadersDTO) {
+
+    return this.bookingPackagesService.getBookingPackagesProviders(queryParams, headers);
   }
 }
