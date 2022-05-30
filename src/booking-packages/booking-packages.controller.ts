@@ -29,8 +29,8 @@ export class BookingPackagesController {
   }
 
   @Post('new-blue/reference-prices')
-  getBookingPackagesNewBlue(@Body() data) {
-    return this.bookingPackagesService.postNewBlueReferencePrices(data);
+  getBookingPackagesNewBlue(@Body() data, @Headers() headers?:HeadersDTO) {
+    return this.bookingPackagesService.postNewBlueReferencePrices(data, headers);
   }
 
   @Get('providers')

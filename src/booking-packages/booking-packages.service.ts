@@ -11,7 +11,7 @@ export class BookingPackagesService {
     private readonly packagesProvidersService: PackagesProvidersService,
   ) { }
 
-  getBookingPackagesProviders(queryParams?: BookingPackagesProvidersFilters, headers?:HeadersDTO, ) {
+  getBookingPackagesProviders(queryParams?: BookingPackagesProvidersFilters, headers?:HeadersDTO) {
     return this.packagesProvidersService.getPackageProviders(queryParams, headers);
   }
 
@@ -19,7 +19,7 @@ export class BookingPackagesService {
     return this.packagesProvidersService.postPreBookings(postPreBookingsPackagesProvidersDTO);
   }
 
-  postNewBlueReferencePrices(data) {
-    return this.packagesNewBlueService.postPackagesNewblueReferencePrices(data);
+  postNewBlueReferencePrices(data, headers?:HeadersDTO) {
+    return this.packagesNewBlueService.postPackagesNewblueReferencePrices(data, headers);
   }
 }

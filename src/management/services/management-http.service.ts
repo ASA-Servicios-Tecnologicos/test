@@ -29,6 +29,7 @@ export class ManagementHttpService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
+          'monit-tsid' : config?.headers['monit-tsid'] ? config?.headers['monit-tsid'] : null
         },
       }),
     )
@@ -45,6 +46,7 @@ export class ManagementHttpService {
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${newToken}`,
+                  'monit-tsid' : config?.headers['monit-tsid'] ? config?.headers['monit-tsid'] : null
                 },
               }),
             )
