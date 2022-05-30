@@ -15,8 +15,8 @@ export class BookingPackagesService {
     return this.packagesProvidersService.getPackageProviders(queryParams, headers);
   }
 
-  postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO): Promise<any> {
-    return this.packagesProvidersService.postPreBookings(postPreBookingsPackagesProvidersDTO);
+  postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO, headers?:HeadersDTO): Promise<any> {
+    return this.packagesProvidersService.postPreBookings(postPreBookingsPackagesProvidersDTO, headers);
   }
 
   postNewBlueReferencePrices(data, headers?:HeadersDTO) {

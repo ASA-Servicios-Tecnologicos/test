@@ -15,9 +15,11 @@ export class PackagesProvidersService {
     });
   }
 
-  postPreBookings(data: PostPreBookingsPackagesProvidersDTO): Promise<any> {
+  postPreBookings(data: PostPreBookingsPackagesProvidersDTO, headers?:HeadersDTO): Promise<any> {
     return this.managementHttpService
-      .post<PreBookingsPackagesProvidersResponseDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/pre-bookings`, data)
+      .post<PreBookingsPackagesProvidersResponseDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/pre-bookings`, data, {
+        headers
+      })
       .then((response) => {
         if (response.status !== HttpStatus.OK) {
           throw new HttpException(response.data, response.status);
