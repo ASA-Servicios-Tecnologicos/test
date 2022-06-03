@@ -26,11 +26,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.post<K>(url, data, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-          'monit-tsid': config?.headers?.['monit-tsid'] || '',
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
       .then((data) => {
@@ -46,11 +42,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.post<K>(url, data, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                  'monit-tsid': config?.headers?.['monit-tsid'] || '',
-                },
+                headers: this.buildHeaders(config, newToken),
               }),
             )
               .then((data) => data.data)
@@ -67,11 +59,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.get<K>(url, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-          'monit-tsid': config?.headers?.['monit-tsid'] || '',
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
       .then((data) => data.data)
@@ -85,11 +73,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.get<K>(url, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                  'monit-tsid': config?.headers?.['monit-tsid'] || '',
-                },
+                headers: this.buildHeaders(config, newToken),
               }),
             )
               .then((data) => {
@@ -183,6 +167,18 @@ export class ManagementHttpService {
         }
         throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
       });
+  }
+
+  buildHeaders(config?: AxiosRequestConfig, token?: string) {
+    const headers: any = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    if (config && config.headers && config.headers['monit-tsid']) {
+      headers['monit-tsid'] = config.headers['monit-tsid'];
+    }
+
+    return headers;
   }
 
   async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
