@@ -1,4 +1,5 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import { HeadersDTO } from './../booking-packages/booking-packages.controller';
+import { Body, Controller, Get, Headers, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BookingDTO } from '../shared/dto/booking.dto';
 import { BookingService } from './booking.service';
@@ -23,8 +24,8 @@ export class BookingController {
     summary: 'Realizar una reserva y guardarla',
   })
   @ApiResponse({ status: HttpStatus.OK, description: 'Reserva realizada' })
-  reserve(@Param('bookingId') bookingId: string) {
-    return this.bookingService.doBooking(bookingId);
+  reserve(@Param('bookingId') bookingId: string, @Headers() headers?:HeadersDTO) {
+    return this.bookingService.doBooking(bookingId, headers);
   }
 
   @Get('bycheckout/:checkoutId')
