@@ -23,6 +23,8 @@ import t from 'typy';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 import { BookingServicesService } from 'src/management/services/booking-services.service';
 import { ContentAPI } from 'src/shared/dto/content-api.dto';
+import { HeadersDTO } from './../booking-packages/booking-packages.controller';
+import { l } from '../logger';
 
 @Injectable()
 export class BookingService {
@@ -100,7 +102,7 @@ export class BookingService {
     return this.bookingModel.findOne({ dossier: parseInt(dossier) }).exec();
   }
 
-  async doBooking(id: string) {
+  async doBooking(id: string, headers?:HeadersDTO) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
     if (!booking) {
       throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND);
@@ -120,10 +122,10 @@ export class BookingService {
       return dateA > dateB ? 1 : -1;
     });
 
-    return this.saveBooking(prebookingData, booking, checkout);
+    return this.saveBooking(prebookingData, booking, checkout, headers);
   }
 
-  private async saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
+  private async saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO, headers?:HeadersDTO) {
     const bookingManagement = await this.createBookingInManagement(prebookingData, booking, checkout);
 
     let dossier: DossierDto;
@@ -158,11 +160,13 @@ export class BookingService {
     };
 
     return this.managementHttpService
-      .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, { timeout: 120000 })
+      .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, { timeout: 120000, headers })
       .then((res) => {
+        l.info('[booking.service] [saveBooking] [POST Booking Success]')
         return this.processBooking(dossier, bookingManagement, prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
       .catch((error) => {
+        l.error('[booking.service] [saveBooking] [POST Booking Error]')
         return this.processBooking(dossier, bookingManagement, prebookingData, booking, checkout, null, 'ERROR');
       });
   }
