@@ -23,6 +23,8 @@ import t from 'typy';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 import { BookingServicesService } from 'src/management/services/booking-services.service';
 import { ContentAPI } from 'src/shared/dto/content-api.dto';
+import { HeadersDTO } from './../booking-packages/booking-packages.controller';
+import { l } from '../logger';
 
 @Injectable()
 export class BookingService {
@@ -82,6 +84,7 @@ export class BookingService {
     const checkout = (await this.checkoutService.doCheckout(body))['data'];
     const prebooking: Booking = {
       ...booking,
+      dicountCode: booking.discount ? booking.discount.couponCode : '',
       bookingId: booking.bookingId,
       checkoutId: checkout.checkoutId,
       hotelCode: t(prebookingData, 'data.hotels[0].hotelId').safeString,
@@ -99,7 +102,7 @@ export class BookingService {
     return this.bookingModel.findOne({ dossier: parseInt(dossier) }).exec();
   }
 
-  async doBooking(id: string) {
+  async doBooking(id: string, headers?:HeadersDTO) {
     const booking = await this.bookingModel.findOne({ bookingId: id }).exec();
     if (!booking) {
       throw new HttpException('Booking no encontrado', HttpStatus.NOT_FOUND);
@@ -112,33 +115,25 @@ export class BookingService {
     if (prebookingData?.status !== 200) {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
-    const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
+
     checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
       return dateA > dateB ? 1 : -1;
     });
-    if (checkout.payment.methodType === 'BANK_TRANSFER') {
-      return this.saveBooking(prebookingData, booking, checkout);
-    } else {
-      this.saveBooking(prebookingData, booking, checkout);
-      return {
-        payment: checkout.payment,
-        buyer: checkout.buyer,
-        flights: prebookingData.data.flights,
-        hotels: prebookingData.data.hotels,
-        checkIn: prebookingData.data.checkIn,
-        checkOut: prebookingData.data.checkOut,
-        contact: checkout.contact,
-        distribution: prebookingData.data.distribution,
-        packageName: booking.packageName,
-        date: new Date(),
-        methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
-      };
-    }
+
+    return this.saveBooking(prebookingData, booking, checkout, headers);
   }
 
-  private saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO) {
+  private async saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO, headers?:HeadersDTO) {
+    const bookingManagement = await this.createBookingInManagement(prebookingData, booking, checkout);
+
+    let dossier: DossierDto;
+
+    if (bookingManagement && bookingManagement.length) {
+      dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
+    }
+
     const body = {
       requestToken: prebookingData.data.requestToken,
       providerToken: prebookingData.data.providerToken,
@@ -161,24 +156,22 @@ export class BookingService {
           detailedPricing: prebookingData.data.detailedPricing,
         },
       },
+      agencyInfo: { clientReference: dossier?.code, agent: 'flowo.com' },
     };
+
     return this.managementHttpService
-      .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, { timeout: 120000 })
+      .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, { timeout: 120000, headers })
       .then((res) => {
-        return this.createBookingInManagement(prebookingData, booking, checkout, res.data.bookId, res.data.status);
+        l.info('[booking.service] [saveBooking] [POST Booking Success]')
+        return this.processBooking(dossier, bookingManagement, prebookingData, booking, checkout, res.data.bookId, res.data.status);
       })
       .catch((error) => {
-        return this.createBookingInManagement(prebookingData, booking, checkout, null, 'ERROR');
+        l.error('[booking.service] [saveBooking] [POST Booking Error]')
+        return this.processBooking(dossier, bookingManagement, prebookingData, booking, checkout, null, 'ERROR');
       });
   }
 
-  private async createBookingInManagement(
-    prebookingData: PrebookingDTO,
-    booking: Booking,
-    checkOut: CheckoutDTO,
-    bookId: string,
-    status: string,
-  ) {
+  private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
     const client = await this.getOrCreateClient(checkOut).catch((error) => error);
     if (isNaN(client)) {
       throw new HttpException(client, HttpStatus.NOT_FOUND);
@@ -188,8 +181,8 @@ export class BookingService {
       packageData: [
         {
           ...prebookingData.data,
-          bookId: bookId,
-          status: status,
+          bookId: '',
+          status: '',
           totalAmount: booking.amount,
           newsletter: checkOut.contact.newsletter ?? false,
           uuid: uuidv4(),
@@ -249,12 +242,22 @@ export class BookingService {
       .post<Array<ManagementBookDTO>>(`${this.appConfigService.BASE_URL}/management/api/v1/booking/`, createBookDTO)
       .catch((error) => {
         console.error(error);
-        console.error(
-          'Ha ocurrido un error al guardar la reserva en management con localizador: ' + bookId + ' y bookingId: ' + booking.bookingId,
-        );
+        console.error('Ha ocurrido un error al guardar la reserva en management');
         return null;
       });
 
+    return bookingManagement;
+  }
+
+  private async processBooking(
+    dossier: DossierDto,
+    bookingManagement: any,
+    prebookingData: PrebookingDTO,
+    booking: Booking,
+    checkOut: CheckoutDTO,
+    bookId: string,
+    status: string,
+  ) {
     if (bookingManagement) {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
@@ -268,7 +271,20 @@ export class BookingService {
         installment: checkOut.payment.installments,
       };
 
-      if (!bookId) {
+      if (bookId) {
+        const serviceData: any = {
+          locator: bookId,
+        };
+
+        if (dossier && dossier.services && dossier.services.length) {
+          const rawData = dossier.services[0].raw_data;
+          rawData.status = status;
+          rawData.bookId = bookId;
+          serviceData['raw_data'] = rawData;
+        }
+
+        this.dossiersService.patchBookingServiceById(bookingManagement[0].id, serviceData).catch(() => {});
+      } else {
         this.dossiersService.patchDossierById(bookingManagement[0].dossier, {
           dossier_situation: 7,
           observation: 'Ha ocurrido un error en la reserva del paquete',
@@ -288,14 +304,13 @@ export class BookingService {
       console.log(error);
     });
     const methodsDetails = t(checkOut, 'payment.methodDetail').safeObject;
-    let dossier: DossierDto;
+
     if (bookingManagement) {
-      dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
       if (dossier?.code) {
         this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, dossier.code, dataContentApi);
         const pendingPayments = checkOut.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
         if (!pendingPayments.length) {
-          this.sendBonoEmail(bookId, checkOut.contact, checkOut.buyer);
+          this.sendBonoEmail(dossier?.code, bookId, checkOut.contact, checkOut.buyer);
         }
       } else {
         this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente', dataContentApi);
@@ -315,12 +330,19 @@ export class BookingService {
       contact: checkOut.contact,
       distribution: prebookingData.data.distribution,
       packageName: booking.packageName,
+      programId: booking.programId,
+      packageCountry: booking.packageCountry,
+      packageCategory: booking.packageCategory,
+      packageDestination: booking.packageDestination,
+      dicountCode: booking.dicountCode,
+      bookId,
       date: new Date(),
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
     };
   }
-  private sendBonoEmail(locator: string, contact: CheckoutContact, buyer: CheckoutBuyer) {
-    this.bookingDocumentsService.sendBonoEmail('NBLUE', locator, contact, buyer);
+
+  private sendBonoEmail(dossierCode: string, locator: string, contact: CheckoutContact, buyer: CheckoutBuyer) {
+    this.bookingDocumentsService.sendBonoEmail(dossierCode, 'NBLUE', locator, contact, buyer);
   }
 
   public async getClientOrCreate(client: OtaClientDTO): Promise<number> {

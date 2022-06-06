@@ -82,6 +82,11 @@ export class NotificationService extends SecuredHttpService {
       console.error('Error al corregir y formatear la fecha de la primera política de cancelación: ' + error);
     }
 
+    data.hotelAddress = data.contentInfo.address || data.hotel.address;
+    data.hotelDescription = data.contentInfo.description || '';
+    data.roomCategory =
+      data.room.rates && data.room.rates.length && data.room.rates[0].category ? data.room.rates[0].category : data.room.regimen_text;
+
     const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES[data.methodType], data);
     const locator = data.reference;
     const number_dossier = data.dossier;

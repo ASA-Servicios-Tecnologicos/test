@@ -76,15 +76,17 @@ export class ClientService {
       );
     }
     
-    async AddToNewsletter(newsletterRequestDTO: { email: string }) {
-      const response = await this.managementHttpService.post(
-        `${this.appConfigService.BASE_URL}/management/api/v1/client/external/add-newsletter/`,
-        newsletterRequestDTO,
-      );
-      if (response !== "Este email ya esta suscrito a la newsletter.") {
-        this.notificationService.sendNewsletterConfirmation(newsletterRequestDTO.email); 
-      }
+  async AddToNewsletter(newsletterRequestDTO: { email: string }) {
+
+    const response = await this.managementHttpService.post(
+      `${this.appConfigService.BASE_URL}/management/api/v1/client/external/add-newsletter/`,
+      newsletterRequestDTO,
+    );
+    if (response !== "Este email ya esta suscrito a la newsletter.") {
+      this.notificationService.sendNewsletterConfirmation(newsletterRequestDTO.email); 
     }
+  }
+
 
   getIntegrationClient() {
     return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/user/me/`);

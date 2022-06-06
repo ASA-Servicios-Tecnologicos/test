@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 import { DossiersService } from 'src/dossiers/dossiers.service';
 import { CheckoutBuyer, CheckoutContact } from 'src/shared/dto/checkout.dto';
+import { DossierDto } from 'src/shared/dto/dossier.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -74,14 +75,21 @@ export class PaymentsService {
           .join(', ')}`,
       });
     }
+
+    let dossierDto: DossierDto;
+
+    if (booking && booking.dossier) {
+      dossierDto = await this.dossiersService.findDossierById(booking.dossier + '');
+    }
+
     const pendingPayments = checkout.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
     if (!pendingPayments.length) {
-      this.sendBonoEmail(booking, checkout.contact, checkout.buyer);
+      this.sendBonoEmail(dossierDto?.code, booking, checkout.contact, checkout.buyer);
     }
     return this.updateDossierPayments(dossierPayments);
   }
 
-  private sendBonoEmail(booking: Booking, contact: CheckoutContact, buyer: CheckoutBuyer) {
-    this.bookingDocumentsService.sendBonoEmail('NBLUE', booking.locator, contact, buyer);
+  private sendBonoEmail(dossierCode: string, booking: Booking, contact: CheckoutContact, buyer: CheckoutBuyer) {
+    this.bookingDocumentsService.sendBonoEmail(dossierCode, 'NBLUE', booking.locator, contact, buyer);
   }
 }

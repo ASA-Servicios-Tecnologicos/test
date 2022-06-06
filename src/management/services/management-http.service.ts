@@ -1,4 +1,4 @@
-import { HttpException, HttpService, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable, InternalServerErrorException, Headers } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
@@ -12,9 +12,10 @@ export class ManagementHttpService {
     private managementService: ManagementService,
     private cacheService: CacheService<any>,
   ) {
+    //It is executed after the requests adding parameters as the headers
     this.httpService.axiosRef.interceptors.request.use((config) => {
       const cookie = this.cacheService.get(INSTANA_MONITORING_COOKIE);
-      if (this.cacheService.get(INSTANA_MONITORING_COOKIE)) {
+      if (config && config.headers && !config.headers['monit-tsid'] && this.cacheService.get(INSTANA_MONITORING_COOKIE)) {
         config.headers['monit-tsid'] = cookie;
       }
       return config;
@@ -25,10 +26,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.post<K>(url, data, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
       .then((data) => {
@@ -36,15 +34,15 @@ export class ManagementHttpService {
       })
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
+        if (
+          err.response.status === HttpStatus.UNAUTHORIZED &&
+          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+        ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.post<K>(url, data, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken),
               }),
             )
               .then((data) => data.data)
@@ -61,24 +59,21 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.get<K>(url, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
+        if (
+          err.response.status === HttpStatus.UNAUTHORIZED &&
+          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+        ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.get<K>(url, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken),
               }),
             )
               .then((data) => {
@@ -109,7 +104,10 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
+        if (
+          err.response.status === HttpStatus.UNAUTHORIZED &&
+          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+        ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.patch<K>(url, data, {
@@ -145,7 +143,10 @@ export class ManagementHttpService {
       .then((data) => data.data)
       .catch((err) => {
         // If token has expired then renew request token
-        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
+        if (
+          err.response.status === HttpStatus.UNAUTHORIZED &&
+          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+        ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.put<K>(url, data, {
@@ -168,6 +169,18 @@ export class ManagementHttpService {
       });
   }
 
+  buildHeaders(config?: AxiosRequestConfig, token?: string) {
+    const headers: any = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    if (config && config.headers && config.headers['monit-tsid']) {
+      headers['monit-tsid'] = config.headers['monit-tsid'];
+    }
+
+    return headers;
+  }
+
   async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
     return firstValueFrom(
       this.httpService.delete(url, {
@@ -187,7 +200,10 @@ export class ManagementHttpService {
           return;
         }
         // If token has expired then renew request token
-        if (err.response.status === HttpStatus.UNAUTHORIZED && (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')) {
+        if (
+          err.response.status === HttpStatus.UNAUTHORIZED &&
+          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+        ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
               this.httpService.delete(url, {

@@ -6,7 +6,7 @@ export class ManagementSetupController {
   constructor(private readonly managementSetupService: ManagementSetupService) {}
 
   @Get()
-  getManagementSetup(): Promise<ManagementSetupDTO> {
+  getManagementSetup(): Promise<any> {
     return this.managementSetupService.getManagementSetup();
   }
 }
