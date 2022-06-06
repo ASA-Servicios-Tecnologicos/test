@@ -1,4 +1,8 @@
 steps:
+  - name: node:12.11.1
+    entrypoint: npm
+    args: ['install']
+    
   - name: 'sonarsource/sonar-scanner-cli:4.7'
     args:
     - '-Dsonar.host.url=https://sonarqube.cloudappi.net'
