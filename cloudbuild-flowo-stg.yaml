@@ -1,5 +1,5 @@
 steps:
-  - name: 'gcr.io/$PROJECT_ID/sonar-scanner:latest'
+  - name: 'gcr.io/Tecnoturis-Flowo/ota-backend/blob/stage/sonar-scanner:latest'
     args:
     - '-Dsonar.host.url=https://sonarqube.cloudappi.net'
     - '-Dsonar.login=e98aa0c485fe9710d12eb8d34eafb096a1a5abed'
