@@ -63,7 +63,7 @@ export class NotificationService extends SecuredHttpService {
         .filter((policy) => policy.amount !== 0)
         .find(
           (policy) =>
-            Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
+            Math.min(...data.cancellationPollicies.map((cancellationPolicy) => new Date(cancellationPolicy.fromDate).getMilliseconds())) ===
             new Date(policy.fromDate).getMilliseconds(),
         );
       const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));

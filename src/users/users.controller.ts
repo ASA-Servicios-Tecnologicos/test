@@ -7,9 +7,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('login')
-  login(@Body() loginPayload: LoginPayloadDTO): Promise<{ token: string }> {
+   async login(@Body() loginPayload: LoginPayloadDTO): Promise<{ token: string }> {
     try {
-      return this.usersService.login(loginPayload);
+      return await this.usersService.login(loginPayload);
     } catch (e) {
       console.log(e);
     }

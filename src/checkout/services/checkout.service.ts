@@ -1,4 +1,4 @@
-import { HttpException, HttpService, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { CacheService } from '../../shared/services/cache.service';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { CheckoutDTO, CreateCheckoutDTO } from '../../shared/dto/checkout.dto';

@@ -9,7 +9,6 @@ import { PaymentsService } from '../payments/payments.service';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 import { DossierPaymentMethods } from '../shared/dto/email.dto';
 import t from 'typy';
-import { child } from 'winston';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
@@ -66,8 +65,8 @@ export class CallCenterService {
     let adults = 0;
     let kids = 0;
 
-    dossier.services[0].paxes.forEach((data) => {
-      data.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
+    dossier.services[0].paxes.forEach((p) => {
+      p.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
     });
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
@@ -149,8 +148,8 @@ export class CallCenterService {
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
       hotelRemarks:
         dossier.services[0].relevant_data?.remarks?.map((remark) =>
-          remark[Object.keys(remark)[0]].map((remark) => {
-            return { text: remark.text };
+          remark[Object.keys(remark)[0]].map((r) => {
+            return { text: r.text };
           }),
         )[0] ?? [],
       hotel: hotel,
@@ -183,7 +182,7 @@ export class CallCenterService {
         bookingId: canceled.data.booking.bookingId,
         checkoutId: canceled.data.checkoutId,
         installment: canceled.data.payment.installments,
-        paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : canceled.data.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
+        paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : 2,
         amount: canceled.data.payment.amount,
       };
       await this.paymentsService.updateDossierPayments(dossierPayments);

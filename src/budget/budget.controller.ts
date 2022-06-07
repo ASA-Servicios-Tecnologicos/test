@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { BudgetDto, CreateBudgetDto, ManagementBudgetDto } from '../shared/dto/budget.dto';
+import { BudgetDto, CreateBudgetDto } from '../shared/dto/budget.dto';
 import { CreateBudgetResponseDTO } from '../shared/dto/create-budget-response.dto';
 import { BudgetService } from './budget.service';
 // TODO: Pending ADD request payload validators

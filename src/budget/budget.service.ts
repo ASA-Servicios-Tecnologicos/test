@@ -57,8 +57,8 @@ export class BudgetService {
     const managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO[] =
       await this.bookingServicesService.getBookingServicesByDossierId(id);
     const managementBookingServicesDetailedDTO: ManagementBookingServiceDTO[] = await Promise.all(
-      managementBookingServicesByDossierDTO.map((managementBookingServicesByDossierDTO: ManagementBookingServicesByDossierDTO) => {
-        return this.bookingServicesService.getBookingServiceById(`${managementBookingServicesByDossierDTO.id}`);
+      managementBookingServicesByDossierDTO.map((managementBookingServiceByDossierDTO: ManagementBookingServicesByDossierDTO) => {
+        return this.bookingServicesService.getBookingServiceById(`${managementBookingServiceByDossierDTO.id}`);
       }),
     );
 

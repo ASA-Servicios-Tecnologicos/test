@@ -1,4 +1,4 @@
-import { HttpException, HttpService, HttpStatus, Injectable, InternalServerErrorException, Headers } from '@nestjs/common';
+import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
@@ -29,14 +29,14 @@ export class ManagementHttpService {
         headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
-      .then((data) => {
-        return data.data;
+      .then((response) => {
+        return response.data;
       })
-      .catch((err) => {
+      .catch((error) => {
         // If token has expired then renew request token
         if (
-          err.response.status === HttpStatus.UNAUTHORIZED &&
-          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+          error.response.status === HttpStatus.UNAUTHORIZED &&
+          (error.response.data?.detail === 'Signature has expired.' || error.response.data?.message === 'Not authorized.')
         ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
@@ -45,13 +45,13 @@ export class ManagementHttpService {
                 headers: this.buildHeaders(config, newToken),
               }),
             )
-              .then((data) => data.data)
+              .then((res) => res.data)
               .catch((err) => {
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+        throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
@@ -63,11 +63,11 @@ export class ManagementHttpService {
       }),
     )
       .then((data) => data.data)
-      .catch((err) => {
+      .catch((error) => {
         // If token has expired then renew request token
         if (
-          err.response.status === HttpStatus.UNAUTHORIZED &&
-          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+          error.response.status === HttpStatus.UNAUTHORIZED &&
+          (error.response.data?.detail === 'Signature has expired.' || error.response.data?.message === 'Not authorized.')
         ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
@@ -87,7 +87,7 @@ export class ManagementHttpService {
               });
           });
         }
-        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+        throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
@@ -101,12 +101,12 @@ export class ManagementHttpService {
         },
       }),
     )
-      .then((data) => data.data)
-      .catch((err) => {
+      .then((response) => response.data)
+      .catch((error) => {
         // If token has expired then renew request token
         if (
-          err.response.status === HttpStatus.UNAUTHORIZED &&
-          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+          error.response.status === HttpStatus.UNAUTHORIZED &&
+          (error.response.data?.detail === 'Signature has expired.' || error.response.data?.message === 'Not authorized.')
         ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
@@ -118,15 +118,15 @@ export class ManagementHttpService {
                 },
               }),
             )
-              .then((data) => {
-                return data.data;
+              .then((res) => {
+                return res.data;
               })
               .catch((err) => {
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+        throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
@@ -140,12 +140,12 @@ export class ManagementHttpService {
         },
       }),
     )
-      .then((data) => data.data)
-      .catch((err) => {
+      .then((response) => response.data)
+      .catch((error) => {
         // If token has expired then renew request token
         if (
-          err.response.status === HttpStatus.UNAUTHORIZED &&
-          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+          error.response.status === HttpStatus.UNAUTHORIZED &&
+          (error.response.data?.detail === 'Signature has expired.' || error.response.data?.message === 'Not authorized.')
         ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
@@ -157,15 +157,15 @@ export class ManagementHttpService {
                 },
               }),
             )
-              .then((data) => {
-                return data.data;
+              .then((res) => {
+                return res.data;
               })
               .catch((err) => {
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+        throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
@@ -194,15 +194,15 @@ export class ManagementHttpService {
       .then(() => {
         return;
       })
-      .catch((err) => {
+      .catch((error) => {
         // TODO: Why this error when it deletes favourite successfully?
-        if (err.code === 'ECONNRESET') {
+        if (error.code === 'ECONNRESET') {
           return;
         }
         // If token has expired then renew request token
         if (
-          err.response.status === HttpStatus.UNAUTHORIZED &&
-          (err.response.data?.detail === 'Signature has expired.' || err.response.data?.message === 'Not authorized.')
+          error.response.status === HttpStatus.UNAUTHORIZED &&
+          (error.response.data?.detail === 'Signature has expired.' || error.response.data?.message === 'Not authorized.')
         ) {
           return this.managementService.refreshCacheToken().then((newToken) => {
             return firstValueFrom(
@@ -222,7 +222,7 @@ export class ManagementHttpService {
               });
           });
         }
-        throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
+        throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 }

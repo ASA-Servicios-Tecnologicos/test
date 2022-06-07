@@ -55,7 +55,7 @@ export class PaymentsService {
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
       installment: checkout.payment.installments,
-      paymentMethods: checkout.payment.methodType === 'CARD' ? 4 : checkout.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
+      paymentMethods: checkout.payment.methodType === 'CARD' ? 4 : 2,
       amount: checkout.payment.amount,
     };
     const errorPayments = checkout.payment.installments

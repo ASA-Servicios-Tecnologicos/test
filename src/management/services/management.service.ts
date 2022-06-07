@@ -1,4 +1,4 @@
-import { HttpException, HttpService, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpService, Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { LoginPayloadDTO } from 'src/shared/dto/login-payload.dto';
 import { AppConfigService } from '../../configuration/configuration.service';

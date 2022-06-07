@@ -127,7 +127,7 @@ export class HtmlTemplateService {
             .filter((policy) => policy.amount !== 0)
             .find(
                 (policy) =>
-                    Math.min(...data.cancellationPollicies.map((policy) => new Date(policy.fromDate).getMilliseconds())) ===
+                    Math.min(...data.cancellationPollicies.map((cancellationPolicy) => new Date(cancellationPolicy.fromDate).getMilliseconds())) ===
                     new Date(policy.fromDate).getMilliseconds(),
             );
         const noExpensesPolicy = data.cancellationPollicies.findIndex((policy) => policy['title'].includes('cancelación'));
@@ -141,9 +141,9 @@ export class HtmlTemplateService {
             );
         }
 
-        let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation_transfer.hbs', 'utf8');
-        let template = Handlebars.compile(flowo_email_confirmation);
-        let emailTemplate = template(data);
+        //let flowo_email_confirmation = readFileSync('src/notifications/templates/flowo_email_confirmation_transfer.hbs', 'utf8');
+        //let template = Handlebars.compile(flowo_email_confirmation);
+        //let emailTemplate = template(data);
         /* const email: EmailTemplatedDTO = {
           uuid: uuidv4(),
           applicationName: 'application-code',

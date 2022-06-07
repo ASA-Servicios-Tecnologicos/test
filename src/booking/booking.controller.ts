@@ -1,6 +1,6 @@
 import { HeadersDTO } from './../booking-packages/booking-packages.controller';
 import { Body, Controller, Get, Headers, HttpStatus, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BookingDTO } from '../shared/dto/booking.dto';
 import { BookingService } from './booking.service';
 // TODO: Pending ADD  Swagger Document endpoints and request payload validators
