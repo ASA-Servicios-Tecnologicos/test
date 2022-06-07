@@ -258,6 +258,7 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
+    l.info(`[BookingService] [processBooking] init method`)
     if (bookingManagement) {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
@@ -293,12 +294,12 @@ export class BookingService {
       const update = await this.bookingModel.findOneAndUpdate(
         { bookingId: booking.bookingId },
         { dossier: bookingManagement[0].dossier, locator: bookId },
-      );
-      (await update).save();
+      ).exec();
+      update.save();
       this.paymentsService.createDossierPayments(dossierPayments);
     } else {
-      const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId });
-      (await update).save();
+      const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId }).exec();
+      update.save();
     }
     const dataContentApi: any = await this.bookingServicesService.getInformationContentApi(booking.hotelCode).catch((error) => {
       console.log(error);
