@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
-import { DocumentsDTO, GetDocuments, GetDocumentsContent } from 'src/shared/dto/booking-documents.dto';
+import { DocumentsDTO, GetDocuments } from 'src/shared/dto/booking-documents.dto';
 import { EmailDTO } from 'src/shared/dto/email.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { v4 as uuidv4 } from 'uuid';

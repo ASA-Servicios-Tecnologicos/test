@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PackagesNewblueService } from '../management/services/packages-newblue.service';
 import { PackagesProvidersService } from '../management/services/packages-providers.service';
-import { PostPreBookingsPackagesProvidersDTO, PreBookingsPackagesProvidersResponseDTO } from '../shared/dto/booking-packages.dto';
+import { PostPreBookingsPackagesProvidersDTO } from '../shared/dto/booking-packages.dto';
 import { BookingPackagesProvidersFilters, HeadersDTO } from './booking-packages.controller';
 
 @Injectable()

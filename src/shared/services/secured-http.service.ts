@@ -2,7 +2,6 @@ import { HttpException, HttpService } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
 import { NotificationSessionDTO } from '../dto/notification-session.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { CheckoutDTO } from '../dto/checkout.dto';
 import { CacheService } from './cache.service';
 import { INSTANA_MONITORING_COOKIE } from '../shared.constants';
 

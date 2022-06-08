@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { AppConfigService } from 'src/configuration/configuration.service';
 import { CreateExternalUserDTO, ExternalUserDTO } from 'src/shared/dto/external-user.dto';
 import { CLIENT_NOT_ACTIVE_ERROR } from '../management.constants';
