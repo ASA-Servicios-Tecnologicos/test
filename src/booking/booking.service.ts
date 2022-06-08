@@ -116,7 +116,7 @@ export class BookingService {
       throw new HttpException(prebookingData.data, prebookingData.status);
     }
 
-    checkout.payment.installments = checkout.payment.installments.sort((a, b) => {
+    checkout.payment.installments.sort((a, b) => {
       const dateA = new Date(a.dueDate);
       const dateB = new Date(b.dueDate);
       return dateA > dateB ? 1 : -1;
@@ -258,11 +258,12 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
+    l.info(`[BookingService] [processBooking] init method`)
     if (bookingManagement) {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
         bookingId: booking.bookingId,
-        paymentMethods: checkOut.payment.methodType === 'CARD' ? 4 : checkOut.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
+        paymentMethods: checkOut.payment.methodType === 'CARD' ? 4 : 2,
         amount: {
           value: booking.amount,
           currency: booking.currency,
@@ -293,12 +294,12 @@ export class BookingService {
       const update = await this.bookingModel.findOneAndUpdate(
         { bookingId: booking.bookingId },
         { dossier: bookingManagement[0].dossier, locator: bookId },
-      );
-      (await update).save();
+      ).exec();
+      update.save();
       this.paymentsService.createDossierPayments(dossierPayments);
     } else {
-      const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId });
-      (await update).save();
+      const update = await this.bookingModel.findOneAndUpdate({ bookingId: booking.bookingId }, { locator: bookId }).exec();
+      update.save();
     }
     const dataContentApi: any = await this.bookingServicesService.getInformationContentApi(booking.hotelCode).catch((error) => {
       console.log(error);
@@ -394,11 +395,11 @@ export class BookingService {
         if (error.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
-            .catch((error) => {
-              if (error.status === HttpStatus.BAD_REQUEST) {
+            .catch((e) => {
+              if (e.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
-              throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
+              throw new HttpException({ message: e.message, error: e.response.data || e.message }, e.response.status);
             });
         } else {
           throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
@@ -558,8 +559,8 @@ export class BookingService {
     let adults = 0;
     let kids = 0;
 
-    checkOut.passengers.forEach((data: any) => {
-      data.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
+    checkOut.passengers.forEach((passenger: any) => {
+      passenger.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
     });
 
     const hotel = prebookingData.data.hotels[0];

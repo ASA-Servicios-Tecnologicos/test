@@ -48,14 +48,14 @@ export class PaymentsService {
   async updateDossierPaymentsByCheckout(checkoutId: string) {
     const checkout = await this.checkoutService.getCheckout(checkoutId);
     console.log(checkout);
-    const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId });
+    const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId }).exec();
     console.log(booking);
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: booking.dossier,
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
       installment: checkout.payment.installments,
-      paymentMethods: checkout.payment.methodType === 'CARD' ? 4 : checkout.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
+      paymentMethods: checkout.payment.methodType === 'CARD' ? 4 : 2,
       amount: checkout.payment.amount,
     };
     const errorPayments = checkout.payment.installments

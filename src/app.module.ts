@@ -25,8 +25,6 @@ import { BookingServicesFlightsController } from './booking-services/booking-ser
 import { ManagementSetupModule } from './management/management-setup/management-setup.module';
 import { BookingDocumentsModule } from './booking-documents/booking-documents.module';
 import { CookieMiddleware } from './middlewares/cookie.middleware';
-import { BookingPackagesController } from './booking-packages/booking-packages.controller';
-import { BookingController } from './booking/booking.controller';
 import { PaymentsController } from './payments/payments.controller';
 import { BookingServicesController } from './booking-services/booking-services.controller';
 import { BookingServicesHotelRoomsController } from './booking-services/booking-services-hotel-rooms/booking-services-hotel-rooms.controller';

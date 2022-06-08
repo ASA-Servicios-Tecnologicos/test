@@ -41,6 +41,6 @@ export class PaymentsController {
   @ApiResponse({ status: HttpStatus.OK, description: 'Pagos del dossier actualizados' })
   async updateByDossierId(@Param('dossierId') dossierId: string) {
     const checkoutId = await this.checkoutService.getCheckoutByDossierId(Number(dossierId))
-    return this.paymentsService.updateDossierPaymentsByCheckout(checkoutId); ;
+    return this.paymentsService.updateDossierPaymentsByCheckout(checkoutId);
   }
 }

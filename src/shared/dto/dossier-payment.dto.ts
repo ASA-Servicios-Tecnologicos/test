@@ -1,4 +1,4 @@
-import { CheckoutAmount, CheckoutInstallment } from './checkout.dto';
+import { CheckoutAmount } from './checkout.dto';
 
 export class CreateUpdateDossierPaymentDTO {
   dossier: number;

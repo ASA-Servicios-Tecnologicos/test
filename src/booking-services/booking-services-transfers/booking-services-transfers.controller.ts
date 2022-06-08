@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { AddPassengerFlightDto, AddPassengerTransferDto } from 'src/shared/dto/booking-service.dto';
-import { CreateFlightDTO, CreateTransferDTO, FlightDTO, TransferDTO } from '../../shared/dto/call-center.dto';
+import { AddPassengerTransferDto } from 'src/shared/dto/booking-service.dto';
+import { CreateTransferDTO, TransferDTO } from '../../shared/dto/call-center.dto';
 import { BookingServicesTransfersService } from './booking-services-transfers.service';
 // TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('booking-services/transfers')

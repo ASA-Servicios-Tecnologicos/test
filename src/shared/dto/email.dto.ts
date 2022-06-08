@@ -1,5 +1,3 @@
-import { DossierClientDTO } from "./dossier-client.dto";
-import { PrebookingDTO } from "./pre-booking.dto";
 
 export interface EmailDTO {
   uuid: string;
