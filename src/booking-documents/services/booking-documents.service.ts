@@ -39,7 +39,7 @@ export class BookingDocumentsService {
         \n
         Te adjuntamos en este email la documentación que tienes que imprimir y presentar para la prestación de los servicios.
         \n
-        Titular: ${buyer.name} ${buyer.lastname} Localizador: ${locator}
+        Titular: ${buyer.name} ${buyer.lastname} Reserva: ${dosierCode}
         \n
         Desde Flowo esperamos que disfrutes al máximo la experiencia.`,
         contentType: 'TEXT',
