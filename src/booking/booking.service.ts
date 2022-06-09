@@ -309,10 +309,10 @@ export class BookingService {
     if (bookingManagement) {
       if (dossier?.code) {
         this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, dossier.code, dataContentApi);
-        const pendingPayments = checkOut.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
-        if (!pendingPayments.length) {
-          this.sendBonoEmail(dossier?.code, bookId, checkOut.contact, checkOut.buyer);
-        }
+        // const pendingPayments = checkOut.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
+        // if (!pendingPayments.length) {
+        //   this.sendBonoEmail(dossier?.code, bookId, checkOut.contact, checkOut.buyer);
+        // }
       } else {
         this.sendConfirmationEmail(prebookingData, booking, checkOut, bookId, status, 'Nº expediente', dataContentApi);
       }
