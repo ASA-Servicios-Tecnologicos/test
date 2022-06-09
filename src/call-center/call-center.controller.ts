@@ -28,6 +28,15 @@ export class CallCenterController {
     return this.callCenterService.getDossiersByAgencyId(agencyId, { ...pickBy(filterParams) });
   }
 
+  @Get('budgets')
+  getBudgetsByAgency(@Req() request: Request, @Query() filterParams: CallCenterBookingFilterParamsDTO) {
+    const agencyId = request['agencyId'];
+    if (!agencyId) {
+      throw new NotFoundException('Agency not found');
+    }
+    return this.callCenterService.getBudgetsByAgencyId(agencyId, { ...pickBy(filterParams) });
+  }
+
   @Post('email/:dossierId')
   sendConfirmationEmail(@Param('dossierId') dossierId: string) {
     return this.callCenterService.sendConfirmationEmail(dossierId);

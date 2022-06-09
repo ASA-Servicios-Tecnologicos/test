@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, Headers } from '@nestjs/common';
-import { PostPreBookingsPackagesProvidersDTO, PreBookingsPackagesProvidersResponseDTO } from '../shared/dto/booking-packages.dto';
+import { PostPreBookingsPackagesProvidersDTO } from '../shared/dto/booking-packages.dto';
 import { BookingPackagesService } from './booking-packages.service';
 
 export class BookingPackagesProvidersFilters {
@@ -8,7 +8,7 @@ export class BookingPackagesProvidersFilters {
   distribution: string;
   nights: string;
   productCode: string;
-  destination: String;
+  destination: string;
   page: number;
   pageSize: string;
   destinationType: string;

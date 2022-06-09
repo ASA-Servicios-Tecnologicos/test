@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AddPassengerTransferDto } from 'src/shared/dto/booking-service.dto';
 import { BookingServicesService } from '../../management/services/booking-services.service';
-import { CreateTransferDTO, FlightDTO, TransferDTO } from '../../shared/dto/call-center.dto';
+import { CreateTransferDTO, TransferDTO } from '../../shared/dto/call-center.dto';
 
 @Injectable()
 export class BookingServicesTransfersService {

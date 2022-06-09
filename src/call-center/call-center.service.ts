@@ -1,19 +1,18 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { pickBy } from 'lodash';
-import { BookingService } from 'src/booking/booking.service';
-import { BudgetService } from 'src/budget/budget.service';
-import { CheckoutService } from 'src/checkout/services/checkout.service';
-import { BookingServicesService } from 'src/management/services/booking-services.service';
-import { NotificationService } from 'src/notifications/services/notification.service';
-import { PaymentsService } from 'src/payments/payments.service';
-import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
-import { DossierPaymentMethods } from 'src/shared/dto/email.dto';
+import { BookingService } from '../booking/booking.service';
+import { BudgetService } from '../budget/budget.service';
+import { CheckoutService } from '../checkout/services/checkout.service';
+import { BookingServicesService } from '../management/services/booking-services.service';
+import { NotificationService } from '../notifications/services/notification.service';
+import { PaymentsService } from '../payments/payments.service';
+import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
+import { DossierPaymentMethods } from '../shared/dto/email.dto';
 import t from 'typy';
-import { child } from 'winston';
 import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
-import { CallCenterBookingFilterParamsDTO, GetDossiersByClientDTO } from '../shared/dto/call-center.dto';
+import { CallCenterBookingFilterParamsDTO, GetBudgetsByClientDTO, GetDossiersByClientDTO } from '../shared/dto/call-center.dto';
 
 @Injectable()
 export class CallCenterService {
@@ -32,6 +31,14 @@ export class CallCenterService {
   getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
     return this.managementHttpService.get<GetDossiersByClientDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
+        pickBy(filterParams),
+      )}`,
+    );
+  }
+
+  getBudgetsByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
+    return this.managementHttpService.get<GetBudgetsByClientDTO>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/budget/${this.mapFilterParamsToQueryParams(
         pickBy(filterParams),
       )}`,
     );
@@ -58,8 +65,8 @@ export class CallCenterService {
     let adults = 0;
     let kids = 0;
 
-    dossier.services[0].paxes.forEach((data) => {
-      data.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
+    dossier.services[0].paxes.forEach((p) => {
+      p.type.toUpperCase() === 'ADULT' ? (adults += 1) : (kids += 1);
     });
     const flights = [
       ...dossier.services[0].flight.map((flight) => {
@@ -141,8 +148,8 @@ export class CallCenterService {
       methodsDetails: methodsDetails !== undefined ? methodsDetails : {},
       hotelRemarks:
         dossier.services[0].relevant_data?.remarks?.map((remark) =>
-          remark[Object.keys(remark)[0]].map((remark) => {
-            return { text: remark.text };
+          remark[Object.keys(remark)[0]].map((r) => {
+            return { text: r.text };
           }),
         )[0] ?? [],
       hotel: hotel,
@@ -175,7 +182,7 @@ export class CallCenterService {
         bookingId: canceled.data.booking.bookingId,
         checkoutId: canceled.data.checkoutId,
         installment: canceled.data.payment.installments,
-        paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : canceled.data.payment.methodType === 'BANK_TRANSFER' ? 2 : 2,
+        paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : 2,
         amount: canceled.data.payment.amount,
       };
       await this.paymentsService.updateDossierPayments(dossierPayments);
