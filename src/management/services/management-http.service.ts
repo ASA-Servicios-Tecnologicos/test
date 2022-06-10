@@ -4,7 +4,7 @@ import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
 import { CacheService } from 'src/shared/services/cache.service';
 import { INSTANA_MONITORING_COOKIE } from 'src/shared/shared.constants';
-
+import { logger } from '../../logger';
 @Injectable()
 export class ManagementHttpService {
   constructor(
@@ -23,6 +23,7 @@ export class ManagementHttpService {
   }
 
   async post<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
+    logger.info(`[ManagementHttpService] [post] --url ${url}`)
     return firstValueFrom(
       this.httpService.post<K>(url, data, {
         ...config,
@@ -47,15 +48,18 @@ export class ManagementHttpService {
             )
               .then((res) => res.data)
               .catch((err) => {
+                logger.error(`[ManagementHttpService] [post] ${err.stack}`)
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
+        logger.error(`[ManagementHttpService] [post] ${error.stack}`)
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
   async get<K>(url: string, config?: AxiosRequestConfig): Promise<K> {
+    logger.info(`[ManagementHttpService] [get] --url ${url}`)
     return firstValueFrom(
       this.httpService.get<K>(url, {
         ...config,
@@ -80,6 +84,7 @@ export class ManagementHttpService {
                 return data.data;
               })
               .catch((err) => {
+                logger.error(`[ManagementHttpService] [get] ${err.stack}`)
                 throw new HttpException(
                   { message: err.message, error: err.response.data ? err.response.data : err.message },
                   err.response.status,
@@ -87,11 +92,13 @@ export class ManagementHttpService {
               });
           });
         }
+        logger.error(`[ManagementHttpService] [get] ${error.stack}`)
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
   async patch<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
+    logger.info(`[ManagementHttpService] [patch] --url ${url}`)
     return firstValueFrom(
       this.httpService.patch<K>(url, data, {
         ...config,
@@ -122,15 +129,18 @@ export class ManagementHttpService {
                 return res.data;
               })
               .catch((err) => {
+                logger.error(`[ManagementHttpService] [patch] ${err.stack}`)
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
+        logger.error(`[ManagementHttpService] [patch] ${error.stack}`)
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
   async put<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
+    logger.info(`[ManagementHttpService] [put] --url ${url}`)
     return firstValueFrom(
       this.httpService.put<K>(url, data, {
         ...config,
@@ -161,10 +171,12 @@ export class ManagementHttpService {
                 return res.data;
               })
               .catch((err) => {
+                logger.error(`[ManagementHttpService] [put] ${err.stack}`)
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
+        logger.error(`[ManagementHttpService] [put] ${error.stack}`)
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
@@ -182,6 +194,7 @@ export class ManagementHttpService {
   }
 
   async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
+    logger.info(`[ManagementHttpService] [delete] --url ${url}`)
     return firstValueFrom(
       this.httpService.delete(url, {
         ...config,
@@ -218,10 +231,12 @@ export class ManagementHttpService {
                 return;
               })
               .catch((err) => {
+                logger.error(`[ManagementHttpService] [delete] ${err.stack}`)
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
+        logger.error(`[ManagementHttpService] [delete] ${error.stack}`)
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
