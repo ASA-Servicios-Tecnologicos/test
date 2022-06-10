@@ -25,7 +25,8 @@ export class AuthenticationCallCenterMiddleware implements NestMiddleware {
 
       const agencyId = t(data, 'agency.id').safeObject;
       req['agencyId'] = agencyId;
-      this.cacheService.set(MANAGEMENT_CACHED_TOKEN_KEY, token);
+
+      req.headers['tokenCallCenter'] = token;
     } catch (e) {
       if (e.message && e.message === 'jwt expired') {
         throw new UnauthorizedException(e, e.message);

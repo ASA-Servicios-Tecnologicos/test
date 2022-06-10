@@ -1,3 +1,4 @@
+import { HeadersCallCenterDTO } from './../call-center/call-center.controller';
 import { Injectable } from '@nestjs/common';
 import { DossierDto } from 'src/shared/dto/dossier.dto';
 import { AppConfigService } from '../configuration/configuration.service';
@@ -15,7 +16,7 @@ export class DossiersService {
     return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`, service);
   }
 
-  findDossierById(id: string) {
-    return this.managementHttpService.get<DossierDto>(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`);
+  findDossierById(id: string, headers?: HeadersCallCenterDTO) {
+    return this.managementHttpService.get<DossierDto>(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`,{ headers });
   }
 }

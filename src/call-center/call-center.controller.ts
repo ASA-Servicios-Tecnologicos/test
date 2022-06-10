@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Req, Headers } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
 import { pickBy } from 'lodash';
@@ -10,6 +10,12 @@ import { CallCenterBookingFilterParamsDTO, CreateUpdateBookingServicePax, Pax } 
 import { DossierClientDTO } from '../shared/dto/dossier-client.dto';
 import { CallCenterService } from './call-center.service';
 // TODO: Pending ADD  Swagger Document endpoints and request payload validators
+
+export class HeadersCallCenterDTO {
+  'tokenCallCenter' ?: string;
+}
+
+
 @Controller('call-center')
 export class CallCenterController {
   constructor(
@@ -61,8 +67,8 @@ export class CallCenterController {
   }
 
   @Get('dossier/:id')
-  getDossierById(@Param('id') id: string) {
-    return this.dossiersService.findDossierById(id);
+  getDossierById(@Param('id') id: string , @Headers() headers?: HeadersCallCenterDTO) {
+    return this.dossiersService.findDossierById(id, headers);
   }
 
   @Post('services/:id/paxes')

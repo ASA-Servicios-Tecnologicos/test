@@ -4,6 +4,7 @@ import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
 import { CacheService } from 'src/shared/services/cache.service';
 import { INSTANA_MONITORING_COOKIE } from 'src/shared/shared.constants';
+import { l } from '../../logger';
 
 @Injectable()
 export class ManagementHttpService {
@@ -169,17 +170,7 @@ export class ManagementHttpService {
       });
   }
 
-  buildHeaders(config?: AxiosRequestConfig, token?: string) {
-    const headers: any = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    };
-    if (config && config.headers && config.headers['monit-tsid']) {
-      headers['monit-tsid'] = config.headers['monit-tsid'];
-    }
 
-    return headers;
-  }
 
   async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
     return firstValueFrom(
@@ -225,4 +216,23 @@ export class ManagementHttpService {
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
+
+
+  buildHeaders(config?: AxiosRequestConfig, token?: string) {
+    
+    const tokenCallCenter = config?.headers?.['tokenCallCenter']
+
+    l.info(`[ManagementHttpService] [buildHeaders] use ${ tokenCallCenter ? 'call-center-frontend' : 'ota-backend'}  token`)
+
+    const headers: any = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${tokenCallCenter? tokenCallCenter : token}`,
+    };
+    if (config && config.headers && config.headers['monit-tsid']) {
+      headers['monit-tsid'] = config.headers['monit-tsid'];
+    }
+
+    return headers;
+  }
+
 }
