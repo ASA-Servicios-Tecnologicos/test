@@ -1,3 +1,4 @@
+import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { pickBy } from 'lodash';
 import { BookingService } from '../booking/booking.service';
@@ -28,19 +29,21 @@ export class CallCenterService {
     private readonly bookingServicesService: BookingServicesService,
   ) {}
 
-  getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
+  getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO, headers?: HeadersDTO) {
     return this.managementHttpService.get<GetDossiersByClientDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
-        pickBy(filterParams),
-      )}`,
+        pickBy(filterParams), 
+      )}`, 
+      { headers }
     );
   }
 
-  getBudgetsByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
+  getBudgetsByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO, headers?: HeadersDTO) {
     return this.managementHttpService.get<GetBudgetsByClientDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/budget/${this.mapFilterParamsToQueryParams(
         pickBy(filterParams),
       )}`,
+      { headers }
     );
   }
 
@@ -48,8 +51,8 @@ export class CallCenterService {
     return this.dossiersService.patchDossierById(id, newDossier);
   }
 
-  async sendConfirmationEmail(dossierId: string) {
-    const dossier = await this.dossiersService.findDossierById(dossierId);
+  async sendConfirmationEmail(dossierId: string, headers?: HeadersDTO) {
+    const dossier = await this.dossiersService.findDossierById(dossierId, headers);
     const booking = await this.bookingService.findByDossier(dossierId);
 
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
@@ -166,7 +169,7 @@ export class CallCenterService {
     }
   }
 
-  async cancelDossier(dossierId: string) {
+  async cancelDossier(dossierId: string, headers?: HeadersDTO) {
     const booking = await this.bookingService.findByDossier(dossierId);
     if (!booking) {
       throw new HttpException('No se ha encontrado ningun booking con dossier ' + dossierId, HttpStatus.NOT_FOUND);
@@ -176,7 +179,7 @@ export class CallCenterService {
       await this.dossiersService.patchDossierById(Number(dossierId), {
         dossier_situation: 5,
         observation: 'El expendiente ha sido cancelado',
-      });
+      }, headers);
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: booking.dossier,
         bookingId: canceled.data.booking.bookingId,
@@ -185,7 +188,7 @@ export class CallCenterService {
         paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : 2,
         amount: canceled.data.payment.amount,
       };
-      await this.paymentsService.updateDossierPayments(dossierPayments);
+      await this.paymentsService.updateDossierPayments(dossierPayments, headers);
       return canceled.data;
     }
   }

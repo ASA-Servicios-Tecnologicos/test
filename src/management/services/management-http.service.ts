@@ -96,10 +96,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.patch<K>(url, data, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken())
       }),
     )
       .then((response) => response.data)
@@ -113,10 +110,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.patch<K>(url, data, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken)
               }),
             )
               .then((res) => {
@@ -135,10 +129,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.put<K>(url, data, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers:  this.buildHeaders(config, await this.managementService.getCachedToken())
       }),
     )
       .then((response) => response.data)
@@ -152,10 +143,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.put<K>(url, data, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken)
               }),
             )
               .then((res) => {
@@ -176,10 +164,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.delete(url, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken())
       }),
     )
       .then(() => {
@@ -199,10 +184,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.delete(url, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken)
               }),
             )
               .then(() => {

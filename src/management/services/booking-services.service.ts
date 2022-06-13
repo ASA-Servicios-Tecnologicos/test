@@ -1,3 +1,4 @@
+import { HeadersDTO } from './../../shared/dto/header.dto';
 import { Injectable } from '@nestjs/common';
 import { ContentAPI } from 'src/shared/dto/content-api.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
@@ -37,10 +38,11 @@ export class BookingServicesService {
   patchBookingServiceById(
     id: number,
     managementDossierServiceDTO: Partial<ManagementBookingServiceDTO>,
+    headers?: HeadersDTO
   ): Promise<ManagementBookingServiceDTO> {
     return this.managementHttpService.patch<ManagementBookingServiceDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`,
-      managementDossierServiceDTO,
+      managementDossierServiceDTO, { headers }
     );
   }
 
@@ -48,20 +50,20 @@ export class BookingServicesService {
     return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`);
   }
 
-  createBookingServicePax(serviceId: string, createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
+  createBookingServicePax(serviceId: string, createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>, headers?: HeadersDTO): Promise<Pax> {
     return this.managementHttpService.post<Pax>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/`,
 
-      { ...createBookingServicePaxDTO, booking_service: +serviceId },
+      { ...createBookingServicePaxDTO, booking_service: +serviceId }, { headers }
     );
   }
 
-  deleteBookingServicePaxById(paxId: number): Promise<void> {
-    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`);
+  deleteBookingServicePaxById(paxId: number, headers?: HeadersDTO): Promise<void> {
+    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`, { headers });
   }
 
-  putBookingServiceByServiceAndPaxId(paxId: string, newPax: Partial<CreateUpdateBookingServicePax>): Promise<void> {
-    return this.managementHttpService.put(`${this.appConfigService.BASE_URL}/management/api/v1/pax/${paxId}/`, newPax);
+  putBookingServiceByServiceAndPaxId(paxId: string, newPax: Partial<CreateUpdateBookingServicePax>, headers?: HeadersDTO): Promise<void> {
+    return this.managementHttpService.put(`${this.appConfigService.BASE_URL}/management/api/v1/pax/${paxId}/`, newPax, { headers } );
   }
 
   createFlightBookingService(flightBookingServiceId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {

@@ -22,69 +22,70 @@ export class CallCenterController {
   ) {}
 
   @Get('dossiers')
-  getDossiersByAgency(@Req() request: Request, @Query() filterParams: CallCenterBookingFilterParamsDTO) {
+  getDossiersByAgency(@Req() request: Request, @Query() filterParams: CallCenterBookingFilterParamsDTO, @Headers() headers?: HeadersDTO) {
     const agencyId = request['agencyId'];
     if (!agencyId) {
       throw new NotFoundException('Agency not found');
     }
-    return this.callCenterService.getDossiersByAgencyId(agencyId, { ...pickBy(filterParams) });
+    return this.callCenterService.getDossiersByAgencyId(agencyId, { ...pickBy(filterParams) }, headers);
   }
 
   @Get('budgets')
-  getBudgetsByAgency(@Req() request: Request, @Query() filterParams: CallCenterBookingFilterParamsDTO) {
+  getBudgetsByAgency(@Req() request: Request, @Query() filterParams: CallCenterBookingFilterParamsDTO, @Headers() headers?: HeadersDTO) {
     const agencyId = request['agencyId'];
     if (!agencyId) {
       throw new NotFoundException('Agency not found');
     }
-    return this.callCenterService.getBudgetsByAgencyId(agencyId, { ...pickBy(filterParams) });
+    return this.callCenterService.getBudgetsByAgencyId(agencyId, { ...pickBy(filterParams) }, headers);
   }
 
   @Post('email/:dossierId')
-  sendConfirmationEmail(@Param('dossierId') dossierId: string) {
-    return this.callCenterService.sendConfirmationEmail(dossierId);
+  sendConfirmationEmail(@Param('dossierId') dossierId: string, @Headers() headers?: HeadersDTO) {
+    return this.callCenterService.sendConfirmationEmail(dossierId, headers);
   }
 
   @Patch('clients/:id')
-  patchDossierClientById(@Param('id') id: string, @Body() dossierClientDto: Partial<DossierClientDTO>) {
-    return this.clientsService.patchClientById(`${id}`, dossierClientDto);
+  patchDossierClientById(@Param('id') id: string, @Body() dossierClientDto: Partial<DossierClientDTO>, @Headers() headers?: HeadersDTO) {
+    return this.clientsService.patchClientById(`${id}`, dossierClientDto, headers);
   }
 
   @Patch('services/:id')
   patchDossierServiceById(
     @Param('id') id: string,
     @Body() dossierServiceDTO: Partial<ManagementBookingServiceDTO>,
+    @Headers() headers?: HeadersDTO
   ): Promise<ManagementBookingServiceDTO> {
-    return this.bookingServicesService.patchBookingServiceById(Number(id), dossierServiceDTO);
+    return this.bookingServicesService.patchBookingServiceById(Number(id), dossierServiceDTO, headers);
   }
 
   @Patch('dossier/:id')
-  patchDossierById(@Param('id') id: string, @Body() newDossier) {
-    return this.dossiersService.patchDossierById(Number(id), newDossier);
+  patchDossierById(@Param('id') id: string, @Body() newDossier, @Headers() headers?: HeadersDTO) {
+    return this.dossiersService.patchDossierById(Number(id), newDossier, headers);
   }
 
   @Get('dossier/:id')
-  getDossierById(@Param('id') id: string , @Headers() headers?: HeadersDTO) {
+  getDossierById(@Param('id') id: string, @Headers() headers?: HeadersDTO) {
     return this.dossiersService.findDossierById(id, headers);
   }
 
   @Post('services/:id/paxes')
-  createBookingServicePax(@Param('id') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>): Promise<Pax> {
-    return this.bookingServicesService.createBookingServicePax(serviceId, pax);
+  createBookingServicePax(@Param('id') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>, @Headers() headers?: HeadersDTO): Promise<Pax> {
+    return this.bookingServicesService.createBookingServicePax(serviceId, pax, headers);
   }
 
   @Put('services/paxes/:paxId/')
-  patchBookingServicePaxById(@Param('paxId') paxId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>) {
-    return this.bookingServicesService.putBookingServiceByServiceAndPaxId(paxId, pax);
+  patchBookingServicePaxById(@Param('paxId') paxId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>, @Headers() headers?: HeadersDTO) {
+    return this.bookingServicesService.putBookingServiceByServiceAndPaxId(paxId, pax, headers);
   }
 
   @Delete('services/paxes/:paxId')
-  deleteBookingServicePax(@Param('paxId') id: string): Promise<void> {
-    return this.bookingServicesService.deleteBookingServicePaxById(Number(id));
+  deleteBookingServicePax(@Param('paxId') id: string, @Headers() headers?: HeadersDTO): Promise<void> {
+    return this.bookingServicesService.deleteBookingServicePaxById(Number(id), headers);
   }
 
   @Post('dossier/cancel/:dossierId')
   @ApiOperation({ summary: 'Cancela la reserva y los pagos recurrentes pendientes a nivel de checkout. Actualiza el estado del dossier' })
-  cancelDossier(@Param('dossierId') dossierId: string) {
-    return this.callCenterService.cancelDossier(dossierId);
+  cancelDossier(@Param('dossierId') dossierId: string, @Headers() headers?: HeadersDTO) {
+    return this.callCenterService.cancelDossier(dossierId, headers);
   }
 }

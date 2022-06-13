@@ -9,8 +9,8 @@ import { ManagementHttpService } from '../management/services/management-http.se
 export class DossiersService {
   constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
 
-  patchDossierById(id: number, newDossier) {
-    return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`, newDossier);
+  patchDossierById(id: number, newDossier, headers?: HeadersDTO) {
+    return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`, newDossier, { headers });
   }
 
   patchBookingServiceById(id: number, service: any) {
@@ -18,6 +18,6 @@ export class DossiersService {
   }
 
   findDossierById(id: string, headers?: HeadersDTO) {
-    return this.managementHttpService.get<DossierDto>(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`,{ headers });
+    return this.managementHttpService.get<DossierDto>(`${this.appConfigService.BASE_URL}/management/api/v1/clients/dossier/${id}/`, { headers });
   }
 }

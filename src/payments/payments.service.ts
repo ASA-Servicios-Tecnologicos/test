@@ -1,3 +1,4 @@
+import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from 'src/configuration/configuration.service';
 import { ManagementHttpService } from 'src/management/services/management-http.service';
@@ -37,10 +38,10 @@ export class PaymentsService {
     );
   }
 
-  async updateDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
+  async updateDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO, headers?: HeadersDTO) {
     const dossiers = await this.managementHttpService.put<Array<DossierPayment>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierPayments.dossier}/`,
-      dossierPayments,
+      dossierPayments, { headers }
     );
     return dossiers;
   }
