@@ -6,6 +6,7 @@ import { EmailDTO } from 'src/shared/dto/email.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CheckoutBuyer, CheckoutContact } from 'src/shared/dto/checkout.dto';
+import { logger } from '../../logger';
 @Injectable()
 export class BookingDocumentsService {
   constructor(
@@ -24,7 +25,11 @@ export class BookingDocumentsService {
   }
 
   async sendBonoEmail(dosierCode: string, brandCode: string, locator: string, contact: CheckoutContact, buyer: CheckoutBuyer) {
-    const bonoDocuments = await this.findDocumentsByBooking(brandCode, locator).catch((error) => error);
+    logger.info(`[BookingDocumentsService] [sendBonoEmail] sendBonoEmail`)
+    const bonoDocuments = await this.findDocumentsByBooking(brandCode, locator).catch((error) => { 
+      logger.error(`[BookingDocumentsService] [sendBonoEmail] ${error.stack}`)
+      return error
+    });
     if (bonoDocuments.status === HttpStatus.OK) {
       const email: EmailDTO = {
         uuid: uuidv4(),
@@ -39,7 +44,7 @@ export class BookingDocumentsService {
         \n
         Te adjuntamos en este email la documentación que tienes que imprimir y presentar para la prestación de los servicios.
         \n
-        Titular: ${buyer.name} ${buyer.lastname} Localizador: ${locator}
+        Titular: ${buyer.name} ${buyer.lastname} Reserva: ${dosierCode}
         \n
         Desde Flowo esperamos que disfrutes al máximo la experiencia.`,
         contentType: 'TEXT',

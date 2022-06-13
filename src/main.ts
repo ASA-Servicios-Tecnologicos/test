@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AppConfigService } from './configuration/configuration.service';
-import { l } from './logger';
+import { logger } from './logger';
 import * as morgan from 'morgan';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
@@ -28,6 +28,6 @@ async function bootstrap() {
   }
   app.enableCors(corsOptions);
   await app.listen(appConfig.port);
-  l.info(`Server is running in port ${appConfig.port}`);
+  logger.info(`Server is running in port ${appConfig.port}`);
 }
 bootstrap();

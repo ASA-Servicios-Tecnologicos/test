@@ -77,16 +77,16 @@ export class PaymentsService {
       });
     }
 
-    let dossierDto: DossierDto;
+    // let dossierDto: DossierDto;
 
-    if (booking && booking.dossier) {
-      dossierDto = await this.dossiersService.findDossierById(booking.dossier + '');
-    }
+    // if (booking && booking.dossier) {
+    //   dossierDto = await this.dossiersService.findDossierById(booking.dossier + '');
+    // }
 
-    const pendingPayments = checkout.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
-    if (!pendingPayments.length) {
-      this.sendBonoEmail(dossierDto?.code, booking, checkout.contact, checkout.buyer);
-    }
+    // const pendingPayments = checkout.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
+    // if (!pendingPayments.length) {
+    //   this.sendBonoEmail(dossierDto?.code, booking, checkout.contact, checkout.buyer);
+    // }
     return this.updateDossierPayments(dossierPayments);
   }
 

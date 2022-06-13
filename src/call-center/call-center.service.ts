@@ -14,7 +14,7 @@ import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
 import { CallCenterBookingFilterParamsDTO, GetBudgetsByClientDTO, GetDossiersByClientDTO } from '../shared/dto/call-center.dto';
-
+import { logger } from '../logger';
 @Injectable()
 export class CallCenterService {
   constructor(
@@ -51,17 +51,20 @@ export class CallCenterService {
     return this.dossiersService.patchDossierById(id, newDossier);
   }
 
-  async sendConfirmationEmail(dossierId: string, headers?: HeadersDTO) {
-    const dossier = await this.dossiersService.findDossierById(dossierId, headers);
+
+  async sendConfirmationEmail(dossierId: string) {
+    logger.info(`[CallCenterService] [sendConfirmationEmail] init method`)
+    const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
 
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
     if (checkout['error']) {
+      logger.error(`[CallCenterService] [sendConfirmationEmail] ${checkout['error']}`)
       throw new HttpException(checkout['error']['message'], checkout['error']['status']);
     }
 
     let dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode).catch((error) => {
-      console.log(error);
+      logger.error(`[CallCenterService] [sendConfirmationEmail] ${error.stack}`)
     });
     const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
 
@@ -165,13 +168,16 @@ export class CallCenterService {
     if (email.status === HttpStatus.OK) {
       return { status: email.status, message: email.statusText };
     } else {
+      logger.error(`[CallCenterService] [sendConfirmationEmail] --email ${email}`)
       throw new HttpException({ message: email.statusText, error: email.statusText }, email.status);
     }
   }
 
   async cancelDossier(dossierId: string, headers?: HeadersDTO) {
+    logger.info(`[CallCenterService] [cancelDossier] init method`)
     const booking = await this.bookingService.findByDossier(dossierId);
     if (!booking) {
+      logger.error(`[CallCenterService] [cancelDossier] booking with some dossier not found`)
       throw new HttpException('No se ha encontrado ningun booking con dossier ' + dossierId, HttpStatus.NOT_FOUND);
     }
     const canceled = await this.checkoutService.cancelCheckout(booking.checkoutId);
