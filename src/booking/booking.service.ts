@@ -1,3 +1,4 @@
+import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -23,7 +24,6 @@ import t from 'typy';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 import { BookingServicesService } from 'src/management/services/booking-services.service';
 import { ContentAPI } from 'src/shared/dto/content-api.dto';
-import { HeadersDTO } from './../booking-packages/booking-packages.controller';
 import { l } from '../logger';
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { HeadersDTO } from './../../booking-packages/booking-packages.controller';
+import { HeadersDTO } from './../../shared/dto/header.dto';
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { ManagementHttpService } from './management-http.service';

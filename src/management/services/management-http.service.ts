@@ -220,13 +220,12 @@ export class ManagementHttpService {
 
   buildHeaders(config?: AxiosRequestConfig, token?: string) {
     
-    const tokenCallCenter = config?.headers?.['tokenCallCenter']
-
-    l.info(`[ManagementHttpService] [buildHeaders] use ${ tokenCallCenter ? 'call-center-frontend' : 'ota-backend'}  token`)
+    const tokenCC = config?.headers?.['tokenCC']
+    l.info(`[ManagementHttpService] [buildHeaders] use ${ tokenCC ? 'call-center-frontend' : 'ota-backend'} token`)
 
     const headers: any = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${tokenCallCenter? tokenCallCenter : token}`,
+      Authorization: `Bearer ${tokenCC ? tokenCC : token}`,
     };
     if (config && config.headers && config.headers['monit-tsid']) {
       headers['monit-tsid'] = config.headers['monit-tsid'];
