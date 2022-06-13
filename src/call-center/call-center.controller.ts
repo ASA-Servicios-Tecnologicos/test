@@ -40,8 +40,8 @@ export class CallCenterController {
   }
 
   @Post('email/:dossierId')
-  sendConfirmationEmail(@Param('dossierId') dossierId: string, @Headers() headers?: HeadersDTO) {
-    return this.callCenterService.sendConfirmationEmail(dossierId, headers);
+  sendConfirmationEmail(@Param('dossierId') dossierId: string) {
+    return this.callCenterService.sendConfirmationEmail(dossierId);
   }
 
   @Patch('clients/:id')
@@ -53,7 +53,7 @@ export class CallCenterController {
   patchDossierServiceById(
     @Param('id') id: string,
     @Body() dossierServiceDTO: Partial<ManagementBookingServiceDTO>,
-    @Headers() headers?: HeadersDTO
+    @Headers() headers?: HeadersDTO,
   ): Promise<ManagementBookingServiceDTO> {
     return this.bookingServicesService.patchBookingServiceById(Number(id), dossierServiceDTO, headers);
   }
@@ -69,12 +69,20 @@ export class CallCenterController {
   }
 
   @Post('services/:id/paxes')
-  createBookingServicePax(@Param('id') serviceId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>, @Headers() headers?: HeadersDTO): Promise<Pax> {
+  createBookingServicePax(
+    @Param('id') serviceId: string,
+    @Body() pax: Partial<CreateUpdateBookingServicePax>,
+    @Headers() headers?: HeadersDTO,
+  ): Promise<Pax> {
     return this.bookingServicesService.createBookingServicePax(serviceId, pax, headers);
   }
 
   @Put('services/paxes/:paxId/')
-  patchBookingServicePaxById(@Param('paxId') paxId: string, @Body() pax: Partial<CreateUpdateBookingServicePax>, @Headers() headers?: HeadersDTO) {
+  patchBookingServicePaxById(
+    @Param('paxId') paxId: string,
+    @Body() pax: Partial<CreateUpdateBookingServicePax>,
+    @Headers() headers?: HeadersDTO,
+  ) {
     return this.bookingServicesService.putBookingServiceByServiceAndPaxId(paxId, pax, headers);
   }
 

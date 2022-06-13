@@ -22,18 +22,20 @@ export class BookingPackagesController {
   constructor(private readonly bookingPackagesService: BookingPackagesService) {}
 
   @Post('providers/pre-bookings')
-  postPreBookingsPackagesProviders(@Body() postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO, @Headers() headers?:HeadersDTO): Promise<any> {
+  postPreBookingsPackagesProviders(
+    @Body() postPreBookingsPackagesProvidersDTO: PostPreBookingsPackagesProvidersDTO,
+    @Headers() headers?: HeadersDTO,
+  ): Promise<any> {
     return this.bookingPackagesService.postPrebookingsPackagesProviders(postPreBookingsPackagesProvidersDTO, headers);
   }
 
   @Post('new-blue/reference-prices')
-  getBookingPackagesNewBlue(@Body() data, @Headers() headers?:HeadersDTO) {
+  getBookingPackagesNewBlue(@Body() data, @Headers() headers?: HeadersDTO) {
     return this.bookingPackagesService.postNewBlueReferencePrices(data, headers);
   }
 
   @Get('providers')
-  getBookingPackagesProviders(@Query() queryParams?: BookingPackagesProvidersFilters, @Headers() headers?:HeadersDTO) {
-
+  getBookingPackagesProviders(@Query() queryParams?: BookingPackagesProvidersFilters, @Headers() headers?: HeadersDTO) {
     return this.bookingPackagesService.getBookingPackagesProviders(queryParams, headers);
   }
 }

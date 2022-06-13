@@ -24,7 +24,7 @@ export class ManagementHttpService {
   }
 
   async post<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
-    logger.info(`[ManagementHttpService] [post] --url ${url}`)
+    logger.info(`[ManagementHttpService] [post] --url ${url}`);
     return firstValueFrom(
       this.httpService.post<K>(url, data, {
         ...config,
@@ -49,18 +49,18 @@ export class ManagementHttpService {
             )
               .then((res) => res.data)
               .catch((err) => {
-                logger.error(`[ManagementHttpService] [post] ${err.stack}`)
+                logger.error(`[ManagementHttpService] [post] ${err.stack}`);
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        logger.error(`[ManagementHttpService] [post] ${error.stack}`)
+        logger.error(`[ManagementHttpService] [post] ${error.stack}`);
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
   async get<K>(url: string, config?: AxiosRequestConfig): Promise<K> {
-    logger.info(`[ManagementHttpService] [get] --url ${url}`)
+    logger.info(`[ManagementHttpService] [get] --url ${url}`);
     return firstValueFrom(
       this.httpService.get<K>(url, {
         ...config,
@@ -85,7 +85,7 @@ export class ManagementHttpService {
                 return data.data;
               })
               .catch((err) => {
-                logger.error(`[ManagementHttpService] [get] ${err.stack}`)
+                logger.error(`[ManagementHttpService] [get] ${err.stack}`);
                 throw new HttpException(
                   { message: err.message, error: err.response.data ? err.response.data : err.message },
                   err.response.status,
@@ -93,17 +93,17 @@ export class ManagementHttpService {
               });
           });
         }
-        logger.error(`[ManagementHttpService] [get] ${error.stack}`)
+        logger.error(`[ManagementHttpService] [get] ${error.stack}`);
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
   async patch<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
-    logger.info(`[ManagementHttpService] [patch] --url ${url}`)
+    logger.info(`[ManagementHttpService] [patch] --url ${url}`);
     return firstValueFrom(
       this.httpService.patch<K>(url, data, {
         ...config,
-        headers: this.buildHeaders(config, await this.managementService.getCachedToken())
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
       .then((response) => response.data)
@@ -117,29 +117,29 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.patch<K>(url, data, {
                 ...config,
-                headers: this.buildHeaders(config, newToken)
+                headers: this.buildHeaders(config, newToken),
               }),
             )
               .then((res) => {
                 return res.data;
               })
               .catch((err) => {
-                logger.error(`[ManagementHttpService] [patch] ${err.stack}`)
+                logger.error(`[ManagementHttpService] [patch] ${err.stack}`);
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        logger.error(`[ManagementHttpService] [patch] ${error.stack}`)
+        logger.error(`[ManagementHttpService] [patch] ${error.stack}`);
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
   async put<K>(url: string, data: object = {}, config?: AxiosRequestConfig): Promise<K> {
-    logger.info(`[ManagementHttpService] [put] --url ${url}`)
+    logger.info(`[ManagementHttpService] [put] --url ${url}`);
     return firstValueFrom(
       this.httpService.put<K>(url, data, {
         ...config,
-        headers:  this.buildHeaders(config, await this.managementService.getCachedToken())
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
       .then((response) => response.data)
@@ -153,31 +153,29 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.put<K>(url, data, {
                 ...config,
-                headers: this.buildHeaders(config, newToken)
+                headers: this.buildHeaders(config, newToken),
               }),
             )
               .then((res) => {
                 return res.data;
               })
               .catch((err) => {
-                logger.error(`[ManagementHttpService] [put] ${err.stack}`)
+                logger.error(`[ManagementHttpService] [put] ${err.stack}`);
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        logger.error(`[ManagementHttpService] [put] ${error.stack}`)
+        logger.error(`[ManagementHttpService] [put] ${error.stack}`);
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
-
-
   async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
-    logger.info(`[ManagementHttpService] [delete] --url ${url}`)
+    logger.info(`[ManagementHttpService] [delete] --url ${url}`);
     return firstValueFrom(
       this.httpService.delete(url, {
         ...config,
-        headers: this.buildHeaders(config, await this.managementService.getCachedToken())
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken()),
       }),
     )
       .then(() => {
@@ -197,28 +195,26 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.delete(url, {
                 ...config,
-                headers: this.buildHeaders(config, newToken)
+                headers: this.buildHeaders(config, newToken),
               }),
             )
               .then(() => {
                 return;
               })
               .catch((err) => {
-                logger.error(`[ManagementHttpService] [delete] ${err.stack}`)
+                logger.error(`[ManagementHttpService] [delete] ${err.stack}`);
                 throw new HttpException({ message: err.message, error: err.response.data || err.message }, err.response.status);
               });
           });
         }
-        logger.error(`[ManagementHttpService] [delete] ${error.stack}`)
+        logger.error(`[ManagementHttpService] [delete] ${error.stack}`);
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
 
-
   buildHeaders(config?: AxiosRequestConfig, token?: string) {
-    
-    const tokenCC = config?.headers?.['tokenCC']
-    l.info(`[ManagementHttpService] [buildHeaders] use ${ tokenCC ? 'call-center-frontend' : 'ota-backend'} token`)
+    const tokenCC = config?.headers?.['tokenCC'];
+    logger.info(`[ManagementHttpService] [buildHeaders] use ${tokenCC ? 'call-center-frontend' : 'ota-backend'} token`);
 
     const headers: any = {
       'Content-Type': 'application/json',
@@ -230,5 +226,4 @@ export class ManagementHttpService {
 
     return headers;
   }
-
 }
