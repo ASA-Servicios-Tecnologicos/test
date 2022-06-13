@@ -5,7 +5,7 @@ import { SecuredHttpService } from '../../shared/services/secured-http.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CacheService } from 'src/shared/services/cache.service';
 import { HtmlTemplateService } from 'src/shared/services/html-template.service';
-
+import { logger } from '../../logger';
 @Injectable()
 export class NotificationService extends SecuredHttpService {
   constructor(
@@ -22,6 +22,7 @@ export class NotificationService extends SecuredHttpService {
   }
 
   sendConfirmationEmail(data, toEmail: string) {
+    logger.info(`[NotificationService] [sendConfirmationEmail] init method`)
     const formatDatesCancellationPollicies = function (text: string) {
       const findings = text?.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
       if (findings) {
@@ -50,7 +51,7 @@ export class NotificationService extends SecuredHttpService {
           };
         }
       } catch (error) {
-        console.error('Error al formatear políticas de cancelación: ' + error);
+        logger.error(`[NotificationService] [sendConfirmationEmail] Error formatting cancellation policies ${error.stack}`)
         return {
           ...policy,
           title: policy.text.replace('gestión', 'cancelación'),
@@ -79,7 +80,7 @@ export class NotificationService extends SecuredHttpService {
         }
       }
     } catch (error) {
-      console.error('Error al corregir y formatear la fecha de la primera política de cancelación: ' + error);
+      logger.error(`[NotificationService] [sendConfirmationEmail] Error correcting and formatting the date of the first cancellation policy ${error.stack}`)
     }
 
     data.hotelAddress = data.contentInfo.address || data.hotel.address;
@@ -105,6 +106,7 @@ export class NotificationService extends SecuredHttpService {
   }
 
   sendNewsletterConfirmation(email) {
+    logger.info(`[NotificationService] [sendNewsletterConfirmation] init method`)
     const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['CONFIRM_NEWSLETTER'], '');
     const emailData: EmailDTO = {
       uuid: uuidv4(),

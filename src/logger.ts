@@ -11,7 +11,7 @@ if (!fs.existsSync(logDir)) {
 }
 
 const filename = path.join(logDir, 'logs.log');
-const l = createLogger({
+const logger = createLogger({
     level: 'info',
     format: format.combine(
         format.timestamp({
@@ -35,4 +35,4 @@ const l = createLogger({
 });
 /* const s = new ServiceLogger(l); */
 
-export {l} ;
+export {logger} ;

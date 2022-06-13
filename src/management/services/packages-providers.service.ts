@@ -3,7 +3,7 @@ import { BookingPackagesProvidersFilters, HeadersDTO } from '../../booking-packa
 import { AppConfigService } from '../../configuration/configuration.service';
 import { PostPreBookingsPackagesProvidersDTO, PreBookingsPackagesProvidersResponseDTO } from '../../shared/dto/booking-packages.dto';
 import { ManagementHttpService } from './management-http.service';
-
+import { logger } from '../../logger';
 @Injectable()
 export class PackagesProvidersService {
   constructor(private readonly appConfigService: AppConfigService, private readonly managementHttpService: ManagementHttpService) {}
@@ -22,6 +22,7 @@ export class PackagesProvidersService {
       })
       .then((response) => {
         if (response.status !== HttpStatus.OK) {
+          logger.error(`[PackagesProvidersService] [postPreBookings] --response ${response}`)
           throw new HttpException(response.data, response.status);
         }
         return response;

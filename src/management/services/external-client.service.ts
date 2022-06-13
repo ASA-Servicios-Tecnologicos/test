@@ -4,6 +4,7 @@ import { CreateExternalUserDTO, ExternalUserDTO } from 'src/shared/dto/external-
 import { CLIENT_NOT_ACTIVE_ERROR } from '../management.constants';
 import { ClientService } from './client.service';
 import { ManagementHttpService } from './management-http.service';
+import { logger } from '../../logger';
 @Injectable()
 export class ExternalClientService {
   constructor(
@@ -14,6 +15,7 @@ export class ExternalClientService {
 
   // TODO: Pending testing
   async createExternalClient(user: CreateExternalUserDTO) {
+    logger.info(`[ExternalClientService] [createExternalClient] init method`)
     return this.managementHttpService
       .post<ExternalUserDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/client/external/flowo/`, user)
       .catch(async (err) => {
@@ -28,10 +30,12 @@ export class ExternalClientService {
             accept_privacy_policy: new Date().toISOString(),
             active: true,
           });
+          logger.warn(`[ExternalClientService] [createExternalClient] activated user --user ${userActive} `)
           return {
             client: userActive.id,
           };
         }
+        logger.error(`[ExternalClientService] [createExternalClient] ${err.stack} `)
         throw err;
       });
   }
