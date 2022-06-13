@@ -5,6 +5,7 @@ import { AxiosRequestConfig } from 'axios';
 import { CacheService } from 'src/shared/services/cache.service';
 import { INSTANA_MONITORING_COOKIE } from 'src/shared/shared.constants';
 import { logger } from '../../logger';
+
 @Injectable()
 export class ManagementHttpService {
   constructor(
@@ -102,10 +103,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.patch<K>(url, data, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken())
       }),
     )
       .then((response) => response.data)
@@ -119,10 +117,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.patch<K>(url, data, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken)
               }),
             )
               .then((res) => {
@@ -144,10 +139,7 @@ export class ManagementHttpService {
     return firstValueFrom(
       this.httpService.put<K>(url, data, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers:  this.buildHeaders(config, await this.managementService.getCachedToken())
       }),
     )
       .then((response) => response.data)
@@ -161,10 +153,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.put<K>(url, data, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken)
               }),
             )
               .then((res) => {
@@ -181,27 +170,14 @@ export class ManagementHttpService {
       });
   }
 
-  buildHeaders(config?: AxiosRequestConfig, token?: string) {
-    const headers: any = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    };
-    if (config && config.headers && config.headers['monit-tsid']) {
-      headers['monit-tsid'] = config.headers['monit-tsid'];
-    }
 
-    return headers;
-  }
 
   async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
     logger.info(`[ManagementHttpService] [delete] --url ${url}`)
     return firstValueFrom(
       this.httpService.delete(url, {
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await this.managementService.getCachedToken()}`,
-        },
+        headers: this.buildHeaders(config, await this.managementService.getCachedToken())
       }),
     )
       .then(() => {
@@ -221,10 +197,7 @@ export class ManagementHttpService {
             return firstValueFrom(
               this.httpService.delete(url, {
                 ...config,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newToken}`,
-                },
+                headers: this.buildHeaders(config, newToken)
               }),
             )
               .then(() => {
@@ -240,4 +213,22 @@ export class ManagementHttpService {
         throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
       });
   }
+
+
+  buildHeaders(config?: AxiosRequestConfig, token?: string) {
+    
+    const tokenCC = config?.headers?.['tokenCC']
+    l.info(`[ManagementHttpService] [buildHeaders] use ${ tokenCC ? 'call-center-frontend' : 'ota-backend'} token`)
+
+    const headers: any = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${tokenCC ? tokenCC : token}`,
+    };
+    if (config && config.headers && config.headers['monit-tsid']) {
+      headers['monit-tsid'] = config.headers['monit-tsid'];
+    }
+
+    return headers;
+  }
+
 }

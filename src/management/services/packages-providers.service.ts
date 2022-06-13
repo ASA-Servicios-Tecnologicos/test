@@ -1,5 +1,6 @@
+import { HeadersDTO } from './../../shared/dto/header.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { BookingPackagesProvidersFilters, HeadersDTO } from '../../booking-packages/booking-packages.controller';
+import { BookingPackagesProvidersFilters } from '../../booking-packages/booking-packages.controller';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { PostPreBookingsPackagesProvidersDTO, PreBookingsPackagesProvidersResponseDTO } from '../../shared/dto/booking-packages.dto';
 import { ManagementHttpService } from './management-http.service';

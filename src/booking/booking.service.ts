@@ -1,3 +1,4 @@
+import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -25,6 +26,7 @@ import { BookingServicesService } from 'src/management/services/booking-services
 import { ContentAPI } from 'src/shared/dto/content-api.dto';
 import { HeadersDTO } from './../booking-packages/booking-packages.controller';
 import { logger } from '../logger';
+
 
 @Injectable()
 export class BookingService {

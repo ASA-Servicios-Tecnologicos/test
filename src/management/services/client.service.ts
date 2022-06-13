@@ -1,3 +1,4 @@
+import { HeadersDTO } from './../../shared/dto/header.dto';
 import { Injectable } from '@nestjs/common';
 import { PatchExternalClient } from 'src/shared/dto/external-user.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
@@ -90,7 +91,7 @@ export class ClientService {
     return this.managementHttpService.get<IntegrationClientDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/user/me/`);
   }
 
-  patchClientById(clientId: string, dossierClientDto: Partial<DossierClientDTO>) {
-    return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${clientId}/`, dossierClientDto);
+  patchClientById(clientId: string, dossierClientDto: Partial<DossierClientDTO>, headers?: HeadersDTO) {
+    return this.managementHttpService.patch(`${this.appConfigService.BASE_URL}/management/api/v1/clients/${clientId}/`, dossierClientDto, { headers });
   }
 }
