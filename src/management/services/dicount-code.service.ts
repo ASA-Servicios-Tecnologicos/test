@@ -3,7 +3,7 @@ import { AppConfigService } from 'src/configuration/configuration.service';
 import { DiscountCode, DiscountDTO } from 'src/shared/dto/booking.dto';
 import { CacheService } from 'src/shared/services/cache.service';
 import { SecuredHttpService } from 'src/shared/services/secured-http.service';
-
+import { logger } from '../../logger';
 @Injectable()
 export class DiscountCodeService extends SecuredHttpService {
   constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>) {
@@ -25,6 +25,7 @@ export class DiscountCodeService extends SecuredHttpService {
   async validate(discountApplied: DiscountDTO, amount: number) {
     const discount = await this.find(discountApplied);
     if (discount?.status && discount?.status !== HttpStatus.OK) {
+      logger.error(`[DiscountCodeService] [validate] --discount ${discount} `)
       throw new HttpException({ message: discount['message'], error: discount['error'] }, discount.status);
     }
     if (discount) {

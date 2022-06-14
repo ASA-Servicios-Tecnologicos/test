@@ -6,7 +6,7 @@ import { SecuredHttpService } from '../../shared/services/secured-http.service';
 import {Model} from "mongoose";
 import {Booking, BookingDocument} from "../../shared/model/booking.schema";
 import {InjectModel} from "@nestjs/mongoose";
-
+import { logger } from '../../logger';
 @Injectable()
 export class CheckoutService extends SecuredHttpService {
   constructor(readonly http: HttpService, readonly appConfigService: AppConfigService, readonly cacheService: CacheService<any>, @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,) {
@@ -26,13 +26,17 @@ export class CheckoutService extends SecuredHttpService {
   }
 
   async getCheckoutByDossierId(dossierId: number):Promise<string>{
+    logger.info(`[CheckoutService] [getCheckoutByDossierId] init method`)
     const booking = await this.bookingModel.findOne({ dossier: dossierId }).exec();
     const checkoutId = booking?.toObject().checkoutId;
 
-    if (!checkoutId) throw new HttpException({
-      status: HttpStatus.BAD_REQUEST,
-      error: `El dossier con id ${dossierId} no tiene un checkoutId`,
-    }, HttpStatus.BAD_REQUEST);
+    if (!checkoutId) {
+      logger.error(`[CheckoutService] [getCheckoutByDossierId] the dossier with --id ${dossierId} doesn't have a checkoutId`)
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: `El dossier con id ${dossierId} no tiene un checkoutId`,
+      }, HttpStatus.BAD_REQUEST);
+    }
 
     return checkoutId;
   }
