@@ -1,4 +1,4 @@
-import { HeadersDTO } from './../booking-packages/booking-packages.controller';
+import { HeadersDTO } from './../shared/dto/header.dto';
 import { Body, Controller, Get, Headers, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BookingDTO } from '../shared/dto/booking.dto';

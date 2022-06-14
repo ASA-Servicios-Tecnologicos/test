@@ -1,3 +1,4 @@
+import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { pickBy } from 'lodash';
 import { BookingService } from '../booking/booking.service';
@@ -13,7 +14,7 @@ import { AppConfigService } from '../configuration/configuration.service';
 import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
 import { CallCenterBookingFilterParamsDTO, GetBudgetsByClientDTO, GetDossiersByClientDTO } from '../shared/dto/call-center.dto';
-
+import { logger } from '../logger';
 @Injectable()
 export class CallCenterService {
   constructor(
@@ -28,19 +29,21 @@ export class CallCenterService {
     private readonly bookingServicesService: BookingServicesService,
   ) {}
 
-  getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
+  getDossiersByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO, headers?: HeadersDTO) {
     return this.managementHttpService.get<GetDossiersByClientDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/dossier/${this.mapFilterParamsToQueryParams(
-        pickBy(filterParams),
-      )}`,
+        pickBy(filterParams), 
+      )}`, 
+      { headers }
     );
   }
 
-  getBudgetsByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO) {
+  getBudgetsByAgencyId(agencyId: string, filterParams: CallCenterBookingFilterParamsDTO, headers?: HeadersDTO) {
     return this.managementHttpService.get<GetBudgetsByClientDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/agency/${agencyId}/budget/${this.mapFilterParamsToQueryParams(
         pickBy(filterParams),
       )}`,
+      { headers }
     );
   }
 
@@ -48,17 +51,20 @@ export class CallCenterService {
     return this.dossiersService.patchDossierById(id, newDossier);
   }
 
+
   async sendConfirmationEmail(dossierId: string) {
+    logger.info(`[CallCenterService] [sendConfirmationEmail] init method`)
     const dossier = await this.dossiersService.findDossierById(dossierId);
     const booking = await this.bookingService.findByDossier(dossierId);
 
     const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
     if (checkout['error']) {
+      logger.error(`[CallCenterService] [sendConfirmationEmail] ${checkout['error']}`)
       throw new HttpException(checkout['error']['message'], checkout['error']['status']);
     }
 
     let dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode).catch((error) => {
-      console.log(error);
+      logger.error(`[CallCenterService] [sendConfirmationEmail] ${error.stack}`)
     });
     const methodsDetails = t(checkout, 'payment.methodDetail').safeObject;
 
@@ -162,13 +168,16 @@ export class CallCenterService {
     if (email.status === HttpStatus.OK) {
       return { status: email.status, message: email.statusText };
     } else {
+      logger.error(`[CallCenterService] [sendConfirmationEmail] --email ${email}`)
       throw new HttpException({ message: email.statusText, error: email.statusText }, email.status);
     }
   }
 
-  async cancelDossier(dossierId: string) {
+  async cancelDossier(dossierId: string, headers?: HeadersDTO) {
+    logger.info(`[CallCenterService] [cancelDossier] init method`)
     const booking = await this.bookingService.findByDossier(dossierId);
     if (!booking) {
+      logger.error(`[CallCenterService] [cancelDossier] booking with some dossier not found`)
       throw new HttpException('No se ha encontrado ningun booking con dossier ' + dossierId, HttpStatus.NOT_FOUND);
     }
     const canceled = await this.checkoutService.cancelCheckout(booking.checkoutId);
@@ -176,7 +185,7 @@ export class CallCenterService {
       await this.dossiersService.patchDossierById(Number(dossierId), {
         dossier_situation: 5,
         observation: 'El expendiente ha sido cancelado',
-      });
+      }, headers);
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: booking.dossier,
         bookingId: canceled.data.booking.bookingId,
@@ -185,7 +194,7 @@ export class CallCenterService {
         paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : 2,
         amount: canceled.data.payment.amount,
       };
-      await this.paymentsService.updateDossierPayments(dossierPayments);
+      await this.paymentsService.updateDossierPayments(dossierPayments, headers);
       return canceled.data;
     }
   }
