@@ -367,7 +367,7 @@ export class BookingService {
       address: undefined,
       phone: {
         phone: +client.phone,
-        prefix: client.prefix,
+        prefix: client?.prefix ? client?.prefix : '',
       },
       email: client.mail,
       newsletter: false,
