@@ -55,7 +55,7 @@ spec:
             - name: MANAGEMENT_PASSWORD
               value: 'WaeN$p74XD'
             - name: BASE_URL
-              value: https://pre-agenciasb2b.tecnoturis.es/api-rest
+              value: https://stg-agenciasb2b.tecnoturis.es/api-rest
             - name: DISCOUNT_CODE_URL
               value: https://stg-api.w2m.com/integration/public/discount-coupon/api/v1/discount/coupon/find
             - name: EMAIL_RAW_URL
