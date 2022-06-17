@@ -47,8 +47,8 @@ steps:
       - '--resources'
       - 'k8s/${_APP}/env/${_ENVIRONMENT}'
     env:
-      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo'
-      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo--dev'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1-b'
 
   - name: 'europe-west1-docker.pkg.dev/tecnoturis-pro/tools/kustomize'
     id: Editing Image
@@ -58,8 +58,8 @@ steps:
       - 'image'
       - $_IMAGE_TAG:$COMMIT_SHA
     env:
-      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo'
-      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo--dev'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1-b'
 
   - name: 'europe-west1-docker.pkg.dev/tecnoturis-pro/tools/kustomize'
     id: Kustomize Build
@@ -68,8 +68,8 @@ steps:
       - '-o'
       - ${COMMIT_SHA}.yaml
     env:
-      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo'
-      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo--dev'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1-b'
 
   - name: "gcr.io/cloud-builders/kubectl"
     id: Deploy
@@ -78,13 +78,13 @@ steps:
       - -f
       - ${COMMIT_SHA}.yaml
     env:
-      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo'
-      - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowlo--dev'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-west1-b'
 
 
 substitutions:
   _IMAGE_TAG: europe-west1-docker.pkg.dev/tecnoturis-pro/tecnoturis/ota-backend
-  _NAMESPACE: flowlo-pre
+  _NAMESPACE: dev
   _ENVIRONMENT: development
   _APP: ota-backend
 
