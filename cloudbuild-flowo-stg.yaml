@@ -74,7 +74,7 @@ steps:
       - 'image'
       - $_IMAGE_TAG:$COMMIT_SHA
     env:
-      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo-stg'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo--stg'
       - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
 
   - name: 'europe-west1-docker.pkg.dev/tecnoturis-pro/tools/kustomize'
@@ -84,7 +84,7 @@ steps:
       - '-o'
       - ${COMMIT_SHA}.yaml
     env:
-      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo-stg'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo--stg'
       - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
 
   - name: "gcr.io/cloud-builders/kubectl"
@@ -94,7 +94,7 @@ steps:
       - -f
       - ${COMMIT_SHA}.yaml
     env:
-      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo-stg'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=flowo--stg'
       - 'CLOUDSDK_COMPUTE_REGION=europe-west1'
 
 
