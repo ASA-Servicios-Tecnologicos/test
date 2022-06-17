@@ -77,8 +77,6 @@ steps:
       - apply
       - -f
       - ${COMMIT_SHA}.yaml
-      - -n
-      - dev
     env:
       - 'CLOUDSDK_CONTAINER_CLUSTER=flowo--dev'
       - 'CLOUDSDK_COMPUTE_REGION=europe-west1-b'
