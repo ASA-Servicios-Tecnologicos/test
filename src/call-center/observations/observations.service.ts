@@ -22,6 +22,11 @@ export class ObservationsService {
       `${this.appConfigService.BASE_URL}/management/api/v1/observation-history/`, observation);
   }
 
+  updateObservation(observation: any): Promise<any> {
+    return this.managementHttpService.put<any>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/observation-history/`, observation);
+  }
+
 
   private mapFilterParamsToQueryParams(filterParams: any): string {
     let result = '?';

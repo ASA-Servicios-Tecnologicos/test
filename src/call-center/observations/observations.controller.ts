@@ -1,5 +1,5 @@
 import { ObservationsService } from './observations.service';
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { pickBy } from 'lodash';
 @Controller('call-center/observations')
 export class ObservationsController {
@@ -18,6 +18,13 @@ export class ObservationsController {
       @Body() observation: any,
     ): Promise<any> {
       return this.observationsService.createObservation(observation);
+    }
+
+    @Put()
+    updateObservation(
+      @Body() observation: any,
+    ): Promise<any> {
+      return this.observationsService.updateObservation(observation);
     }
 
 }
