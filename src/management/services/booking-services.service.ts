@@ -42,9 +42,11 @@ export class BookingServicesService {
     );
 
 
-    let new_amount= 0;
+    
 
     if(data.provider_status == 'CANCELLED' ){
+
+      let new_amount= 0;
 
       const infoDossierPayments: InfoDossierPayments = await this.paymentsService.getDossierPayments((data.dossier.id).toString());
       //Falta cambiar el de arriba por el de abajo para obtener la informacion completa de un dossier
@@ -73,10 +75,13 @@ export class BookingServicesService {
       const amount =  dossier.services[0].total_pvp - (new_amount)
       let newPayment: CreateDossierPaymentDTO = {
         dossier_id: data.dossier.id,
+
         paid_amount: amount,
+        status_id: 3,
+
         //paid_date:  'string',
         is_update: true,
-        status_id: 1,
+        
         //payment_method_id: 1,
         //observation: 'rer',
         //manual_charge_date: null
