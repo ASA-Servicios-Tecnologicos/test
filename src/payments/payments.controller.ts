@@ -1,4 +1,4 @@
-import { UpdateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
+import { UpdateDossierPaymentDTO, CreateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
 import { Body, Controller, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
@@ -28,6 +28,13 @@ export class PaymentsController {
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Pagos del dossier actualizados' })
   update(@Body() body: CreateUpdateDossierPaymentDTO) {
     return this.paymentsService.updateDossierPayments(body);
+  }
+
+  @Post('createByAgente')
+  @ApiOperation({ summary: 'Crear un pago de un dossier por un agente' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Pago del dossier creado' })
+  createPaymentByAgente(@Body() body: CreateDossierPaymentDTO) {
+    return this.paymentsService.createDossierPaymentByAgente(body);
   }
 
   @Put('updateByAgente/:paymentId')
