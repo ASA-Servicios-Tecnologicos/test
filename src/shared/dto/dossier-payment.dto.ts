@@ -9,6 +9,11 @@ export class CreateUpdateDossierPaymentDTO {
   installment: Array<DossierPaymentInstallment>;
 }
 
+export class UpdateDossierPaymentDTO {
+  manual_charge_date?: string;
+  observation?: string;
+}
+
 export class InfoDossierPayments {
   id: number;
   dossier_number: string;
