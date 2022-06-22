@@ -47,6 +47,7 @@ export class ManagementBookingServicesByDossierDTO {
 export class ManagementBookingServiceDTO {
   id: number;
   code: string;
+  provider_status: string;
   dossier: {
     id: number;
     code: string;
