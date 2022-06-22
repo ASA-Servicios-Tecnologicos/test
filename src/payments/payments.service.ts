@@ -40,7 +40,8 @@ export class PaymentsService {
 
   async updateDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO, headers?: HeadersDTO) {
     const dossiers = await this.managementHttpService.put<Array<DossierPayment>>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierPayments.dossier}/`,
+      // `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierPayments.dossier}/`,
+      `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/restricted/${dossierPayments.dossier}/`,
       dossierPayments, { headers }
     );
     return dossiers;

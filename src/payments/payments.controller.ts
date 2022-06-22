@@ -30,14 +30,14 @@ export class PaymentsController {
   }
 
   @Get('update/:checkoutId')
-  @ApiOperation({ summary: 'Actualiza y devuelve los pagos del dossier actualizados' })
+  @ApiOperation({ summary: 'Actualiza y devuelve los pagos del dossier actualizados(proveedor)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Pagos del dossier actualizados' })
   updateByCheckoutId(@Param('checkoutId') checkoutId: string) {
     return this.paymentsService.updateDossierPaymentsByCheckout(checkoutId);
   }
 
   @Get('updateByDossier/:dossierId')
-  @ApiOperation({ summary: 'Actualiza y devuelve los pagos del dossier actualizados' })
+  @ApiOperation({ summary: 'Actualiza y devuelve los pagos del dossier actualizados(call-center)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Pagos del dossier actualizados' })
   async updateByDossierId(@Param('dossierId') dossierId: string) {
     const checkoutId = await this.checkoutService.getCheckoutByDossierId(Number(dossierId))
