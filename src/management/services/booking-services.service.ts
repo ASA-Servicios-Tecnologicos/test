@@ -42,13 +42,20 @@ export class BookingServicesService {
     );
 
 
+    let new_amount= 0,
+
     if(data.provider_status == 'CANCELLED' ){
 
       const infoDossierPayments: InfoDossierPayments = await this.paymentsService.getDossierPayments((data.dossier.id).toString());
       //Falta cambiar el de arriba por el de abajo para obtener la informacion completa de un dossier
-      // dossier: DossierDto = await this.dossiersService.findDossierById((data.dossier.id).toString());
+      const dossier: DossierDto = await this.dossiersService.findDossierById((data.dossier.id).toString());
 
       const filteredPayments: DossierPaymentInstallment[] = infoDossierPayments.dossier_payments.filter(x => {
+
+        if( x.status == 'COMPLETED' || x.status == 'COMPLETED_AGENT'){
+          new_amount= new_amount  + new_amount;
+        }
+
         return x.status!= 'COMPLETED' && x.status!= 'COMPLETED_AGENT' && x.status!= 'ERROR' && x.status!= 'CANCELLED' 
       });
 
@@ -63,7 +70,17 @@ export class BookingServicesService {
 
       //aqui se llama a crear pago con la logica de total pagos obtenidos del dossier
 
-      let newPayment: CreateDossierPaymentDTO
+      const amount =  dossier.services[0].total_pvp - (new_amount)
+      let newPayment: CreateDossierPaymentDTO = {
+        dossier_id: data.dossier.id,
+        paid_amount: amount,
+        //paid_date:  'string',
+        is_update: true,
+        status_id: 1,
+        //payment_method_id: 1,
+        //observation: 'rer',
+        //manual_charge_date: null
+      }
 
       this.paymentsService.createDossierPaymentByAgente(newPayment);
 
