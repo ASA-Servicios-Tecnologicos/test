@@ -13,8 +13,8 @@ export class CreateDossierPaymentDTO {
   dossier_id?: number;
   paid_amount?: number;
   paid_date?:  string
-  is_update: boolean;
-  status_id: number;
+  is_update?: boolean;
+  status_id?: number;
   payment_method_id?: number;
   observation?: string
   manual_charge_date?: string
