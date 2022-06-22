@@ -1,4 +1,4 @@
-import { UpdateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
+import { CreateDossierPaymentDTO, UpdateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from 'src/configuration/configuration.service';
@@ -11,7 +11,6 @@ import { Model } from 'mongoose';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 import { DossiersService } from 'src/dossiers/dossiers.service';
 import { CheckoutBuyer, CheckoutContact } from 'src/shared/dto/checkout.dto';
-import { DossierDto } from 'src/shared/dto/dossier.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -46,6 +45,14 @@ export class PaymentsService {
       dossierPayments, { headers }
     );
     return dossiers;
+  }
+
+  async createDossierPaymentByAgente(dossierPayment: CreateDossierPaymentDTO, headers?: HeadersDTO) {
+    const dossier = await this.managementHttpService.post<any>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/agente/`,
+      dossierPayment, { headers }
+    );
+    return dossier;
   }
 
   async updateDossierPaymentByAgente(paymentId:string, dossierPayments: UpdateDossierPaymentDTO, headers?: HeadersDTO) {
