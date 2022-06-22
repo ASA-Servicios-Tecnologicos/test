@@ -42,7 +42,7 @@ export class BookingServicesService {
     );
 
 
-    let new_amount= 0,
+    let new_amount= 0;
 
     if(data.provider_status == 'CANCELLED' ){
 
