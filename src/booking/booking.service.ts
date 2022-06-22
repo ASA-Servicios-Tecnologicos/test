@@ -1,3 +1,4 @@
+import { DossierPaymentInstallment } from './../shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -285,7 +286,7 @@ export class BookingService {
           currency: booking.currency,
         },
         checkoutId: checkOut.checkoutId,
-        installment: checkOut.payment.installments,
+        installment: this.validateAndConvertPayments(checkOut.payment.methodType, checkOut.payment.installments),
       };
 
       if (bookId) {
@@ -649,4 +650,19 @@ export class BookingService {
 
     this.notificationsService.sendConfirmationEmail(data, checkOut.contact.email);
   }
+
+  private validateAndConvertPayments(methodType: string, payments: Array<DossierPaymentInstallment>) {
+    if(methodType === 'BANK_TRANSFER'){
+      const paymentFilters = payments.map((payment)=>{
+        payment.status='PENDING'
+        return payment;
+      });
+      logger.info(`[BookingService] [validateAndConvertPayments]  payments convert to PENDING`);
+      return paymentFilters;
+
+    }else{
+      return payments;
+    }
+  }
+
 }
