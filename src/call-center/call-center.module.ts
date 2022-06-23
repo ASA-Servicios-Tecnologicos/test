@@ -9,6 +9,7 @@ import { ManagementModule } from '../management/management.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { CallCenterController } from './call-center.controller';
 import { CallCenterService } from './call-center.service';
+import { ObservationsModule } from './observations/observations.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CallCenterService } from './call-center.service';
     NotificationsModule,
     BookingModule,
     CheckoutModule,
+    ObservationsModule,
   ],
   controllers: [CallCenterController],
   providers: [CallCenterService],

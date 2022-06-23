@@ -92,7 +92,7 @@ export class CallCenterController {
   }
 
   @Post('dossier/cancel/:dossierId')
-  @ApiOperation({ summary: 'Cancela la reserva y los pagos recurrentes pendientes a nivel de checkout. Actualiza el estado del dossier' })
+  @ApiOperation({ summary: 'Cancela la reserva y los pagos recurrentes pendientes a nivel de checkout' })
   cancelDossier(@Param('dossierId') dossierId: string, @Headers() headers?: HeadersDTO) {
     return this.callCenterService.cancelDossier(dossierId, headers);
   }
