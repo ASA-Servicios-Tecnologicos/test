@@ -71,7 +71,8 @@ export class HtmlTemplateService {
         });
 
         Handlebars.registerHelper('fullName', function (passenger) {
-            return `${passenger.gender === 'MALE' ? 'Sr.' : passenger.gender === 'FEMALE' ? 'Sra.' : ''} ${passenger.name} ${passenger.lastname}`;
+            //return `${passenger.gender === 'MALE' ? 'Sr.' : passenger.gender === 'FEMALE' ? 'Sra.' : ''} ${passenger.name} ${passenger.lastname}`;
+            return `${passenger.name} ${passenger.lastname}`;
         });
 
         Handlebars.registerHelper('isUniquePayment', function (payments, options) {
