@@ -18,7 +18,7 @@ export abstract class SecuredHttpService {
   }
 
   protected getSessionToken(): Promise<string> {
-    logger.info(`[SecuredHttpService] [getSessionToken] init method`)
+    
     const data = new URLSearchParams();
     data.append('scope', this.appConfigService.SESSION_SCOPE);
     data.append('grant_type', this.appConfigService.SESSION_GRANT_TYPE);
@@ -26,6 +26,8 @@ export abstract class SecuredHttpService {
     data.append('password', this.appConfigService.SESSION_PASSWORD);
     data.append('client_id', this.appConfigService.SESSION_CLIENTID);
     data.append('client_secret', this.appConfigService.SESSION_CLIENT_SECRET);
+
+    logger.info(`[SecuredHttpService] [getSessionToken] --url ${this.appConfigService.SESSION_TOKEN_URL} --data ${data}`)
 
     return lastValueFrom(
       this.http
@@ -42,7 +44,7 @@ export abstract class SecuredHttpService {
   }
 
   protected async postSecured(url: string, data?: any) {
-    logger.info(`[SecuredHttpService] [postSecured] init method`)
+    logger.info(`[SecuredHttpService] [postSecured] --url ${url}`)
     const token = await this.getSessionToken();
 
     return lastValueFrom(
@@ -62,7 +64,7 @@ export abstract class SecuredHttpService {
   }
 
   protected async getSecured(url: string, body?) {
-    logger.info(`[SecuredHttpService] [getSecured] init method`)
+    logger.info(`[SecuredHttpService] [getSecured] --url ${url}`)
     const token = await this.getSessionToken();
     console.log(url)
     return lastValueFrom(
