@@ -12,21 +12,11 @@ import { CreateTransferDTO, CreateUpdateBookingServicePax, Pax, TransferDTO } fr
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
 
-import { PaymentsService } from '../../payments/payments.service';
-import { DossierDto } from './../../shared/dto/dossier.dto';
-import { DossiersService } from '../../dossiers/dossiers.service';
-import { CheckoutService } from './../../checkout/services/checkout.service';
-import { CreateDossierPaymentDTO, DossierPaymentInstallment } from './../../shared/dto/dossier-payment.dto';
-import { InfoDossierPayments } from '../../shared/dto/dossier-payment.dto';
 
-import { logger } from '../../logger';
 @Injectable()
 export class BookingServicesService {
   constructor(private readonly managementHttpService: ManagementHttpService, 
     private readonly appConfigService: AppConfigService,
-    private readonly paymentsService: PaymentsService,
-    private readonly checkoutService: CheckoutService,
-    private readonly dossiersService: DossiersService
     ) {}
 
   getBookingServicesByDossierId(dossierId: string): Promise<ManagementBookingServicesByDossierDTO[]> {
@@ -36,64 +26,9 @@ export class BookingServicesService {
   }
 
   async getBookingServiceById(id: string, force: string = 'false', headers?: HeadersDTO): Promise<ManagementBookingServiceDTO> {
-
-    const data = await this.managementHttpService.get<ManagementBookingServiceDTO>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`, { headers }
-    );
-
-
-    
-
-    if(data.provider_status == 'CANCELLED' ){
-
-      let new_amount= 0;
-
-      const infoDossierPayments: InfoDossierPayments = await this.paymentsService.getDossierPayments((data.dossier.id).toString());
-      //Falta cambiar el de arriba por el de abajo para obtener la informacion completa de un dossier
-      const dossier: DossierDto = await this.dossiersService.findDossierById((data.dossier.id).toString());
-
-      const filteredPayments: DossierPaymentInstallment[] = infoDossierPayments.dossier_payments.filter(x => {
-
-        if( x.status == 'COMPLETED' || x.status == 'COMPLETED_AGENT'){
-          new_amount= new_amount  + new_amount;
-        }
-
-        return x.status!= 'COMPLETED' && x.status!= 'COMPLETED_AGENT' && x.status!= 'ERROR' && x.status!= 'CANCELLED' 
-      });
-
-      if ( filteredPayments.length > 0 ){
-        logger.info(`[BookingServicesService] [getBookingServiceById]  payments cancelled for ${data.dossier.id}`);
-
-        const checkoutId = await this.checkoutService.getCheckoutByDossierId(data.dossier.id)
-        this.checkoutService.cancelCheckout(checkoutId);
-        this.paymentsService.updateDossierPaymentsByCheckout(checkoutId)
-      }
-
-
-      //aqui se llama a crear pago con la logica de total pagos obtenidos del dossier
-
-      const amount =  dossier.services[0].total_pvp - (new_amount)
-      let newPayment: CreateDossierPaymentDTO = {
-        dossier_id: data.dossier.id,
-
-        paid_amount: amount,
-        status_id: 3,
-
-        //paid_date:  'string',
-        is_update: true,
-        
-        //payment_method_id: 1,
-        //observation: 'rer',
-        //manual_charge_date: null
-      }
-
-      this.paymentsService.createDossierPaymentByAgente(newPayment);
-
-    }
-
-
-    return data;
-
+     return await this.managementHttpService.get<ManagementBookingServiceDTO>(
+       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`, { headers }
+     );
   }
 
   createBookingService(createBookingServiceDTO) {
