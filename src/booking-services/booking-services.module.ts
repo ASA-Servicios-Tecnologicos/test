@@ -5,8 +5,17 @@ import { BookingServicesHotelRoomsModule } from './booking-services-hotel-rooms/
 import { BookingServicesTransfersModule } from './booking-services-transfers/booking-services-transfers.module';
 import { BookingServicesController } from './booking-services.controller';
 
+import { CheckoutModule } from '../checkout/checkout.module';
+import { DossiersModule } from '../dossiers/dossiers.module';
+import { PaymentsModule } from '../payments/payments.module';
+
 @Module({
-  imports: [BookingServicesFlightsModule, BookingServicesHotelRoomsModule, ManagementModule, BookingServicesTransfersModule],
+  imports: [BookingServicesFlightsModule, BookingServicesHotelRoomsModule, ManagementModule, BookingServicesTransfersModule, 
+    PaymentsModule,
+    CheckoutModule,
+    BookingServicesModule,
+    DossiersModule
+  ],
   controllers: [BookingServicesController],
   providers: [],
   exports: [],
