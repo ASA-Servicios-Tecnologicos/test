@@ -1,5 +1,6 @@
+import { HeadersDTO } from './../../shared/dto/header.dto';
 import { ObservationsService } from './observations.service';
-import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query, Headers } from '@nestjs/common';
 import { pickBy } from 'lodash';
 @Controller('call-center/observations')
 export class ObservationsController {
@@ -9,22 +10,25 @@ export class ObservationsController {
       ) {}
 
     @Get()
-    getObservations(@Query() filterParams: any) {
-      return this.observationsService.getObservations({ ...pickBy(filterParams) });
+    getObservations(@Query() filterParams: any, 
+    @Headers() headers?: HeadersDTO) {
+      return this.observationsService.getObservations({ ...pickBy(filterParams) }, headers);
     }
 
     @Post()
     createObservation(
       @Body() observation: any,
+      @Headers() headers?: HeadersDTO
     ): Promise<any> {
-      return this.observationsService.createObservation(observation);
+      return this.observationsService.createObservation(observation, headers);
     }
 
     @Put()
     updateObservation(
-      @Body() observation: any,
+      @Body() observation: any, 
+      @Headers() headers?: HeadersDTO
     ): Promise<any> {
-      return this.observationsService.updateObservation(observation);
+      return this.observationsService.updateObservation(observation, headers);
     }
 
 }
