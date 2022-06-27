@@ -6,10 +6,10 @@ import { ReferencePricesRequestDTO } from '../shared/dto/calendar.dto';
 @Injectable()
 export class CalendarService {
   constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
-  getReferencePrices(referencePricesRequestDTO: ReferencePricesRequestDTO) {
+  /*getReferencePrices(referencePricesRequestDTO: ReferencePricesRequestDTO) {
     return this.managementHttpService.post(
       `${this.appConfigService.BASE_URL}/packages-newblue/api/v1/referencePrices/`,
       referencePricesRequestDTO,
     );
-  }
+  }*/
 }

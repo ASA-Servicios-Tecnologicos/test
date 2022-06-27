@@ -29,9 +29,25 @@ export class InfoDossierPayments {
   id: number;
   dossier_number: string;
   total_amount: number;
-  dossier_payments: Array<DossierPaymentInstallment>;
+  dossier_payments: Array<InfoPayment>;
 }
-
+export class InfoPayment {
+  id?: number;
+  paid_amount?:number;
+  paid_date?: string;
+  status?: string;
+  status_description?: string;
+  payment_method?: string;
+  observation?: string;
+  id_method_payment?: number;
+  id_status?: number;
+  is_update?: boolean
+  update_by?: string;
+  created_by?: string;
+  creation_date?: string;
+  update_date?: string;
+  manual_charge_date?: string;
+}
 export class DossierPayment {
   id: number;
   paid_amount: number;

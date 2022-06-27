@@ -15,6 +15,7 @@ import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
 import { CallCenterBookingFilterParamsDTO, GetBudgetsByClientDTO, GetDossiersByClientDTO } from '../shared/dto/call-center.dto';
 import { logger } from '../logger';
+import { elementAt } from 'rxjs';
 @Injectable()
 export class CallCenterService {
   constructor(
@@ -185,7 +186,10 @@ export class CallCenterService {
         dossier: booking.dossier,
         bookingId: canceled.data.booking.bookingId,
         checkoutId: canceled.data.checkoutId,
-        installment: canceled.data.payment.installments,
+        installment: canceled.data.payment.installments.map((element) => ({
+          ...element,
+          status: canceled.data.payment.methodType === 'BANK_TRANSFER' ? 'CANCELLED' : element.status,
+        })),
         paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : 2,
         amount: canceled.data.payment.amount,
       };
