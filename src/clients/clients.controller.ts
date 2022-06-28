@@ -77,7 +77,7 @@ export class ClientsController {
     });
   }
 
-  @Post(':username/booking/:bookingCode/voucher')
+  @Get(':username/booking/:bookingCode/voucher')
   @ApiOperation({ summary: 'Obtiene la documentación de una reserva (servicio de optigest )' })
   getBookingReportByDossier( @Res() response: Response, @Param('username') username: string, @Param('bookingCode') bookingCode: string) {
 
