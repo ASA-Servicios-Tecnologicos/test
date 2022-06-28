@@ -1,11 +1,25 @@
-import { Module } from '@nestjs/common';
+import { DossiersModule } from './../dossiers/dossiers.module';
+import { SharedModule } from './../shared/shared.module';
+import { AppConfigModule } from './../configuration/configuration.module';
+import { HttpModule, Module } from '@nestjs/common';
 import { ManagementModule } from '../management/management.module';
 import { ClientsController } from './clients.controller';
+import { ClientsService } from './clients.service';
 
 @Module({
-  imports: [ManagementModule],
+  imports: [
+    HttpModule, 
+    AppConfigModule, 
+    SharedModule, 
+    ManagementModule,
+    DossiersModule
+  ],
   controllers: [ClientsController],
-  providers: [],
-  exports: [],
+  providers: [
+    ClientsService
+  ],
+  exports: [
+    ClientsService
+  ],
 })
 export class ClientsModule {}

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { Request } from 'express';
 import { ClientService } from '../management/services/client.service';
 import { ExternalClientService } from '../management/services/external-client.service';
@@ -8,10 +8,18 @@ import { CreateExternalUserDTO } from '../shared/dto/external-user.dto';
 import { CreateFavouriteByUser } from '../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { DEFAULT_EMPTY_PASSWORD_EXTERNAL_CLIENT, DEFAULT_ROL_EXTERNAL_CLIENT } from './clients.constants';
+import { ClientsService } from './clients.service';
+import { ApiOperation } from '@nestjs/swagger';
+import { Response } from 'express';
+
 // TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientService: ClientService, private readonly externalClientsService: ExternalClientService) {}
+  constructor(private readonly clientService: ClientService, private readonly externalClientsService: ExternalClientService,
+    private readonly clientsService: ClientsService,
+    //private readonly checkoutService: CheckoutService
+    
+    ) {}
 
   @Get(':username/dossiers')
   getClientDossiersById(
@@ -68,4 +76,13 @@ export class ClientsController {
       password2: DEFAULT_EMPTY_PASSWORD_EXTERNAL_CLIENT,
     });
   }
+
+  @Post(':username/booking/:bookingCode/voucher')
+  @ApiOperation({ summary: 'Obtiene la documentación de una reserva (servicio de optigest )' })
+  getBookingReportByDossier( @Res() response: Response, @Param('username') username: string, @Param('bookingCode') bookingCode: string) {
+
+    return this.clientsService.getBookingReportByDossier(response, username, bookingCode);
+    
+  }
+  
 }
