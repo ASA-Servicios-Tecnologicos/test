@@ -1,8 +1,9 @@
+import { CreatePriceHistoryDto, PriceHistoryFilterParamsDTO } from './../shared/dto/booking-service.dto';
 import { InfoPayment } from './../shared/dto/dossier-payment.dto';
 import { DossierDto } from 'src/shared/dto/dossier.dto';
 import { CreateDossierPaymentDTO, DossierPaymentInstallment, InfoDossierPayments } from 'src/shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
-import { Controller, Get, Param, Query, Headers } from '@nestjs/common';
+import { Controller, Get, Param, Query, Headers, Post, Body } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BookingServicesService } from 'src/management/services/booking-services.service';
 
@@ -28,8 +29,13 @@ export class BookingServicesController {
   @Get('price-history')
   @ApiOperation({ summary: 'Obtener price history of booking service de un dossier' })
   @ApiResponse({ status: 200, description: 'Booking services encontrados' })
-  getPriceHistory(@Query() filterParams: any, @Headers() headers?: HeadersDTO) {
+  getPriceHistory(@Query() filterParams: PriceHistoryFilterParamsDTO, @Headers() headers?: HeadersDTO) {
     return this.BookingServicesServiceLocal.getPriceHistory({ ...pickBy(filterParams) }, headers);
+  }
+
+  @Post('price-history')
+  createPriceHistory(@Body() body: CreatePriceHistoryDto, @Headers() headers?: HeadersDTO): Promise<any> {
+    return this.BookingServicesServiceLocal.createPriceHistory(body, headers);
   }
 
   @Get(':bookingServiceId')
