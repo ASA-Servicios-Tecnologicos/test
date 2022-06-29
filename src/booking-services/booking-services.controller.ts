@@ -15,27 +15,27 @@ import { BookingServicesServiceLocal } from './booking-services.service';
 
 import { logger } from '../logger';
 import { pickBy } from 'lodash';
+import { CallCenterService } from 'src/call-center/call-center.service';
 
 @Controller('booking-services')
 export class BookingServicesController {
   constructor(
     private readonly bookingServicesService: BookingServicesService,
-    private readonly paymentsService: PaymentsService,
-    private readonly checkoutService: CheckoutService,
     private readonly dossiersService: DossiersService,
-    private readonly BookingServicesServiceLocal: BookingServicesServiceLocal,
+    private readonly bookingServicesServiceLocal: BookingServicesServiceLocal,
+    private readonly callCenterService: CallCenterService,
   ) {}
 
   @Get('price-history')
   @ApiOperation({ summary: 'Obtener price history of booking service de un dossier' })
   @ApiResponse({ status: 200, description: 'Booking services encontrados' })
   getPriceHistory(@Query() filterParams: PriceHistoryFilterParamsDTO, @Headers() headers?: HeadersDTO) {
-    return this.BookingServicesServiceLocal.getPriceHistory({ ...pickBy(filterParams) }, headers);
+    return this.bookingServicesServiceLocal.getPriceHistory({ ...pickBy(filterParams) }, headers);
   }
 
   @Post('price-history')
   createPriceHistory(@Body() body: CreatePriceHistoryDto, @Headers() headers?: HeadersDTO): Promise<any> {
-    return this.BookingServicesServiceLocal.createPriceHistory(body, headers);
+    return this.bookingServicesServiceLocal.createPriceHistory(body, headers);
   }
 
   @Get(':bookingServiceId')
@@ -45,33 +45,19 @@ export class BookingServicesController {
     const data = await this.bookingServicesService.getBookingServiceById(bookingServiceId, force, headers);
 
     logger.info(`[BookingServicesController] [create]  el status de reserva del servicio ${bookingServiceId} es ${data.provider_status}`);
-
+    data.provider_status = 'CANCELLED';
     if (data.provider_status === 'CANCELLED') {
       logger.info(`[BookingServicesController] [create]  cancelling payments...`);
 
-      //Falta cambiar el de arriba por el de abajo para obtener la informacion completa de un dossier para saber si no es tarjeta
       const dossier: DossierDto = await this.dossiersService.findDossierById(data.dossier.id.toString());
 
-      if (dossier.dossier_payments && dossier.dossier_payments.length && dossier.dossier_payments[0].id_method_payment !== 2) {
+      if (dossier.dossier_payments && dossier.dossier_payments.length) {
         const filteredPayments: DossierPaymentInstallment = dossier.dossier_payments.find((payment) => {
           return !['COMPLETED', 'COMPLETED_AGENT', 'ERROR', 'CANCELLED'].includes(payment.status);
         });
 
         if (filteredPayments) {
-          const checkoutId = await this.checkoutService.getCheckoutByDossierId(data.dossier.id);
-
-          this.checkoutService
-            .cancelCheckout(checkoutId)
-            .then(() => {
-              logger.info(`[BookingServicesController] [create]  payments cancelled for ${data.dossier.id}`);
-
-              this.paymentsService.updateDossierPaymentsByCheckout(checkoutId).catch((error) => {
-                logger.warning(`[BookingServicesController] [create]  payments not update for ${error.stack}`);
-              });
-            })
-            .catch((error) => {
-              logger.warning(`[BookingServicesController] [create]  payments not cancelled  ${error.stack}`);
-            });
+          await this.callCenterService.cancelDossier(dossier.id.toString());
         }
       }
     }

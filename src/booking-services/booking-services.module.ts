@@ -10,6 +10,7 @@ import { CheckoutModule } from '../checkout/checkout.module';
 import { DossiersModule } from '../dossiers/dossiers.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { BookingServicesServiceLocal } from './booking-services.service';
+import { CallCenterModule } from 'src/call-center/call-center.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BookingServicesServiceLocal } from './booking-services.service';
     CheckoutModule,
     BookingServicesModule,
     DossiersModule,
+    CallCenterModule,
   ],
   controllers: [BookingServicesController],
   providers: [BookingServicesServiceLocal],
