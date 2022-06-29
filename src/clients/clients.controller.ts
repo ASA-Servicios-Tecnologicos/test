@@ -15,11 +15,11 @@ import { Response } from 'express';
 // TODO: Pending ADD  Swagger Document endpoints and request payload validators
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientService: ClientService, private readonly externalClientsService: ExternalClientService,
+  constructor(
+    private readonly clientService: ClientService,
+    private readonly externalClientsService: ExternalClientService,
     private readonly clientsService: ClientsService,
-    //private readonly checkoutService: CheckoutService
-    
-    ) {}
+  ) {}
 
   @Get(':username/dossiers')
   getClientDossiersById(
@@ -79,10 +79,12 @@ export class ClientsController {
 
   @Get(':username/booking/:bookingCode/voucher')
   @ApiOperation({ summary: 'Obtiene la documentación de una reserva (servicio de optigest )' })
-  getBookingReportByDossier( @Res() response: Response, @Param('username') username: string, @Param('bookingCode') bookingCode: string) {
-
-    return this.clientsService.getBookingReportByDossier(response, username, bookingCode);
-    
+  getBookingReportByDossier(
+    @Res() response: Response,
+    @Param('username') username: string,
+    @Param('bookingCode') bookingCode: string,
+    @Query('language') language: string = 'es_ES',
+  ) {
+    return this.clientsService.getBookingReportByDossier(response, username, bookingCode, language);
   }
-  
 }
