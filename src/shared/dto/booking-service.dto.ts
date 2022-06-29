@@ -179,3 +179,7 @@ export class CreatePriceHistoryDto {
   net_amount?: number;
   booking_service?: number
 }
+
+export class PriceHistoryFilterParamsDTO {
+  booking_service?: string
+}
