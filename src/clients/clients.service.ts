@@ -6,6 +6,8 @@ import { AppConfigService } from './../configuration/configuration.service';
 import { ForbiddenException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import { logger } from '../logger';
+import { ClientService } from 'src/management/services/client.service';
+import { GetManagementClientInfoByUsernameDTO } from 'src/shared/dto/management-client.dto';
 
 @Injectable()
 export class ClientsService extends SecuredHttpService {
@@ -14,6 +16,7 @@ export class ClientsService extends SecuredHttpService {
     readonly appConfigService: AppConfigService,
     readonly cacheService: CacheService<any>,
     readonly dossiersService: DossiersService,
+    readonly _clientService: ClientService,
   ) {
     super(http, appConfigService, cacheService);
   }
@@ -21,9 +24,10 @@ export class ClientsService extends SecuredHttpService {
   async getBookingReportByDossier(response: Response, username: string, bookingCode: string, language: string) {
     logger.info(`[ClientsService] [getBookingReportByDossier] init method`);
 
+    const client: GetManagementClientInfoByUsernameDTO = await this._clientService.getClientInfoByUsername(username);
     const dossier = await this.dossiersService.findDossierById(bookingCode);
 
-    if (dossier && dossier.client && (dossier.client.email === username || dossier.client.phone === username)) {
+    if (dossier && dossier.client && client && client.id === dossier.client.id) {
       const data = {
         language,
         brandCode: 'FLOWO',
@@ -33,7 +37,7 @@ export class ClientsService extends SecuredHttpService {
       };
 
       const bookingReport = await this.postSecured(
-        'https://pre-api.w2m.com/integration/booking-report/api/v1/report/booking-storage',
+        `${this.appConfigService.W2M_URL}/integration/booking-report/api/v1/report/booking-storage`,
         data,
       );
 
