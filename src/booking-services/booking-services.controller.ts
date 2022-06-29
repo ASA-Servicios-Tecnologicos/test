@@ -40,32 +40,33 @@ export class BookingServicesController {
 
     logger.info(`[BookingServicesController] [create]  el status de reserva del servicio ${bookingServiceId} es ${data.provider_status}`);
 
-    if (true /*data.provider_status == 'CANCELLED'*/) {
+    if (data.provider_status === 'CANCELLED') {
       logger.info(`[BookingServicesController] [create]  cancelling payments...`);
 
-      const infoDossierPayments: InfoDossierPayments = await this.paymentsService.getDossierPayments(data.dossier.id.toString());
       //Falta cambiar el de arriba por el de abajo para obtener la informacion completa de un dossier para saber si no es tarjeta
-      //const dossier: DossierDto = await this.dossiersService.findDossierById((data.dossier.id).toString());
+      const dossier: DossierDto = await this.dossiersService.findDossierById(data.dossier.id.toString());
 
-      const filteredPayments: InfoPayment[] = infoDossierPayments.dossier_payments.filter((x) => {
-        return x.status != 'COMPLETED' && x.status != 'COMPLETED_AGENT' && x.status != 'ERROR' && x.status != 'CANCELLED';
-      });
+      if (dossier.dossier_payments && dossier.dossier_payments.length && dossier.dossier_payments[0].id_method_payment !== 2) {
+        const filteredPayments: DossierPaymentInstallment = dossier.dossier_payments.find((payment) => {
+          return !['COMPLETED', 'COMPLETED_AGENT', 'ERROR', 'CANCELLED'].includes(payment.status);
+        });
 
-      if (filteredPayments.length > 0) {
-        const checkoutId = await this.checkoutService.getCheckoutByDossierId(data.dossier.id);
+        if (filteredPayments) {
+          const checkoutId = await this.checkoutService.getCheckoutByDossierId(data.dossier.id);
 
-        this.checkoutService
-          .cancelCheckout(checkoutId)
-          .then(() => {
-            logger.info(`[BookingServicesController] [create]  payments cancelled for ${data.dossier.id}`);
+          this.checkoutService
+            .cancelCheckout(checkoutId)
+            .then(() => {
+              logger.info(`[BookingServicesController] [create]  payments cancelled for ${data.dossier.id}`);
 
-            this.paymentsService.updateDossierPaymentsByCheckout(checkoutId).catch((error) => {
-              logger.warning(`[BookingServicesController] [create]  payments not update for ${error.stack}`);
+              this.paymentsService.updateDossierPaymentsByCheckout(checkoutId).catch((error) => {
+                logger.warning(`[BookingServicesController] [create]  payments not update for ${error.stack}`);
+              });
+            })
+            .catch((error) => {
+              logger.warning(`[BookingServicesController] [create]  payments not cancelled  ${error.stack}`);
             });
-          })
-          .catch((error) => {
-            logger.warning(`[BookingServicesController] [create]  payments not cancelled  ${error.stack}`);
-          });
+        }
       }
     }
 
