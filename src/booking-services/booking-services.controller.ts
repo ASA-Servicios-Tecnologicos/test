@@ -60,6 +60,9 @@ export class BookingServicesController {
           await this.callCenterService.cancelDossier(dossier.id.toString());
         }
       }
+    } else {
+      const historyPrice = await this.bookingServicesServiceLocal.getPriceHistory({ booking_service: bookingServiceId });
+      console.log(historyPrice);
     }
 
     return data;
