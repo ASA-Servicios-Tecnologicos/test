@@ -1,4 +1,4 @@
-import { Pax } from "./call-center.dto";
+import { Pax } from './call-center.dto';
 
 export class ManagementBookingServicesByDossierDTO {
   id: number;
@@ -47,6 +47,7 @@ export class ManagementBookingServicesByDossierDTO {
 export class ManagementBookingServiceDTO {
   id: number;
   code: string;
+  provider_status: string;
   dossier: {
     id: number;
     code: string;
@@ -147,8 +148,37 @@ export class AddPassengerTransferDto {
   pax: Pax;
 }
 
-
 export class AddPassengerHotelRoomDto {
   hotel_room: number;
   pax: Pax;
+}
+
+export class PriceHistoryDto {
+  id?: number;
+  active?: boolean;
+  creation_date?: Date;
+  created_by?: Date;
+  update_date?: string;
+  update_by: string;
+  amount?: number;
+  commissionable_price?: number;
+  non_commissionable_price?: number;
+  commission_amount?: number;
+  commission_taxes_amount?: number;
+  net_amount?: number;
+  booking_service?: number;
+}
+
+export class CreatePriceHistoryDto {
+  amount?: number;
+  commissionable_price?: number;
+  non_commissionable_price?: number;
+  commission_amount?: number;
+  commission_taxes_amount?: number;
+  net_amount?: number;
+  booking_service?: number;
+}
+
+export class PriceHistoryFilterParamsDTO {
+  booking_service?: string;
 }

@@ -1,4 +1,4 @@
-import { CreateDossierPaymentDTO, UpdateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
+import { CreateDossierPaymentDTO, InfoPayment, UpdateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from 'src/configuration/configuration.service';
@@ -11,7 +11,7 @@ import { Model } from 'mongoose';
 import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
 import { DossiersService } from 'src/dossiers/dossiers.service';
 import { CheckoutBuyer, CheckoutContact } from 'src/shared/dto/checkout.dto';
-
+import { logger } from '../logger';
 @Injectable()
 export class PaymentsService {
   constructor(
@@ -66,11 +66,13 @@ export class PaymentsService {
     return dossiers;
   }
 
-  async updateDossierPaymentsByCheckout(checkoutId: string) {
+  async updateDossierPaymentsByCheckout(checkoutId: string, searchErrors: boolean = false) {
+    logger.info(`[PaymentsService] [updateDossierPaymentsByCheckout]  init`);
+
     const checkout = await this.checkoutService.getCheckout(checkoutId);
-    console.log(checkout);
+
     const booking = await this.bookingModel.findOne({ bookingId: checkout.booking.bookingId }).exec();
-    console.log(booking);
+
     const dossierPayments: CreateUpdateDossierPaymentDTO = {
       dossier: booking.dossier,
       bookingId: checkout.booking.bookingId,
@@ -79,34 +81,34 @@ export class PaymentsService {
       paymentMethods: checkout.payment.methodType === 'CARD' ? 4 : 2,
       amount: checkout.payment.amount,
     };
-    // const errorPayments = checkout.payment.installments
-    //   .filter((installment) => installment.status !== 'COMPLETED')
-    //   .map((installment, index) => {
-    //     if (installment.status === 'ERROR') {
-    //       return index + 1;
-    //     }
-    //   });
 
-    // if (errorPayments.length) {
-    //   this.dossiersService.patchDossierById(booking.dossier, {
-    //     dossier_situation: 7,
-    //     observation: `Ha ocurrido un error en ${errorPayments.length > 1 ? 'los pagos' : 'el pago'} ${errorPayments
-    //       .toString()
-    //       .split(',')
-    //       .join(', ')}`,
-    //   });
-    // }
+    if (searchErrors) {
+      const paymentsBD = (await this.getDossierPayments(booking.dossier.toString())).dossier_payments;
 
-    // let dossierDto: DossierDto;
+      const errorPayments = checkout.payment.installments
+        .filter((installment) => {
+          const payment: InfoPayment = paymentsBD.find((p) => {
+            return p.paid_date == installment.dueDate && p.paid_amount == installment.amount.value;
+          });
 
-    // if (booking && booking.dossier) {
-    //   dossierDto = await this.dossiersService.findDossierById(booking.dossier + '');
-    // }
+          return installment.status === 'ERROR' && payment?.status === 'PENDING';
+        })
+        .map((installment) => installment.dueDate);
 
-    // const pendingPayments = checkout.payment.installments.filter((installment) => installment.status !== 'COMPLETED');
-    // if (!pendingPayments.length) {
-    //   this.sendBonoEmail(dossierDto?.code, booking, checkout.contact, checkout.buyer);
-    // }
+      if (errorPayments.length) {
+        const observation = `Ha ocurrido un error en ${
+          errorPayments.length > 1 ? 'los pagos de las fechas' : 'el pago de la fecha'
+        } ${errorPayments.toString().split(',').join(', ')}`;
+
+        await this.dossiersService.patchDossierById(booking.dossier, {
+          dossier_situation: 7,
+          observation: observation,
+        });
+
+        logger.warn(`[PaymentsService] [updateDossierPaymentsByCheckout]  ${observation}`);
+      }
+    }
+
     return this.updateDossierPayments(dossierPayments);
   }
 

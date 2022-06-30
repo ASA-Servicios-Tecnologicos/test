@@ -25,6 +25,6 @@ import { ObservationsModule } from './observations/observations.module';
   ],
   controllers: [CallCenterController],
   providers: [CallCenterService],
-  exports: [],
+  exports: [CallCenterService],
 })
 export class CallCenterModule {}

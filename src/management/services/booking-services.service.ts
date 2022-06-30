@@ -12,9 +12,12 @@ import { CreateTransferDTO, CreateUpdateBookingServicePax, Pax, TransferDTO } fr
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
 
+
 @Injectable()
 export class BookingServicesService {
-  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
+  constructor(private readonly managementHttpService: ManagementHttpService, 
+    private readonly appConfigService: AppConfigService,
+    ) {}
 
   getBookingServicesByDossierId(dossierId: string): Promise<ManagementBookingServicesByDossierDTO[]> {
     return this.managementHttpService.get<ManagementBookingServicesByDossierDTO[]>(
@@ -22,10 +25,10 @@ export class BookingServicesService {
     );
   }
 
-  getBookingServiceById(id: string, force: string = 'false', headers?: HeadersDTO): Promise<ManagementBookingServiceDTO> {
-    return this.managementHttpService.get<ManagementBookingServiceDTO>(
-      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`, { headers }
-    );
+  async getBookingServiceById(id: string, force: string = 'false', headers?: HeadersDTO): Promise<ManagementBookingServiceDTO> {
+     return await this.managementHttpService.get<ManagementBookingServiceDTO>(
+       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`, { headers }
+     );
   }
 
   createBookingService(createBookingServiceDTO) {

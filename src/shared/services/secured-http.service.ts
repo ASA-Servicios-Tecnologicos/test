@@ -18,7 +18,6 @@ export abstract class SecuredHttpService {
   }
 
   protected getSessionToken(): Promise<string> {
-    logger.info(`[SecuredHttpService] [getSessionToken] init method`)
     const data = new URLSearchParams();
     data.append('scope', this.appConfigService.SESSION_SCOPE);
     data.append('grant_type', this.appConfigService.SESSION_GRANT_TYPE);
@@ -26,6 +25,8 @@ export abstract class SecuredHttpService {
     data.append('password', this.appConfigService.SESSION_PASSWORD);
     data.append('client_id', this.appConfigService.SESSION_CLIENTID);
     data.append('client_secret', this.appConfigService.SESSION_CLIENT_SECRET);
+
+    logger.info(`[SecuredHttpService] [getSessionToken] --url ${this.appConfigService.SESSION_TOKEN_URL} --data ${data}`);
 
     return lastValueFrom(
       this.http
@@ -36,13 +37,13 @@ export abstract class SecuredHttpService {
         })
         .pipe(map((result) => result.data.access_token)),
     ).catch((error) => {
-      logger.error(`[SecuredHttpService] [getSessionToken] ${error.stack}`)
+      logger.error(`[SecuredHttpService] [getSessionToken] ${error.stack}`);
       return error;
     });
   }
 
   protected async postSecured(url: string, data?: any) {
-    logger.info(`[SecuredHttpService] [postSecured] init method`)
+    logger.info(`[SecuredHttpService] [postSecured] --url ${url}`);
     const token = await this.getSessionToken();
 
     return lastValueFrom(
@@ -55,16 +56,16 @@ export abstract class SecuredHttpService {
         },
       }),
     ).catch((error) => {
-      logger.error(`[SecuredHttpService] [postSecured] ${error.stack}`)
+      logger.error(`[SecuredHttpService] [postSecured] ${error.stack}`);
 
       throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
     });
   }
 
   protected async getSecured(url: string, body?) {
-    logger.info(`[SecuredHttpService] [getSecured] init method`)
+    logger.info(`[SecuredHttpService] [getSecured] --url ${url}`);
     const token = await this.getSessionToken();
-    console.log(url)
+    console.log(url);
     return lastValueFrom(
       this.http
         .get(url, {
@@ -78,7 +79,7 @@ export abstract class SecuredHttpService {
         })
         .pipe(map((res) => res.data)),
     ).catch((error) => {
-      logger.error(`[SecuredHttpService] [getSecured] ${error.stack}`)
+      logger.error(`[SecuredHttpService] [getSecured] ${error.stack}`);
       throw new HttpException({ message: error.message, error: error.response.data || error.message }, error.response.status);
     });
   }
