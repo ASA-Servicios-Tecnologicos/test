@@ -45,10 +45,9 @@ export class BookingServicesController {
     const data = await this.bookingServicesService.getBookingServiceById(bookingServiceId, force, headers);
 
     logger.info(`[BookingServicesController] [create]  el status de reserva del servicio ${bookingServiceId} es ${data.provider_status}`);
-    data.provider_status = 'CANCELLED';
+
     if (data.provider_status === 'CANCELLED') {
       logger.info(`[BookingServicesController] [create]  cancelling payments...`);
-
       const dossier: DossierDto = await this.dossiersService.findDossierById(data.dossier.id.toString());
 
       if (dossier.dossier_payments && dossier.dossier_payments.length) {
@@ -61,8 +60,8 @@ export class BookingServicesController {
         }
       }
     } else {
-      const historyPrice = await this.bookingServicesServiceLocal.getPriceHistory({ booking_service: bookingServiceId });
-      console.log(historyPrice);
+      // const historyPrice = await this.bookingServicesServiceLocal.getPriceHistory({ booking_service: bookingServiceId });
+      // console.log(historyPrice);
     }
 
     return data;
