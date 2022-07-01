@@ -22,8 +22,8 @@ steps:
     
   - name: 'sonarsource/sonar-scanner-cli:4.7'
     args:
-    - '-Dsonar.host.url=https://sonarqube.cloudappi.net'
-    - '-Dsonar.login=e98aa0c485fe9710d12eb8d34eafb096a1a5abed'
+    - '-Dsonar.host.url=https://sonarqube.tecnoturis.es'
+    - '-Dsonar.login=sqp_fba2af8768270881138e478f9950c372be0975f5
     - '-Dsonar.projectKey=flowo-ota-backend'
     - '-Dsonar.sources=.'
   
