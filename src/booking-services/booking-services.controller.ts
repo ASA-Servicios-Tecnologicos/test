@@ -64,7 +64,7 @@ export class BookingServicesController {
     } else {
       const totalPayments = dossier.dossier_payments.reduce((previousValue, currentValue) => previousValue + currentValue.paid_amount, 0);
 
-      const tpvp = dossier.services[0].total_pvp - dossier.services[0].discount;
+      const tpvp = dossier.services[0].total_pvp;
 
       const tpaid = tpvp - totalPayments;
 
@@ -75,7 +75,7 @@ export class BookingServicesController {
           dossier_id: dossier.id,
           paid_amount: tpaid,
           status_id: 3,
-          observation: 'Cobro/Devolución por diferencia de precio',
+          observation: `${tpaid > 0 ? 'Cobro' : 'Devolución'} por diferencia de precio`,
         };
         const newPayment = await this.paymentsService.createDossierPaymentByAgente(new_paymet);
         console.log(newPayment);
