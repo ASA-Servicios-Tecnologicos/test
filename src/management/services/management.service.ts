@@ -1,6 +1,6 @@
 import { HttpException, HttpService, Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { LoginPayloadDTO } from 'src/shared/dto/login-payload.dto';
+import { LoginPayloadDTO } from '../../shared/dto/login-payload.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { CacheService } from '../../shared/services/cache.service';
 import { MANAGEMENT_CACHED_TOKEN_KEY } from '../../shared/shared.constants';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AddPassengerHotelRoomDto } from 'src/shared/dto/booking-service.dto';
+import { AddPassengerHotelRoomDto } from '../../shared/dto/booking-service.dto';
 import { HotelBookingRoomsService } from '../../management/services/hotel-booking-rooms.service';
 import { CreateHotelBookingRoomDTO, ManagementHotelBookingRoomDTO } from '../../shared/dto/hotel-booking-room.dto';
 

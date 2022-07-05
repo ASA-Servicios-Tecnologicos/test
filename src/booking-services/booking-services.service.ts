@@ -1,7 +1,7 @@
 import { CreatePriceHistoryDto, PriceHistoryDto, PriceHistoryFilterParamsDTO } from './../shared/dto/booking-service.dto';
-import { AppConfigService } from 'src/configuration/configuration.service';
+import { AppConfigService } from '../configuration/configuration.service';
 import { HeadersDTO } from './../shared/dto/header.dto';
-import { ManagementHttpService } from 'src/management/services/management-http.service';
+import { ManagementHttpService } from '../management/services/management-http.service';
 import { Injectable } from '@nestjs/common';
 import { pickBy } from 'lodash';
 

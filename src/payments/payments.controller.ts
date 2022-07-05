@@ -1,9 +1,9 @@
 import { UpdateDossierPaymentDTO, CreateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
 import { Body, Controller, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
 import { PaymentsService } from './payments.service';
 import {CheckoutService} from "../checkout/services/checkout.service";
+import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 // TODO: Request payload validators and type responses
 @Controller('payments')
 export class PaymentsController {

@@ -1,11 +1,8 @@
 import { CreatePriceHistoryDto, PriceHistoryFilterParamsDTO } from './../shared/dto/booking-service.dto';
 import { InfoPayment } from './../shared/dto/dossier-payment.dto';
-import { DossierDto } from 'src/shared/dto/dossier.dto';
-import { CreateDossierPaymentDTO, DossierPaymentInstallment, InfoDossierPayments } from 'src/shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
 import { Controller, Get, Param, Query, Headers, Post, Body } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { BookingServicesService } from 'src/management/services/booking-services.service';
 
 import { PaymentsService } from '../payments/payments.service';
 import { CheckoutService } from '../checkout/services/checkout.service';
@@ -15,7 +12,10 @@ import { BookingServicesServiceLocal } from './booking-services.service';
 
 import { logger } from '../logger';
 import { pickBy } from 'lodash';
-import { CallCenterService } from 'src/call-center/call-center.service';
+import { BookingServicesService } from '../management/services/booking-services.service';
+import { CallCenterService } from '../call-center/call-center.service';
+import { DossierDto } from '../shared/dto/dossier.dto';
+import { DossierPaymentInstallment } from '../shared/dto/dossier-payment.dto';
 
 @Controller('booking-services')
 export class BookingServicesController {
