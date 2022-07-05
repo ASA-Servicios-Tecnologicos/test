@@ -1,17 +1,17 @@
 import { CreateDossierPaymentDTO, InfoPayment, UpdateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpService, Injectable } from '@nestjs/common';
-import { AppConfigService } from 'src/configuration/configuration.service';
-import { ManagementHttpService } from 'src/management/services/management-http.service';
-import { CreateUpdateDossierPaymentDTO, DossierPayment, InfoDossierPayments } from 'src/shared/dto/dossier-payment.dto';
-import { CheckoutService } from 'src/checkout/services/checkout.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Booking, BookingDocument } from 'src/shared/model/booking.schema';
 import { Model } from 'mongoose';
-import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
-import { DossiersService } from 'src/dossiers/dossiers.service';
-import { CheckoutBuyer, CheckoutContact } from 'src/shared/dto/checkout.dto';
 import { logger } from '../logger';
+import { AppConfigService } from '../configuration/configuration.service';
+import { ManagementHttpService } from '../management/services/management-http.service';
+import { CheckoutService } from '../checkout/services/checkout.service';
+import { Booking, BookingDocument } from '../shared/model/booking.schema';
+import { BookingDocumentsService } from '../booking-documents/services/booking-documents.service';
+import { DossiersService } from '../dossiers/dossiers.service';
+import { CreateUpdateDossierPaymentDTO, DossierPayment, InfoDossierPayments } from '../shared/dto/dossier-payment.dto';
+import { CheckoutContact, CheckoutBuyer } from '../shared/dto/checkout.dto';
 @Injectable()
 export class PaymentsService {
   constructor(

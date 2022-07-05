@@ -1,6 +1,6 @@
 import { HeadersDTO } from './../../shared/dto/header.dto';
 import { Injectable } from '@nestjs/common';
-import { ContentAPI } from 'src/shared/dto/content-api.dto';
+import { ContentAPI } from '../../shared/dto/content-api.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import {
   AddPassengerFlightDto,

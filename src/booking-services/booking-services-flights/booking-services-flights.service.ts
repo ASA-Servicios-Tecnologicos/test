@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AddPassengerFlightDto } from 'src/shared/dto/booking-service.dto';
+import { AddPassengerFlightDto } from '../../shared/dto/booking-service.dto';
 import { BookingServicesService } from '../../management/services/booking-services.service';
 import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
 

@@ -1,7 +1,7 @@
 import { HeadersDTO } from './../shared/dto/header.dto';
 
 import { Injectable } from '@nestjs/common';
-import { DossierDto } from 'src/shared/dto/dossier.dto';
+import { DossierDto } from '../shared/dto/dossier.dto';
 import { AppConfigService } from '../configuration/configuration.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
 

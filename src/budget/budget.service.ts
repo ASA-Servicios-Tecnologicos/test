@@ -1,5 +1,4 @@
 import { HttpService, Injectable } from '@nestjs/common';
-import { BookingService } from 'src/booking/booking.service';
 import { AppConfigService } from '../configuration/configuration.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
 import { ClientService } from '../management/services/client.service';
@@ -8,6 +7,7 @@ import { ManagementBookingServiceDTO, ManagementBookingServicesByDossierDTO } fr
 import { BudgetDto, CreateBudgetDto, CreateManagementBudgetDto, ManagementBudgetDto } from '../shared/dto/budget.dto';
 import { CreateBudgetResponseDTO } from '../shared/dto/create-budget-response.dto';
 import { ManagementClientDTO } from '../shared/dto/management-client.dto';
+import { BookingService } from '../booking/booking.service';
 
 @Injectable()
 export class BudgetService {
