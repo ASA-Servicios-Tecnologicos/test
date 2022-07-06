@@ -131,7 +131,23 @@ export class NotificationService extends SecuredHttpService {
       applicationName: 'booking-flowo-tecnoturis',
       from: 'noreply@mg.flowo.com',
       to: [email],
-      subject: '¡Tu reserva ah sido cancelada!',
+      subject: '¡Tu reserva ha sido cancelada!',
+      body: template,
+      contentType: 'HTML',
+    };
+
+    return this.sendMailRaw(emailData);
+  }
+
+  sendObservation(email: string, data: any) {
+    logger.info(`[NotificationService] [sendCancelation] init method`);
+    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['SEND_OBSERVATION'], data);
+    const emailData: EmailDTO = {
+      uuid: uuidv4(),
+      applicationName: 'booking-flowo-tecnoturis',
+      from: 'noreply@mg.flowo.com',
+      to: [email],
+      subject: '¡Tienes una nueva notificación!',
       body: template,
       contentType: 'HTML',
     };
