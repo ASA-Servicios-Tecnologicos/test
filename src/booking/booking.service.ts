@@ -251,6 +251,7 @@ export class BookingService {
             airportArrivalName: '',
           },
           paxes: this.buildPaxesReserveV2(checkOut.passengers, false),
+          checkoutId: checkOut.checkoutId,
         },
       ],
       dossier: null,
@@ -653,17 +654,15 @@ export class BookingService {
   }
 
   private validateAndConvertPayments(methodType: string, payments: Array<DossierPaymentInstallment>) {
-    if(methodType === 'BANK_TRANSFER'){
-      const paymentFilters = payments.map((payment)=>{
-        payment.status='PENDING'
+    if (methodType === 'BANK_TRANSFER') {
+      const paymentFilters = payments.map((payment) => {
+        payment.status = 'PENDING';
         return payment;
       });
       logger.info(`[BookingService] [validateAndConvertPayments]  payments convert to PENDING`);
       return paymentFilters;
-
-    }else{
+    } else {
       return payments;
     }
   }
-
 }
