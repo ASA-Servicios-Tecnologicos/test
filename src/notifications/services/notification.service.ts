@@ -125,15 +125,14 @@ export class NotificationService extends SecuredHttpService {
 
   sendCancelation(email: string) {
     logger.info(`[NotificationService] [sendCancelation] init method`);
-    //const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['CONFIRM_NEWSLETTER'], '');
+    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['CANCELATION_BOOKING'], '');
     const emailData: EmailDTO = {
       uuid: uuidv4(),
       applicationName: 'booking-flowo-tecnoturis',
       from: 'noreply@mg.flowo.com',
       to: [email],
       subject: '¡Gracias por cancelar tu reserva Flowo!',
-      //body: template,
-      body: '<h1>Cancelado</h1><span>by Osti</span>',
+      body: template,
       contentType: 'HTML',
     };
 
