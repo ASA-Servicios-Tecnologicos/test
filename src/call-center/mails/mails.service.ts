@@ -5,6 +5,7 @@ import { DossiersService } from './../../dossiers/dossiers.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
 import { Injectable } from '@nestjs/common';
 import { logger } from '../../logger';
+import { ObservationsService } from '../observations/observations.service';
 @Injectable()
 export class MailsService {
   constructor(
@@ -13,6 +14,7 @@ export class MailsService {
     private readonly checkoutService: CheckoutService,
     private readonly bookingServicesService: BookingServicesService,
     private readonly notificationService: NotificationService,
+    private readonly observationsService: ObservationsService,
   ) {}
 
   async sendCancelation(data: any) {
@@ -52,6 +54,9 @@ export class MailsService {
       console.log('checkout ', checkout);
       const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
       console.log('dataContentApi ', dataContentApi);
+
+      const observations = await this.observationsService.getObservations({ dossier: data.dossierId, type: '1' });
+      console.log('observations ', observations);
 
       //aca se ponen las variables que se mostraran en el mensaje
       const contentInfo: any = {
