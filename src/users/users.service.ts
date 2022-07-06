@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ManagementService } from 'src/management/services/management.service';
 import { AppConfigService } from '../configuration/configuration.service';
 import { LoginPayloadDTO } from '../shared/dto/login-payload.dto';
+import { ManagementService } from '../management/services/management.service';
 
 @Injectable()
 export class UsersService {

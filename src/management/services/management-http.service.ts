@@ -2,9 +2,9 @@ import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/comm
 import { firstValueFrom } from 'rxjs';
 import { ManagementService } from './management.service';
 import { AxiosRequestConfig } from 'axios';
-import { CacheService } from 'src/shared/services/cache.service';
-import { INSTANA_MONITORING_COOKIE } from 'src/shared/shared.constants';
 import { logger } from '../../logger';
+import { CacheService } from '../../shared/services/cache.service';
+import { INSTANA_MONITORING_COOKIE } from '../../shared/shared.constants';
 
 @Injectable()
 export class ManagementHttpService {

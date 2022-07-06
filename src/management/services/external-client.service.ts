@@ -1,10 +1,11 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { AppConfigService } from 'src/configuration/configuration.service';
-import { CreateExternalUserDTO, ExternalUserDTO } from 'src/shared/dto/external-user.dto';
 import { CLIENT_NOT_ACTIVE_ERROR } from '../management.constants';
 import { ClientService } from './client.service';
 import { ManagementHttpService } from './management-http.service';
 import { logger } from '../../logger';
+import { AppConfigService } from '../../configuration/configuration.service';
+import { CreateExternalUserDTO } from '../../shared/dto/external-user.dto';
+import { ExternalUserDTO } from '../../shared/dto/external-user.dto';
 @Injectable()
 export class ExternalClientService {
   constructor(

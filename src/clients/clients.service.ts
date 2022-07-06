@@ -1,13 +1,13 @@
-import { DossiersService } from 'src/dossiers/dossiers.service';
 import { CacheService } from './../shared/services/cache.service';
-import { SecuredHttpService } from 'src/shared/services/secured-http.service';
 import { AppConfigService } from './../configuration/configuration.service';
 
 import { ForbiddenException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import { logger } from '../logger';
-import { ClientService } from 'src/management/services/client.service';
-import { GetManagementClientInfoByUsernameDTO } from 'src/shared/dto/management-client.dto';
+import { SecuredHttpService } from '../shared/services/secured-http.service';
+import { DossiersService } from '../dossiers/dossiers.service';
+import { ClientService } from '../management/services/client.service';
+import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 
 @Injectable()
 export class ClientsService extends SecuredHttpService {
