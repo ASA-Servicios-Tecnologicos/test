@@ -1,12 +1,13 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { ManagementHttpService } from 'src/management/services/management-http.service';
-import { NotificationService } from 'src/notifications/services/notification.service';
-import { DocumentsDTO, GetDocuments } from 'src/shared/dto/booking-documents.dto';
-import { EmailDTO } from 'src/shared/dto/email.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { v4 as uuidv4 } from 'uuid';
-import { CheckoutBuyer, CheckoutContact } from 'src/shared/dto/checkout.dto';
 import { logger } from '../../logger';
+import { ManagementHttpService } from '../../management/services/management-http.service';
+import { NotificationService } from '../../notifications/services/notification.service';
+import { GetDocuments, DocumentsDTO } from '../../shared/dto/booking-documents.dto';
+import { CheckoutContact } from '../../shared/dto/checkout.dto';
+import { CheckoutBuyer } from '../../shared/dto/checkout.dto';
+import { EmailDTO } from '../../shared/dto/email.dto';
 @Injectable()
 export class BookingDocumentsService {
   constructor(

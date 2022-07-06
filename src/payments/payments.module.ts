@@ -1,13 +1,13 @@
 import { HttpModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BookingDocumentsModule } from 'src/booking-documents/booking-documents.module';
-import { DossiersModule } from 'src/dossiers/dossiers.module';
-import { ManagementModule } from 'src/management/management.module';
-import { Booking, BookingSchema } from 'src/shared/model/booking.schema';
 import { CheckoutModule } from '../checkout/checkout.module';
 import { AppConfigModule } from '../configuration/configuration.module';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
+import { ManagementModule } from '../management/management.module';
+import { BookingDocumentsModule } from '../booking-documents/booking-documents.module';
+import { DossiersModule } from '../dossiers/dossiers.module';
+import { Booking, BookingSchema } from '../shared/model/booking.schema';
 
 @Module({
   imports: [

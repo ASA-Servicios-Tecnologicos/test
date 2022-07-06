@@ -1,13 +1,13 @@
 import { HeadersDTO } from './../../shared/dto/header.dto';
 import { Injectable } from '@nestjs/common';
-import { PatchExternalClient } from 'src/shared/dto/external-user.dto';
 import { AppConfigService } from '../../configuration/configuration.service';
 import { DossierClientDTO } from '../../shared/dto/dossier-client.dto';
 import { GetManagementDossiersByClientId } from '../../shared/dto/dossier.dto';
 import { CreateFavouriteByUser } from '../../shared/dto/favourites.dto';
 import { GetManagementClientInfoByUsernameDTO, ManagementClientDTO, IntegrationClientDTO } from '../../shared/dto/management-client.dto';
-import { NotificationService } from 'src/notifications/services/notification.service';
 import { ManagementHttpService } from './management-http.service';
+import { NotificationService } from '../../notifications/services/notification.service';
+import { PatchExternalClient } from '../../shared/dto/external-user.dto';
 
 @Injectable()
 export class ClientService {

@@ -7,25 +7,26 @@ import { BookingDTO, BookPackageProviderDTO, CreateManagementBookDto, Management
 import { Booking, BookingDocument } from '../shared/model/booking.schema';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { v4 as uuidv4 } from 'uuid';
-import { AppConfigService } from 'src/configuration/configuration.service';
-import { CheckoutBuyer, CheckoutContact, CheckoutDTO, CheckoutPassenger, CreateCheckoutDTO } from 'src/shared/dto/checkout.dto';
-import { ManagementHttpService } from 'src/management/services/management-http.service';
-import { PrebookingDTO } from 'src/shared/dto/pre-booking.dto';
-import { ClientService } from 'src/management/services/client.service';
-import { ExternalClientService } from 'src/management/services/external-client.service';
-import { GetManagementClientInfoByUsernameDTO } from 'src/shared/dto/management-client.dto';
-import { PaymentsService } from 'src/payments/payments.service';
-import { CreateUpdateDossierPaymentDTO } from 'src/shared/dto/dossier-payment.dto';
-import { DossiersService } from 'src/dossiers/dossiers.service';
-import { DiscountCodeService } from 'src/management/services/dicount-code.service';
-import { NotificationService } from 'src/notifications/services/notification.service';
-import { DossierDto } from 'src/shared/dto/dossier.dto';
-import { OtaClientDTO } from 'src/shared/dto/ota-client.dto';
 import t from 'typy';
-import { BookingDocumentsService } from 'src/booking-documents/services/booking-documents.service';
-import { BookingServicesService } from 'src/management/services/booking-services.service';
-import { ContentAPI } from 'src/shared/dto/content-api.dto';
 import { logger } from '../logger';
+import { ManagementHttpService } from '../management/services/management-http.service';
+import { AppConfigService } from '../configuration/configuration.service';
+import { ClientService } from '../management/services/client.service';
+import { ExternalClientService } from '../management/services/external-client.service';
+import { PaymentsService } from '../payments/payments.service';
+import { DossiersService } from '../dossiers/dossiers.service';
+import { DiscountCodeService } from '../management/services/dicount-code.service';
+import { NotificationService } from '../notifications/services/notification.service';
+import { BookingDocumentsService } from '../booking-documents/services/booking-documents.service';
+import { BookingServicesService } from '../management/services/booking-services.service';
+import { CreateCheckoutDTO } from '../shared/dto/checkout.dto';
+import { PrebookingDTO } from '../shared/dto/pre-booking.dto';
+import { DossierDto } from '../shared/dto/dossier.dto';
+import { CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
+import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
+import { OtaClientDTO } from '../shared/dto/ota-client.dto';
+import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
+import { ContentAPI } from '../shared/dto/content-api.dto';
 
 @Injectable()
 export class BookingService {

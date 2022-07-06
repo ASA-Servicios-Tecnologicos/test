@@ -3,9 +3,9 @@ import { AppConfigService } from '../../configuration/configuration.service';
 import { EmailDTO, HTML_TEMPLATES } from '../../shared/dto/email.dto';
 import { SecuredHttpService } from '../../shared/services/secured-http.service';
 import { v4 as uuidv4 } from 'uuid';
-import { CacheService } from 'src/shared/services/cache.service';
-import { HtmlTemplateService } from 'src/shared/services/html-template.service';
 import { logger } from '../../logger';
+import { CacheService } from '../../shared/services/cache.service';
+import { HtmlTemplateService } from '../../shared/services/html-template.service';
 @Injectable()
 export class NotificationService extends SecuredHttpService {
   constructor(

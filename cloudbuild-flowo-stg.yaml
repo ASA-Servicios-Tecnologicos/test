@@ -19,15 +19,6 @@ steps:
     volumes:
       - name: 'ssh'
         path: /root/.ssh
-    
-  - name: 'sonarsource/sonar-scanner-cli:4.7'
-    args:
-    - '-Dsonar.host.url=https://sonarqube.cloudappi.net'
-    - '-Dsonar.login=e98aa0c485fe9710d12eb8d34eafb096a1a5abed'
-    - '-Dsonar.projectKey=flowo-ota-backend'
-    - '-Dsonar.sources=.'
-  
-
 
   - name: 'gcr.io/cloud-builders/docker'
     id: Build Image
