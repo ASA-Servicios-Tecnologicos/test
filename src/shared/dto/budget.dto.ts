@@ -239,6 +239,7 @@ export class ManagementBudgetPackageDataDTO {
     airportArrivalCity: string;
     airportArrivalName: string;
   };
+  checkoutId: string;
 }
 
 export class CreateManagementBudgetDto {
