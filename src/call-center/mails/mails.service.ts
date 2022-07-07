@@ -61,7 +61,9 @@ export class MailsService {
       //aca se ponen las variables que se mostraran en el mensaje
       const contentInfo: any = {
         buyerName: dossier.client.name,
+        observation: data.observation,
       };
+      console.log('contentInfo ', contentInfo);
 
       const confimation = await this.notificationService.sendObservation(dossier.client.email, contentInfo);
 

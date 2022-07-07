@@ -16,7 +16,7 @@ export class MailsController {
   @Post('/send-observation')
   @HttpCode(200)
   @ApiResponse({ status: 200, description: 'Mail enviado.' })
-  sendObservation(@Body() data: { dossierId: String }) {
+  sendObservation(@Body() data: { dossierId: String; observation: String }) {
     return this.mailsService.sendObservation(data);
   }
 }
