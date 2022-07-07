@@ -37,4 +37,5 @@ export const HTML_TEMPLATES = {
 export enum DossierPaymentMethods {
   'Transferencia bancaria' = 'BANK_TRANSFER',
   'Tarjeta de Credito' = 'CARD',
+  'Bizum' = 'BIZUM', //Falta confirma si se llema asi
 }

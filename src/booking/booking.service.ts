@@ -27,6 +27,7 @@ import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto
 import { OtaClientDTO } from '../shared/dto/ota-client.dto';
 import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
+import { getCodeMethodType } from '../utils/utils';
 
 @Injectable()
 export class BookingService {
@@ -282,7 +283,7 @@ export class BookingService {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
         bookingId: booking.bookingId,
-        paymentMethods: checkOut.payment.methodType === 'CARD' ? 4 : 2,
+        paymentMethods: getCodeMethodType(checkOut.payment.methodType),
         amount: {
           value: booking.amount,
           currency: booking.currency,
