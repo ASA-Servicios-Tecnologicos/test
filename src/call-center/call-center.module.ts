@@ -10,6 +10,7 @@ import { BudgetModule } from '../budget/budget.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { BookingModule } from '../booking/booking.module';
 import { CheckoutModule } from '../checkout/checkout.module';
+import { MailsModule } from './mails/mails.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CheckoutModule } from '../checkout/checkout.module';
     BookingModule,
     CheckoutModule,
     ObservationsModule,
+    MailsModule,
   ],
   controllers: [CallCenterController],
   providers: [CallCenterService],

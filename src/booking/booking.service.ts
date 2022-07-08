@@ -27,6 +27,7 @@ import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto
 import { OtaClientDTO } from '../shared/dto/ota-client.dto';
 import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
+import { getCodeMethodType } from '../utils/utils';
 
 @Injectable()
 export class BookingService {
@@ -57,12 +58,12 @@ export class BookingService {
     if (booking.discount) {
       netAmount = await this.discountCodeService.validate(booking.discount, netAmount);
       if (netAmount['status']) {
-        logger.error(`[BookingService] [create] --netAmount ${netAmount}`);
+        logger.warn(`[BookingService] [create] --netAmount ${netAmount}`);
         throw new HttpException({ message: netAmount['message'], error: netAmount['error'] }, netAmount['status']);
       }
     }
     if (!this.verifyBooking(prebookingData, booking) || netAmount !== booking.amount) {
-      logger.error(`[BookingService] [create] booking and prebooking does not match`);
+      logger.error(`[BookingService] [create] booking and prebooking does not match --netAmount ${netAmount} --amount ${booking.amount}`);
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
@@ -251,6 +252,7 @@ export class BookingService {
             airportArrivalName: '',
           },
           paxes: this.buildPaxesReserveV2(checkOut.passengers, false),
+          checkoutId: checkOut.checkoutId,
         },
       ],
       dossier: null,
@@ -281,7 +283,7 @@ export class BookingService {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
         bookingId: booking.bookingId,
-        paymentMethods: checkOut.payment.methodType === 'CARD' ? 4 : 2,
+        paymentMethods: getCodeMethodType(checkOut.payment.methodType),
         amount: {
           value: booking.amount,
           currency: booking.currency,
@@ -653,17 +655,15 @@ export class BookingService {
   }
 
   private validateAndConvertPayments(methodType: string, payments: Array<DossierPaymentInstallment>) {
-    if(methodType === 'BANK_TRANSFER'){
-      const paymentFilters = payments.map((payment)=>{
-        payment.status='PENDING'
+    if (methodType === 'BANK_TRANSFER') {
+      const paymentFilters = payments.map((payment) => {
+        payment.status = 'PENDING';
         return payment;
       });
       logger.info(`[BookingService] [validateAndConvertPayments]  payments convert to PENDING`);
       return paymentFilters;
-
-    }else{
+    } else {
       return payments;
     }
   }
-
 }

@@ -62,10 +62,11 @@ export class BookingServicesController {
         }
       }
     } else {
-      const totalPayments = dossier.dossier_payments.reduce((previousValue, currentValue) => previousValue + currentValue.paid_amount, 0);
+      const totalPayments = +dossier.dossier_payments
+        .reduce((previousValue, currentValue) => previousValue + currentValue.paid_amount, 0)
+        .toFixed(2);
 
-      const tpvp = dossier.services[0].total_pvp;
-
+      const tpvp = +dossier.services[0].total_pvp.toFixed(2);
       const tpaid = tpvp - totalPayments;
 
       logger.info(`[BookingServicesController] [create]  --tpvp ${tpvp} --totalPayments ${totalPayments} `);
