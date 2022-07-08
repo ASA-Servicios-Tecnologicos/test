@@ -58,12 +58,12 @@ export class BookingService {
     if (booking.discount) {
       netAmount = await this.discountCodeService.validate(booking.discount, netAmount);
       if (netAmount['status']) {
-        logger.error(`[BookingService] [create] --netAmount ${netAmount}`);
+        logger.warn(`[BookingService] [create] --netAmount ${netAmount}`);
         throw new HttpException({ message: netAmount['message'], error: netAmount['error'] }, netAmount['status']);
       }
     }
     if (!this.verifyBooking(prebookingData, booking) || netAmount !== booking.amount) {
-      logger.error(`[BookingService] [create] booking and prebooking does not match`);
+      logger.error(`[BookingService] [create] booking and prebooking does not match --netAmount ${netAmount} --amount ${booking.amount}`);
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
