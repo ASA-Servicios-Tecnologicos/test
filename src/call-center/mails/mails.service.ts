@@ -48,12 +48,12 @@ export class MailsService {
     try {
       const dossier = await this.dossiersService.findDossierById(data.dossierId);
       console.log('dossier ', dossier);
-      const booking = await this.bookingService.findByDossier(data.dossierId);
-      console.log('booking ', booking);
-      const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
-      console.log('checkout ', checkout);
-      const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
-      console.log('dataContentApi ', dataContentApi);
+      // const booking = await this.bookingService.findByDossier(data.dossierId);
+      // console.log('booking ', booking);
+      // const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+      // console.log('checkout ', checkout);
+      // const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
+      // console.log('dataContentApi ', dataContentApi);
 
       const observations = await this.observationsService.getObservations({ dossier: data.dossierId, type: '1' });
       console.log('observations ', observations);
