@@ -51,6 +51,7 @@ export class DossierPayment {
   paid_amount: number;
   paid_date: string;
   status: string;
+  checkout_id?: string;
 }
 export class DossierPaymentInstallment {
   orderCode?: string;
@@ -60,4 +61,5 @@ export class DossierPaymentInstallment {
   status: string;
   paid_amount?: number;
   paid_date?: string;
+  checkoutId?: string;
 }

@@ -96,9 +96,9 @@ export class BookingService {
       checkoutId: checkout.checkoutId,
       hotelCode: t(prebookingData, 'data.hotels[0].hotelId').safeString,
       discount: {
-        rate: booking.discount.rate,
-        amount: booking.discount.amount,
-        amountCurrency: booking.discount.amountCurrency,
+        rate: booking.discount?.rate,
+        amount: booking.discount?.amount,
+        amountCurrency: booking.discount?.amountCurrency,
       },
     };
     const createdBooking = new this.bookingModel(prebooking);
@@ -259,9 +259,9 @@ export class BookingService {
           paxes: this.buildPaxesReserveV2(checkOut.passengers, false),
           checkoutId: checkOut.checkoutId,
           discount: {
-            rate: booking.discount.rate,
-            amount: booking.discount.amount,
-            amountCurrency: booking.discount.amountCurrency,
+            rate: booking.discount?.rate,
+            amount: booking.discount?.amount,
+            amountCurrency: booking.discount?.amountCurrency,
           },
         },
       ],
