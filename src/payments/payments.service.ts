@@ -12,6 +12,7 @@ import { BookingDocumentsService } from '../booking-documents/services/booking-d
 import { DossiersService } from '../dossiers/dossiers.service';
 import { CreateUpdateDossierPaymentDTO, DossierPayment, InfoDossierPayments } from '../shared/dto/dossier-payment.dto';
 import { CheckoutContact, CheckoutBuyer } from '../shared/dto/checkout.dto';
+import { getCodeMethodType } from '../utils/utils';
 @Injectable()
 export class PaymentsService {
   constructor(
@@ -78,7 +79,7 @@ export class PaymentsService {
       bookingId: checkout.booking.bookingId,
       checkoutId: checkout.checkoutId,
       installment: checkout.payment.installments,
-      paymentMethods: checkout.payment.methodType === 'CARD' ? 4 : 2,
+      paymentMethods: getCodeMethodType(checkout.payment.methodType),
       amount: checkout.payment.amount,
     };
 
