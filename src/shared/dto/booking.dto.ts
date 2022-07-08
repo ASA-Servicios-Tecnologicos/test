@@ -42,6 +42,15 @@ export class DistributionDTO {
   type: 'ADULT' | 'CHILD';
 }
 
+export class DiscountDTO {
+  @ApiProperty()
+  rate?: number;
+  @ApiProperty()
+  amount?: any;
+  @ApiProperty()
+  amountCurrency?: any;
+}
+
 export enum PolicyType {
   'ABSOLUTE',
   'PERCENTAGE',

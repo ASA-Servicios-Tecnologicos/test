@@ -1,6 +1,6 @@
 import { ApiParam, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ManagementBookingServiceDTO } from './booking-service.dto';
-import { PolicyType } from './booking.dto';
+import { PolicyType, DiscountDTO } from './booking.dto';
 import { ManagementClientDTO } from './management-client.dto';
 import { OtaClientDTO } from './ota-client.dto';
 
@@ -240,6 +240,7 @@ export class ManagementBudgetPackageDataDTO {
     airportArrivalName: string;
   };
   checkoutId: string;
+  discount: DiscountDTO;
 }
 
 export class CreateManagementBudgetDto {
