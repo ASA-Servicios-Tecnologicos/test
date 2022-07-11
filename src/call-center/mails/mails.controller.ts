@@ -1,22 +1,20 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Res } from '@nestjs/common';
 import { MailsService } from './mails.service';
 import { ApiResponse } from '@nestjs/swagger';
-
+import { Response } from 'express';
 @Controller('call-center/mails')
 export class MailsController {
   constructor(private readonly mailsService: MailsService) {}
 
   @Post('/send-cancelation')
   @HttpCode(200)
-  @ApiResponse({ status: 200, description: 'Mail enviado.' })
-  sendCancelation(@Body() data: { dossierId: String }) {
-    return this.mailsService.sendCancelation(data);
+  sendCancelation(@Body() data: { dossierId: String }, @Res() response: Response) {
+    return this.mailsService.sendCancelation(data, response);
   }
 
   @Post('/send-observation')
   @HttpCode(200)
-  @ApiResponse({ status: 200, description: 'Mail enviado.' })
-  sendObservation(@Body() data: { dossierId: String; observation: String }) {
-    return this.mailsService.sendObservation(data);
+  sendObservation(@Body() data: { dossierId: String; observation: String }, @Res() response: Response) {
+    return this.mailsService.sendObservation(data, response);
   }
 }

@@ -3,9 +3,10 @@ import { BookingServicesService } from './../../management/services/booking-serv
 import { CheckoutService } from './../../checkout/services/checkout.service';
 import { DossiersService } from './../../dossiers/dossiers.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { logger } from '../../logger';
 import { ObservationsService } from '../observations/observations.service';
+import { Response } from 'express';
 @Injectable()
 export class MailsService {
   constructor(
@@ -17,34 +18,36 @@ export class MailsService {
     private readonly observationsService: ObservationsService,
   ) {}
 
-  async sendCancelation(data: any) {
+  async sendCancelation(data: any, response: Response) {
     try {
       const dossier = await this.dossiersService.findDossierById(data.dossierId);
       console.log('dossier ', dossier);
-      const booking = await this.bookingService.findByDossier(data.dossierId);
-      console.log('booking ', booking);
-      const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
-      console.log('checkout ', checkout);
-      const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
-      console.log('dataContentApi ', dataContentApi);
+      // const booking = await this.bookingService.findByDossier(data.dossierId);
+      // console.log('booking ', booking);
+      // const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+      // console.log('checkout ', checkout);
+      // const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
+      // console.log('dataContentApi ', dataContentApi);
 
       //aca se ponen las variables que se mostraran en el mensaje
       const contentInfo: any = {
         buyerName: dossier.client.name,
+        locator: dossier.services[0].locator,
+        code: dossier.code,
       };
 
       const confimation = await this.notificationService.sendCancelation(dossier.client.email, contentInfo);
 
       console.log('confimation ', confimation.data);
       logger.info(`[MailsService] [sendCancelation] ${confimation}`);
-      return { status: 'Send.' };
+      return response.status(HttpStatus.OK).send();
     } catch (error) {
       logger.error(`[MailsService] [sendCancelation] ${error.stack}`);
-      return { status: 'Not send.' };
+      return response.status(HttpStatus.CONFLICT).send();
     }
   }
 
-  async sendObservation(data: any) {
+  async sendObservation(data: any, response: Response) {
     try {
       const dossier = await this.dossiersService.findDossierById(data.dossierId);
       console.log('dossier ', dossier);
@@ -62,6 +65,8 @@ export class MailsService {
       const contentInfo: any = {
         buyerName: dossier.client.name,
         observation: data.observation,
+        locator: dossier.services[0].locator,
+        code: dossier.code,
       };
       console.log('contentInfo ', contentInfo);
 
@@ -69,10 +74,10 @@ export class MailsService {
 
       console.log('confimation ', confimation.data);
       logger.info(`[MailsService] [sendObservation] ${confimation}`);
-      return { status: 'Send.' };
+      return response.status(HttpStatus.OK).send();
     } catch (error) {
       logger.error(`[MailsService] [sendObservation] ${error.stack}`);
-      return { status: 'Not send.' };
+      return response.status(HttpStatus.CONFLICT).send();
     }
   }
 }

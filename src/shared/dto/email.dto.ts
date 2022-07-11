@@ -24,6 +24,7 @@ export interface RawAttachment {
 export interface Metadata {
   locator: string;
   number_dossier: number;
+  type: string;
 }
 
 export const HTML_TEMPLATES = {
@@ -39,4 +40,10 @@ export enum DossierPaymentMethods {
   'Transferencia bancaria' = 'BANK_TRANSFER',
   'Tarjeta de Credito' = 'CARD',
   'Bizum' = 'BIZUM', //Confirmado
+}
+
+export enum TypeEmail {
+  'OBSERVATION' = 'OBSERVATION',
+  'CANCELATION' = 'CANCELATION',
+  'CONFIRMATION' = 'CONFIRMATION',
 }
