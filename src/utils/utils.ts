@@ -11,9 +11,11 @@ export function getCodeMethodType(methodType: string) {
     case 'BANK_TRANSFER':
       id = 2;
       break;
-    default:
-      //Bizum
+    case 'BIZUM':
       id = 7; //Este id debe cambiar, dependiendo de la id que se genere en la base de datos
+      break;
+    default:
+      id = 4;
       break;
   }
 

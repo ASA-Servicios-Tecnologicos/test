@@ -32,10 +32,11 @@ export const HTML_TEMPLATES = {
   CONFIRM_NEWSLETTER: 'src/notifications/templates/subscribed_newsletter.hbs',
   CANCELATION_BOOKING: 'src/notifications/templates/cancelation_booking.hbs',
   SEND_OBSERVATION: 'src/notifications/templates/send_observation.hbs',
+  BIZUM: 'src/notifications/templates/flowo_email_confirmation.hbs',
 };
 
 export enum DossierPaymentMethods {
   'Transferencia bancaria' = 'BANK_TRANSFER',
   'Tarjeta de Credito' = 'CARD',
-  'Bizum' = 'BIZUM', //Falta confirma si se llema asi
+  'Bizum' = 'BIZUM', //Confirmado
 }
