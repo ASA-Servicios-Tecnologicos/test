@@ -142,7 +142,7 @@ export class NotificationService extends SecuredHttpService {
   }
 
   sendObservation(email: string, data: any) {
-    logger.info(`[NotificationService] [sendCancelation] init method`);
+    logger.info(`[NotificationService] [sendObservation] init method`);
     const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['SEND_OBSERVATION'], data);
     const emailData: EmailDTO = {
       uuid: uuidv4(),

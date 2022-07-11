@@ -39,7 +39,6 @@ export class MailsService {
       const confimation = await this.notificationService.sendCancelation(dossier.client.email, contentInfo);
 
       console.log('confimation ', confimation.data);
-      logger.info(`[MailsService] [sendCancelation] ${confimation}`);
       return response.status(HttpStatus.OK).send();
     } catch (error) {
       logger.error(`[MailsService] [sendCancelation] ${error.stack}`);
@@ -58,8 +57,8 @@ export class MailsService {
       // const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
       // console.log('dataContentApi ', dataContentApi);
 
-      const observations = await this.observationsService.getObservations({ dossier: data.dossierId, type: '1' });
-      console.log('observations ', observations);
+      // const observations = await this.observationsService.getObservations({ dossier: data.dossierId, type: '1' });
+      // console.log('observations ', observations);
 
       //aca se ponen las variables que se mostraran en el mensaje
       const contentInfo: any = {
@@ -73,7 +72,6 @@ export class MailsService {
       const confimation = await this.notificationService.sendObservation(dossier.client.email, contentInfo);
 
       console.log('confimation ', confimation.data);
-      logger.info(`[MailsService] [sendObservation] ${confimation}`);
       return response.status(HttpStatus.OK).send();
     } catch (error) {
       logger.error(`[MailsService] [sendObservation] ${error.stack}`);
