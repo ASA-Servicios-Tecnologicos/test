@@ -47,11 +47,13 @@ export class InfoPayment {
 }
 export class DossierPayment {
   id: number;
+  order_code?: string;
   paid_amount: number;
   paid_date: string;
   status: string;
 }
 export class DossierPaymentInstallment {
+  orderCode?: string;
   dueDate: string;
   amount: CheckoutAmount;
   recurrent: boolean;

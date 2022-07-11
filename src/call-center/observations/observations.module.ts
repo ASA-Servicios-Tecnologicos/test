@@ -5,12 +5,9 @@ import { ObservationsController } from './observations.controller';
 import { ObservationsService } from './observations.service';
 
 @Module({
-  imports: [
-    AppConfigModule,
-    ManagementModule,
-  ],
+  imports: [AppConfigModule, ManagementModule],
   controllers: [ObservationsController],
   providers: [ObservationsService],
-  exports: [],
+  exports: [ObservationsService],
 })
 export class ObservationsModule {}

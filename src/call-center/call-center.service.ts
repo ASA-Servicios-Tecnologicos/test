@@ -15,7 +15,7 @@ import { DossiersService } from '../dossiers/dossiers.service';
 import { ManagementHttpService } from '../management/services/management-http.service';
 import { CallCenterBookingFilterParamsDTO, GetBudgetsByClientDTO, GetDossiersByClientDTO } from '../shared/dto/call-center.dto';
 import { logger } from '../logger';
-import { elementAt } from 'rxjs';
+import { getCodeMethodType } from '../utils/utils';
 @Injectable()
 export class CallCenterService {
   constructor(
@@ -190,7 +190,7 @@ export class CallCenterService {
           ...element,
           status: canceled.data.payment.methodType === 'BANK_TRANSFER' ? 'CANCELLED' : element.status,
         })),
-        paymentMethods: canceled.data.payment.methodType === 'CARD' ? 4 : 2,
+        paymentMethods: getCodeMethodType(canceled.data.payment.methodType),
         amount: canceled.data.payment.amount,
       };
       return this.paymentsService.updateDossierPayments(dossierPayments, headers);
@@ -198,6 +198,7 @@ export class CallCenterService {
   }
 
   private determinePaymentMethod(payments: Array<any>) {
+    logger.info(`[CallCenterService] [determinePaymentMethod] --payments ${JSON.stringify(payments)}`);
     if (payments?.length) {
       return DossierPaymentMethods[payments[0].payment_method];
     }

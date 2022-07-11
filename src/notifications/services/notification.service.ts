@@ -22,7 +22,7 @@ export class NotificationService extends SecuredHttpService {
   }
 
   sendConfirmationEmail(data, toEmail: string) {
-    logger.info(`[NotificationService] [sendConfirmationEmail] init method`)
+    logger.info(`[NotificationService] [sendConfirmationEmail] init method`);
     const formatDatesCancellationPollicies = function (text: string) {
       const findings = text?.match(/(\d{1,4}([.\--])\d{1,2}([.\--])\d{1,4})/g);
       if (findings) {
@@ -51,7 +51,7 @@ export class NotificationService extends SecuredHttpService {
           };
         }
       } catch (error) {
-        logger.error(`[NotificationService] [sendConfirmationEmail] Error formatting cancellation policies ${error.stack}`)
+        logger.error(`[NotificationService] [sendConfirmationEmail] Error formatting cancellation policies ${error.stack}`);
         return {
           ...policy,
           title: policy.text.replace('gestión', 'cancelación'),
@@ -80,7 +80,9 @@ export class NotificationService extends SecuredHttpService {
         }
       }
     } catch (error) {
-      logger.error(`[NotificationService] [sendConfirmationEmail] Error correcting and formatting the date of the first cancellation policy ${error.stack}`)
+      logger.error(
+        `[NotificationService] [sendConfirmationEmail] Error correcting and formatting the date of the first cancellation policy ${error.stack}`,
+      );
     }
 
     data.hotelAddress = data.contentInfo.address || data.hotel.address;
@@ -106,7 +108,7 @@ export class NotificationService extends SecuredHttpService {
   }
 
   sendNewsletterConfirmation(email) {
-    logger.info(`[NotificationService] [sendNewsletterConfirmation] init method`)
+    logger.info(`[NotificationService] [sendNewsletterConfirmation] init method`);
     const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['CONFIRM_NEWSLETTER'], '');
     const emailData: EmailDTO = {
       uuid: uuidv4(),
@@ -114,6 +116,38 @@ export class NotificationService extends SecuredHttpService {
       from: 'noreply@mg.flowo.com',
       to: [email],
       subject: '¡Gracias por unirte a la newsletter de Flowo!',
+      body: template,
+      contentType: 'HTML',
+    };
+
+    return this.sendMailRaw(emailData);
+  }
+
+  sendCancelation(email: string, data: any) {
+    logger.info(`[NotificationService] [sendCancelation] init method`);
+    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['CANCELATION_BOOKING'], data);
+    const emailData: EmailDTO = {
+      uuid: uuidv4(),
+      applicationName: 'booking-flowo-tecnoturis',
+      from: 'noreply@mg.flowo.com',
+      to: [email],
+      subject: '¡Tu reserva ha sido cancelada!',
+      body: template,
+      contentType: 'HTML',
+    };
+
+    return this.sendMailRaw(emailData);
+  }
+
+  sendObservation(email: string, data: any) {
+    logger.info(`[NotificationService] [sendCancelation] init method`);
+    const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['SEND_OBSERVATION'], data);
+    const emailData: EmailDTO = {
+      uuid: uuidv4(),
+      applicationName: 'booking-flowo-tecnoturis',
+      from: 'noreply@mg.flowo.com',
+      to: [email],
+      subject: '¡Tienes una nueva notificación!',
       body: template,
       contentType: 'HTML',
     };
