@@ -18,6 +18,11 @@ export class CreateDossierPaymentDTO {
   manual_charge_date?: string;
 }
 export class UpdateDossierPaymentDTO {
+  status_id?: number;
+  payment_method_id?: number;
+  checkout_id?: string;
+  order_code?: string;
+
   manual_charge_date?: string;
   observation?: string;
 }
