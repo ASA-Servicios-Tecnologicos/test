@@ -4,6 +4,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
+import { logger } from '../logger';
 // TODO: Request payload validators and type responses
 @Controller('payments')
 export class PaymentsController {
@@ -41,8 +42,11 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Actualizar un pago de un dossier por un agente' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Pago del dossier actualizado' })
   async updatePaymentByAgente(@Param('paymentId') paymentId: string, @Body() body: UpdateDossierPaymentDTO) {
-    if (body.payment_method_id != 2 && body.status_id == 3) {
-      const data = await this.checkoutService.cancelPayment(body.checkout_id, body.order_code);
+    if (body?.payment_method_id != 2 && body?.status_id == 3) {
+      if (body?.checkout_id && body?.order_code) {
+        const data = await this.checkoutService.cancelPayment(body?.checkout_id, body?.order_code);
+        logger.info(`[PaymentsController] [updatePaymentByAgente] cancel payment ${data?.data?.orderCode}`);
+      }
     }
     return this.paymentsService.updateDossierPaymentByAgente(paymentId, body);
   }
