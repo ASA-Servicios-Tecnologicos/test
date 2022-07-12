@@ -47,7 +47,7 @@ export class BookingServicesController {
 
     logger.info(`[BookingServicesController] [create]  el status de reserva del servicio ${bookingServiceId} es ${data.provider_status}`);
 
-    const dossier: DossierDto = await this.dossiersService.findDossierById(data.dossier.id.toString());
+    const dossier: DossierDto = await this.dossiersService.findDossierById(data.dossier.id.toString(), headers);
 
     if (data.provider_status === 'CANCELLED') {
       logger.info(`[BookingServicesController] [create]  cancelling payments...`);
