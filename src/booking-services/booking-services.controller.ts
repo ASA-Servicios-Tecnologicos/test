@@ -42,8 +42,8 @@ export class BookingServicesController {
   @Get(':bookingServiceId')
   @ApiOperation({ summary: 'Obtener booking services de un dossier' })
   @ApiResponse({ status: 200, description: 'Booking services encontrados' })
-  async create(@Param('bookingServiceId') bookingServiceId: string, @Query('force') force: string) {
-    const data = await this.bookingServicesService.getBookingServiceById(bookingServiceId, force);
+  async create(@Param('bookingServiceId') bookingServiceId: string, @Query('force') force: string, @Headers() headers?: HeadersDTO) {
+    const data = await this.bookingServicesService.getBookingServiceById(bookingServiceId, force, headers);
 
     logger.info(`[BookingServicesController] [create]  el status de reserva del servicio ${bookingServiceId} es ${data.provider_status}`);
 
