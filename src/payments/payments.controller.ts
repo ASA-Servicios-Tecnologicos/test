@@ -2,7 +2,7 @@ import { UpdateDossierPaymentDTO, CreateDossierPaymentDTO } from './../shared/dt
 import { Body, Controller, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
-import {CheckoutService} from "../checkout/services/checkout.service";
+import { CheckoutService } from '../checkout/services/checkout.service';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 // TODO: Request payload validators and type responses
 @Controller('payments')
@@ -40,7 +40,10 @@ export class PaymentsController {
   @Put('updateByAgente/:paymentId')
   @ApiOperation({ summary: 'Actualizar un pago de un dossier por un agente' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Pago del dossier actualizado' })
-  updatePaymentByAgente(@Param('paymentId') paymentId: string, @Body() body: UpdateDossierPaymentDTO) {
+  async updatePaymentByAgente(@Param('paymentId') paymentId: string, @Body() body: UpdateDossierPaymentDTO) {
+    if (body.payment_method_id != 2 && body.status_id == 3) {
+      const data = await this.checkoutService.cancelPayment(body.checkout_id, body.order_code);
+    }
     return this.paymentsService.updateDossierPaymentByAgente(paymentId, body);
   }
 
@@ -55,7 +58,7 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Actualiza y devuelve los pagos del dossier actualizados(call-center)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Pagos del dossier actualizados' })
   async updateByDossierId(@Param('dossierId') dossierId: string) {
-    const checkoutId = await this.checkoutService.getCheckoutByDossierId(Number(dossierId))
+    const checkoutId = await this.checkoutService.getCheckoutByDossierId(Number(dossierId));
     return this.paymentsService.updateDossierPaymentsByCheckout(checkoutId);
   }
 }
