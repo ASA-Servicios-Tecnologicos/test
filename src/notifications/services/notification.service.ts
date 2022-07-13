@@ -1,12 +1,12 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { EmailDTO, HTML_TEMPLATES } from '../../shared/dto/email.dto';
+import { EmailDTO, EmailFiltersDTO, HTML_TEMPLATES, TypeEmail } from '../../shared/dto/email.dto';
 import { SecuredHttpService } from '../../shared/services/secured-http.service';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../../logger';
 import { CacheService } from '../../shared/services/cache.service';
 import { HtmlTemplateService } from '../../shared/services/html-template.service';
-import { TypeEmail } from '../../shared/dto/email.dto';
+
 @Injectable()
 export class NotificationService extends SecuredHttpService {
   constructor(
@@ -16,6 +16,10 @@ export class NotificationService extends SecuredHttpService {
     private readonly htmlTemplateService: HtmlTemplateService,
   ) {
     super(http, appConfigService, cacheService);
+  }
+
+  getMailsRaw(data: EmailFiltersDTO) {
+    return this.postSecured(`${this.appConfigService.W2M_URL}/integration/notificator-persistence/api/v1/email/find`, data);
   }
 
   sendMailRaw(data: EmailDTO) {

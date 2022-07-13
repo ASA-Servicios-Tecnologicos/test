@@ -22,9 +22,9 @@ export interface RawAttachment {
 }
 
 export interface Metadata {
-  locator: string;
-  number_dossier: number;
-  type: string;
+  locator?: string;
+  number_dossier?: number;
+  type?: string;
 }
 
 export const HTML_TEMPLATES = {
@@ -46,4 +46,25 @@ export enum TypeEmail {
   'OBSERVATION' = 'OBSERVATION',
   'CANCELATION' = 'CANCELATION',
   'CONFIRMATION' = 'CONFIRMATION',
+}
+
+export interface EmailFiltersDTO {
+  applicationName?: string;
+  applications?: string[];
+  dateFrom?: string;
+  dateTo?: string;
+  pagination?: EmailPaginationDTO;
+  status?: string;
+  subject?: string;
+  metadata: Metadata;
+  from?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+}
+export interface EmailPaginationDTO {
+  page?: number;
+  collectionSize?: number;
+  sortOrder?: string;
+  sortField?: string;
 }

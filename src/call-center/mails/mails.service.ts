@@ -1,3 +1,4 @@
+import { EmailFiltersDTO } from './../../shared/dto/email.dto';
 import { BookingService } from './../../booking/booking.service';
 import { BookingServicesService } from './../../management/services/booking-services.service';
 import { CheckoutService } from './../../checkout/services/checkout.service';
@@ -17,6 +18,10 @@ export class MailsService {
     private readonly notificationService: NotificationService,
     private readonly observationsService: ObservationsService,
   ) {}
+
+  getMails(data: EmailFiltersDTO) {
+    return this.notificationService.getMailsRaw(data);
+  }
 
   async sendCancelation(data: any, response: Response) {
     try {
