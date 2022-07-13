@@ -49,14 +49,13 @@ export enum TypeEmail {
 }
 
 export interface EmailFiltersDTO {
-  applicationName?: string;
   applications?: string[];
   dateFrom?: string;
   dateTo?: string;
-  pagination?: EmailPaginationDTO;
+  pagination: EmailPaginationDTO;
   status?: string;
   subject?: string;
-  metadata: Metadata;
+  metadata?: Metadata;
   from?: string;
   to?: string;
   cc?: string;
