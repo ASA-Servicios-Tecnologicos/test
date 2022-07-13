@@ -37,7 +37,7 @@ export class ClientsService extends SecuredHttpService {
       };
 
       const bookingReport = await this.postSecured(
-        `${this.appConfigService.W2M_URL}/integration/booking-report/api/v1/report/booking-storage`,
+        `${this.appConfigService.W2M_URL}/integration/booking-report/api/v1/external/report/booking`,
         data,
       );
 
