@@ -1,3 +1,4 @@
+import { EmailFiltersDTO } from './../../shared/dto/email.dto';
 import { BookingService } from './../../booking/booking.service';
 import { BookingServicesService } from './../../management/services/booking-services.service';
 import { CheckoutService } from './../../checkout/services/checkout.service';
@@ -17,6 +18,17 @@ export class MailsService {
     private readonly notificationService: NotificationService,
     private readonly observationsService: ObservationsService,
   ) {}
+
+  async getMails(data: EmailFiltersDTO, response: Response) {
+    try {
+      const mail = await this.notificationService.getMailsRaw(data);
+
+      return response.status(mail.status).send(mail.data);
+    } catch (error) {
+      logger.error(`[MailsService] [getMails] ${error.stack}`);
+      return response.status(HttpStatus.CONFLICT).send();
+    }
+  }
 
   async sendCancelation(data: any, response: Response) {
     try {
@@ -70,8 +82,8 @@ export class MailsService {
       console.log('contentInfo ', contentInfo);
 
       const confimation = await this.notificationService.sendObservation(dossier.client.email, contentInfo);
-
-      console.log('confimation ', confimation.data);
+      console.log('confimation ', confimation);
+      console.log('confimation.data ', confimation.data);
       return response.status(HttpStatus.OK).send();
     } catch (error) {
       logger.error(`[MailsService] [sendObservation] ${error.stack}`);
