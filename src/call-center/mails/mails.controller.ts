@@ -7,8 +7,8 @@ export class MailsController {
   constructor(private readonly mailsService: MailsService) {}
 
   @Post()
-  getMails(@Body() data: EmailFiltersDTO) {
-    return this.mailsService.getMails(data);
+  getMails(@Body() data: EmailFiltersDTO, @Res() response: Response) {
+    return this.mailsService.getMails(data, response);
   }
 
   @Post('/send-cancelation')

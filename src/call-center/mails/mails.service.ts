@@ -19,8 +19,15 @@ export class MailsService {
     private readonly observationsService: ObservationsService,
   ) {}
 
-  getMails(data: EmailFiltersDTO) {
-    return this.notificationService.getMailsRaw(data);
+  async getMails(data: EmailFiltersDTO, response: Response) {
+    try {
+      const mail = await this.notificationService.getMailsRaw(data);
+
+      return response.status(mail.status).send(mail.data);
+    } catch (error) {
+      logger.error(`[MailsService] [getMails] ${error.stack}`);
+      return response.status(HttpStatus.CONFLICT).send();
+    }
   }
 
   async sendCancelation(data: any, response: Response) {
@@ -75,8 +82,8 @@ export class MailsService {
       console.log('contentInfo ', contentInfo);
 
       const confimation = await this.notificationService.sendObservation(dossier.client.email, contentInfo);
-
-      console.log('confimation ', confimation.data);
+      console.log('confimation ', confimation);
+      console.log('confimation.data ', confimation.data);
       return response.status(HttpStatus.OK).send();
     } catch (error) {
       logger.error(`[MailsService] [sendObservation] ${error.stack}`);
