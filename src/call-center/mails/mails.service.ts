@@ -4,7 +4,7 @@ import { BookingServicesService } from './../../management/services/booking-serv
 import { CheckoutService } from './../../checkout/services/checkout.service';
 import { DossiersService } from './../../dossiers/dossiers.service';
 import { NotificationService } from 'src/notifications/services/notification.service';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { logger } from '../../logger';
 import { ObservationsService } from '../observations/observations.service';
 import { Response } from 'express';
@@ -21,12 +21,19 @@ export class MailsService {
 
   async getMails(data: EmailFiltersDTO, response: Response) {
     try {
-      const mail = await this.notificationService.getMailsRaw(data);
+      const filters = {
+        applicationName: 'booking-flowo-tecnoturis',
+        ...data,
+      };
+      if (!data?.pagination) {
+        throw new HttpException('Field pagination is requerid.', HttpStatus.BAD_REQUEST);
+      }
+      const mail = await this.notificationService.getMailsRaw(filters);
 
       return response.status(mail.status).send(mail.data);
     } catch (error) {
       logger.error(`[MailsService] [getMails] ${error.stack}`);
-      return response.status(HttpStatus.CONFLICT).send();
+      return response.status(HttpStatus.CONFLICT).send(error?.message);
     }
   }
 
