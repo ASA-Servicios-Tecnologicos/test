@@ -42,12 +42,12 @@ export class BookingServicesController {
   @Get(':bookingServiceId')
   @ApiOperation({ summary: 'Obtener booking services de un dossier' })
   @ApiResponse({ status: 200, description: 'Booking services encontrados' })
-  async create(@Param('bookingServiceId') bookingServiceId: string, @Query('force') force: string, @Headers() headers?: HeadersDTO) {
-    const data = await this.bookingServicesService.getBookingServiceById(bookingServiceId, force, headers);
+  async create(@Param('bookingServiceId') bookingServiceId: string, @Query('force') force: string) {
+    const data = await this.bookingServicesService.getBookingServiceById(bookingServiceId, force);
 
     logger.info(`[BookingServicesController] [create]  el status de reserva del servicio ${bookingServiceId} es ${data.provider_status}`);
 
-    const dossier: DossierDto = await this.dossiersService.findDossierById(data.dossier.id.toString(), headers);
+    const dossier: DossierDto = await this.dossiersService.findDossierById(data.dossier.id.toString());
 
     if (data.provider_status === 'CANCELLED') {
       logger.info(`[BookingServicesController] [create]  cancelling payments...`);
