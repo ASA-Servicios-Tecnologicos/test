@@ -454,6 +454,7 @@ export class BookingService {
           role: 8,
           username: checkOut.contact.email,
           active: false,
+          country: checkOut?.buyer?.country,
         })
         .catch((error) => {
           logger.error(`[BookingService] [getOrCreateClient] ${error.stack}`);
