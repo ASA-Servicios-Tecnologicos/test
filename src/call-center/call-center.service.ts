@@ -2,12 +2,11 @@ import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { pickBy } from 'lodash';
 import { BookingService } from '../booking/booking.service';
-import { BudgetService } from '../budget/budget.service';
 import { CheckoutService } from '../checkout/services/checkout.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
 import { NotificationService } from '../notifications/services/notification.service';
 import { PaymentsService } from '../payments/payments.service';
-import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
+import { CreateUpdateDossierPaymentDTO, InfoDossierPayments } from '../shared/dto/dossier-payment.dto';
 import { DossierPaymentMethods } from '../shared/dto/email.dto';
 import t from 'typy';
 import { AppConfigService } from '../configuration/configuration.service';
@@ -22,7 +21,6 @@ export class CallCenterService {
     private readonly appConfigService: AppConfigService,
     private readonly managementHttpService: ManagementHttpService,
     private readonly dossiersService: DossiersService,
-    private readonly budgetService: BudgetService,
     private readonly bookingService: BookingService,
     private readonly notificationsService: NotificationService,
     private readonly checkoutService: CheckoutService,
@@ -173,7 +171,7 @@ export class CallCenterService {
     }
   }
 
-  async cancelDossier(dossierId: string, headers?: HeadersDTO) {
+  async cancelDossier(dossierId: string) {
     logger.info(`[CallCenterService] [cancelDossier] init method`);
     const booking = await this.bookingService.findByDossier(dossierId);
     if (!booking) {
@@ -182,6 +180,9 @@ export class CallCenterService {
     }
     const canceled = await this.checkoutService.cancelCheckout(booking.checkoutId);
     if (canceled.status === HttpStatus.OK) {
+      const cant = await this.cancelPaymentsNotCheckout(dossierId);
+      logger.info(`[CallCenterService] [cancelDossier] canceled payments that do not have the checkout: ${cant}`);
+
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: booking.dossier,
         bookingId: canceled.data.booking.bookingId,
@@ -193,7 +194,27 @@ export class CallCenterService {
         paymentMethods: getCodeMethodType(canceled.data.payment.methodType),
         amount: canceled.data.payment.amount,
       };
-      return this.paymentsService.updateStatusPayments(dossierPayments, headers);
+      return this.paymentsService.updateStatusPayments(dossierPayments);
+    }
+  }
+
+  private async cancelPaymentsNotCheckout(dossierId: string) {
+    logger.info(`[CallCenterService] [cancelPaymentsNotCheckout] init`);
+    let cant = 0;
+    try {
+      const infoDossierPayments: InfoDossierPayments = await this.paymentsService.getDossierPayments(dossierId);
+      if (infoDossierPayments) {
+        infoDossierPayments.dossier_payments.forEach((payment) => {
+          if (!payment.orderCode && !['COMPLETED', 'COMPLETED_AGENT', 'CANCELLED'].includes(payment.status)) {
+            this.paymentsService.patchPayment({ id: payment.id, status: 5 });
+            cant++;
+          }
+        });
+      }
+      return cant;
+    } catch (error) {
+      logger.error(`[CallCenterService] [cancelPaymentsNotCheckout] ${error.stack}`);
+      return cant;
     }
   }
 
