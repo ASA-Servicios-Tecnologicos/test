@@ -25,10 +25,10 @@ export class PaymentsController {
   }
 
   @Put()
-  @ApiOperation({ summary: 'Actualizar pagos de un dossier' })
+  @ApiOperation({ summary: 'Actualiza el status de los pagos de un dossier que son del checkout' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Pagos del dossier actualizados' })
   update(@Body() body: CreateUpdateDossierPaymentDTO) {
-    return this.paymentsService.updateDossierPayments(body);
+    return this.paymentsService.updateStatusPayments(body);
   }
 
   @Post('createByAgente')

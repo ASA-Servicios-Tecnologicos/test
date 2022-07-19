@@ -193,7 +193,7 @@ export class CallCenterService {
         paymentMethods: getCodeMethodType(canceled.data.payment.methodType),
         amount: canceled.data.payment.amount,
       };
-      return this.paymentsService.updateDossierPayments(dossierPayments, headers);
+      return this.paymentsService.updateStatusPayments(dossierPayments, headers);
     }
   }
 
