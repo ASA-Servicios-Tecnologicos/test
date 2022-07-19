@@ -305,8 +305,8 @@ export class BookingService {
       if (bookId) {
         const serviceData: any = {
           locator: bookId,
+          provider_status: status,
         };
-
         if (dossier && dossier.services && dossier.services.length) {
           const rawData = dossier.services[0].raw_data;
           rawData.status = status;
