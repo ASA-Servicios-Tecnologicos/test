@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { DistributionDTO } from '../dto/booking.dto';
+import { DiscountDTO, DistributionDTO } from '../dto/booking.dto';
 
 export type BookingDocument = Booking & Document;
 
@@ -55,6 +55,9 @@ export class Booking {
 
   @Prop()
   dicountCode?: string;
+
+  @Prop()
+  discount?: DiscountDTO;
 
   @Prop()
   requestToken: string;

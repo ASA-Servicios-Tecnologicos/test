@@ -77,6 +77,7 @@ export interface CheckoutInstallment {
   recurrent: boolean;
   status: string;
   orderCode: string;
+  checkoutId?: string;
 }
 
 export interface CheckoutAmount {

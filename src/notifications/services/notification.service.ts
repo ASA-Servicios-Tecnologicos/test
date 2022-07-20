@@ -1,11 +1,12 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { EmailDTO, HTML_TEMPLATES } from '../../shared/dto/email.dto';
+import { EmailDTO, EmailFiltersDTO, HTML_TEMPLATES, TypeEmail } from '../../shared/dto/email.dto';
 import { SecuredHttpService } from '../../shared/services/secured-http.service';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../../logger';
 import { CacheService } from '../../shared/services/cache.service';
 import { HtmlTemplateService } from '../../shared/services/html-template.service';
+
 @Injectable()
 export class NotificationService extends SecuredHttpService {
   constructor(
@@ -15,6 +16,10 @@ export class NotificationService extends SecuredHttpService {
     private readonly htmlTemplateService: HtmlTemplateService,
   ) {
     super(http, appConfigService, cacheService);
+  }
+
+  getMailsRaw(data: EmailFiltersDTO) {
+    return this.postSecured(`${this.appConfigService.W2M_URL}/integration/notificator-persistence/api/v1/email/find`, data);
   }
 
   sendMailRaw(data: EmailDTO) {
@@ -102,7 +107,7 @@ export class NotificationService extends SecuredHttpService {
       subject: 'Enhorabuena, tu viaje con Flowo ha sido confirmado',
       body: template,
       contentType: 'HTML',
-      metadata: { locator: locator, number_dossier: number_dossier },
+      metadata: { locator: locator, number_dossier: number_dossier, type: TypeEmail.CONFIRMATION },
     };
     return this.sendMailRaw(email);
   }
@@ -134,13 +139,14 @@ export class NotificationService extends SecuredHttpService {
       subject: '¡Tu reserva ha sido cancelada!',
       body: template,
       contentType: 'HTML',
+      metadata: { locator: data.locator, number_dossier: data.code, type: TypeEmail.CANCELATION },
     };
 
     return this.sendMailRaw(emailData);
   }
 
   sendObservation(email: string, data: any) {
-    logger.info(`[NotificationService] [sendCancelation] init method`);
+    logger.info(`[NotificationService] [sendObservation] init method`);
     const template = this.htmlTemplateService.generateTemplate(HTML_TEMPLATES['SEND_OBSERVATION'], data);
     const emailData: EmailDTO = {
       uuid: uuidv4(),
@@ -150,6 +156,7 @@ export class NotificationService extends SecuredHttpService {
       subject: '¡Tienes una nueva notificación!',
       body: template,
       contentType: 'HTML',
+      metadata: { locator: data.locator, number_dossier: data.code, type: TypeEmail.OBSERVATION },
     };
 
     return this.sendMailRaw(emailData);

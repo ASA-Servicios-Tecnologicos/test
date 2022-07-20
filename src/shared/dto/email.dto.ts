@@ -22,8 +22,9 @@ export interface RawAttachment {
 }
 
 export interface Metadata {
-  locator: string;
-  number_dossier: number;
+  locator?: string;
+  number_dossier?: number;
+  type?: string;
 }
 
 export const HTML_TEMPLATES = {
@@ -32,10 +33,37 @@ export const HTML_TEMPLATES = {
   CONFIRM_NEWSLETTER: 'src/notifications/templates/subscribed_newsletter.hbs',
   CANCELATION_BOOKING: 'src/notifications/templates/cancelation_booking.hbs',
   SEND_OBSERVATION: 'src/notifications/templates/send_observation.hbs',
+  BIZUM: 'src/notifications/templates/flowo_email_confirmation.hbs',
 };
 
 export enum DossierPaymentMethods {
   'Transferencia bancaria' = 'BANK_TRANSFER',
   'Tarjeta de Credito' = 'CARD',
-  'Bizum' = 'BIZUM', //Falta confirma si se llema asi
+  'Bizum' = 'BIZUM', //Confirmado
+}
+
+export enum TypeEmail {
+  'OBSERVATION' = 'OBSERVATION',
+  'CANCELATION' = 'CANCELATION',
+  'CONFIRMATION' = 'CONFIRMATION',
+}
+
+export interface EmailFiltersDTO {
+  applications?: string[];
+  dateFrom?: string;
+  dateTo?: string;
+  pagination: EmailPaginationDTO;
+  status?: string;
+  subject?: string;
+  metadata?: Metadata;
+  from?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+}
+export interface EmailPaginationDTO {
+  page?: number;
+  collectionSize?: number;
+  sortOrder?: string;
+  sortField?: string;
 }
