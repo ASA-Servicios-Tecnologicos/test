@@ -67,6 +67,8 @@ export class BookingService {
       throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
+    const amountCheckout = Math.round(netAmount * 100) / 100;
+    logger.info(`[BookingService] [create] checkout amount ${netAmount} round two decimal is ${amountCheckout}`);
     booking.bookingId = uuidv4();
     const body: CreateCheckoutDTO = {
       booking: {
@@ -74,7 +76,7 @@ export class BookingService {
         startDate: booking.checkIn,
         endDate: booking.checkOut,
         amount: {
-          value: netAmount,
+          value: amountCheckout,
           currency: booking.currency,
         },
         description: booking.hotelName,
@@ -305,8 +307,8 @@ export class BookingService {
       if (bookId) {
         const serviceData: any = {
           locator: bookId,
+          provider_status: status,
         };
-
         if (dossier && dossier.services && dossier.services.length) {
           const rawData = dossier.services[0].raw_data;
           rawData.status = status;

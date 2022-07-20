@@ -59,12 +59,17 @@ export class DossierPayment {
   checkout_id?: string;
 }
 export class DossierPaymentInstallment {
+  id?: number;
   orderCode?: string;
-  dueDate: string;
+  dueDate?: string;
   amount: CheckoutAmount;
-  recurrent: boolean;
+  recurrent?: boolean;
   status: string;
   paid_amount?: number;
   paid_date?: string;
   checkoutId?: string;
+  observation?: string;
+  id_method_payment?: number;
+  id_status?: number;
+  manual_charge_date?: string;
 }
