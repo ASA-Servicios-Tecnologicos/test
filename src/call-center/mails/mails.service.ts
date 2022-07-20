@@ -3,7 +3,7 @@ import { BookingService } from './../../booking/booking.service';
 import { BookingServicesService } from './../../management/services/booking-services.service';
 import { CheckoutService } from './../../checkout/services/checkout.service';
 import { DossiersService } from './../../dossiers/dossiers.service';
-import { NotificationService } from 'src/notifications/services/notification.service';
+import { NotificationService } from '../../notifications/services/notification.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { logger } from '../../logger';
 import { ObservationsService } from '../observations/observations.service';

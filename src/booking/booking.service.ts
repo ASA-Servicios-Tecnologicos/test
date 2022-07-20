@@ -419,15 +419,16 @@ export class BookingService {
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
-    logger.error(`[BookingService] [getOrCreateClient] init method`);
+    logger.info(`[BookingService] [getOrCreateClient] init method --checkout ${JSON.stringify(checkOut)}`);
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
-        logger.error(`[BookingService] [getOrCreateClient] ${error.stack}`);
+        logger.error(`[BookingService] [getOrCreateClient] for email ${error.stack}`);
         if (error.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
             .catch((e) => {
+              logger.error(`[BookingService] [getOrCreateClient] for phone ${e.stack}`);
               if (e.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
@@ -439,6 +440,7 @@ export class BookingService {
       });
 
     if (!client) {
+      logger.info(`[BookingService] [createExternalClient] create client`);
       const integrationClient = await this.clientService.getIntegrationClient();
       const createdClient = await this.externalClientService
         .createExternalClient({
@@ -454,14 +456,20 @@ export class BookingService {
           role: 8,
           username: checkOut.contact.email,
           active: false,
-          country: checkOut?.buyer?.country,
+          country_iso: checkOut?.buyer?.document.nationality,
+          address: checkOut.contact.address.address,
+          postal_code: checkOut.contact.address.postalCode,
+          province: checkOut.contact.address.city,
+          type_document_name: checkOut.buyer.document.documentType,
         })
         .catch((error) => {
-          logger.error(`[BookingService] [getOrCreateClient] ${error.stack}`);
+          logger.error(`[BookingService] [createExternalClient] ${error.stack}`);
           throw error;
         });
+
       return createdClient?.client;
     }
+
     return client.id;
   }
 

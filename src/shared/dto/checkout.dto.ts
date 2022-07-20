@@ -116,7 +116,7 @@ export interface CheckoutContact {
 export interface CheckoutAddress {
   address: string;
   city: string;
-  postalCode: number;
+  postalCode: string;
 }
 
 export interface CheckoutPhone {
