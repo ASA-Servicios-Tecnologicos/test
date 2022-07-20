@@ -18,6 +18,11 @@ export class CreateDossierPaymentDTO {
   manual_charge_date?: string;
 }
 export class UpdateDossierPaymentDTO {
+  status_id?: number;
+  payment_method_id?: number;
+  checkout_id?: string;
+  order_code?: string;
+
   manual_charge_date?: string;
   observation?: string;
 }
@@ -51,13 +56,20 @@ export class DossierPayment {
   paid_amount: number;
   paid_date: string;
   status: string;
+  checkout_id?: string;
 }
 export class DossierPaymentInstallment {
+  id?: number;
   orderCode?: string;
-  dueDate: string;
+  dueDate?: string;
   amount: CheckoutAmount;
-  recurrent: boolean;
+  recurrent?: boolean;
   status: string;
   paid_amount?: number;
   paid_date?: string;
+  checkoutId?: string;
+  observation?: string;
+  id_method_payment?: number;
+  id_status?: number;
+  manual_charge_date?: string;
 }

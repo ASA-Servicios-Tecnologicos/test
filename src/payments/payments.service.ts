@@ -1,3 +1,4 @@
+import { PaymentRequestPatchDTO, PaymentResponsePatchDTO } from './../shared/dto/payment.dto';
 import { CreateDossierPaymentDTO, InfoPayment, UpdateDossierPaymentDTO } from './../shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
 import { HttpService, Injectable } from '@nestjs/common';
@@ -26,20 +27,21 @@ export class PaymentsService {
     private dossiersService: DossiersService,
   ) {}
 
+  //Some payments
   createDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO) {
     return this.managementHttpService.post<Array<DossierPayment>>(
       `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/`,
       dossierPayments,
     );
   }
-
+  //Some payments
   getDossierPayments(dossierId: string) {
     return this.managementHttpService.get<InfoDossierPayments>(
       `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierId}/`,
     );
   }
-
-  async updateDossierPayments(dossierPayments: CreateUpdateDossierPaymentDTO, headers?: HeadersDTO) {
+  //Some payments but only checkout
+  async updateStatusPayments(dossierPayments: CreateUpdateDossierPaymentDTO, headers?: HeadersDTO) {
     const dossiers = await this.managementHttpService.put<Array<DossierPayment>>(
       // `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/${dossierPayments.dossier}/`,
       `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/restricted/${dossierPayments.dossier}/`,
@@ -49,6 +51,7 @@ export class PaymentsService {
     return dossiers;
   }
 
+  //One payment
   async createDossierPaymentByAgente(dossierPayment: CreateDossierPaymentDTO, headers?: HeadersDTO) {
     const dossier = await this.managementHttpService.post<any>(
       `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/agente/`,
@@ -57,7 +60,7 @@ export class PaymentsService {
     );
     return dossier;
   }
-
+  //One payment but only manual_charge_date and observation
   async updateDossierPaymentByAgente(paymentId: string, dossierPayments: UpdateDossierPaymentDTO, headers?: HeadersDTO) {
     const dossiers = await this.managementHttpService.put<any>(
       `${this.appConfigService.BASE_URL}/management/api/v1/cash/dossier-payments/agente/${paymentId}/`,
@@ -65,6 +68,14 @@ export class PaymentsService {
       { headers },
     );
     return dossiers;
+  }
+  //One payment
+  patchPayment(paymentRequestPatchDTO: PaymentRequestPatchDTO, headers?: HeadersDTO) {
+    return this.managementHttpService.patch<PaymentResponsePatchDTO>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/cash/payment/${paymentRequestPatchDTO.id}/`,
+      paymentRequestPatchDTO,
+      { headers },
+    );
   }
 
   async updateDossierPaymentsByCheckout(checkoutId: string, searchErrors: boolean = false) {
@@ -110,7 +121,7 @@ export class PaymentsService {
       }
     }
 
-    return this.updateDossierPayments(dossierPayments);
+    return this.updateStatusPayments(dossierPayments);
   }
 
   private sendBonoEmail(dossierCode: string, booking: Booking, contact: CheckoutContact, buyer: CheckoutBuyer) {
