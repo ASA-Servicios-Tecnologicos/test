@@ -25,9 +25,9 @@ import { DossierDto } from '../shared/dto/dossier.dto';
 import { CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 import { OtaClientDTO } from '../shared/dto/ota-client.dto';
-import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
+import { ClientRequestPatchDTO, GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
-import { getCodeMethodType } from '../utils/utils';
+import { getCodeMethodType, getCodeTypeDocument } from '../utils/utils';
 
 @Injectable()
 export class BookingService {
@@ -421,15 +421,16 @@ export class BookingService {
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
-    logger.error(`[BookingService] [getOrCreateClient] init method`);
+    logger.info(`[BookingService] [getOrCreateClient] init method --checkout ${JSON.stringify(checkOut)}`);
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
-        logger.error(`[BookingService] [getOrCreateClient] ${error.stack}`);
+        logger.error(`[BookingService] [getOrCreateClient] for email ${error.stack}`);
         if (error.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
             .catch((e) => {
+              logger.error(`[BookingService] [getOrCreateClient] for phone ${e.stack}`);
               if (e.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
@@ -441,6 +442,7 @@ export class BookingService {
       });
 
     if (!client) {
+      logger.info(`[BookingService] [createExternalClient] create client`);
       const integrationClient = await this.clientService.getIntegrationClient();
       const createdClient = await this.externalClientService
         .createExternalClient({
@@ -456,13 +458,36 @@ export class BookingService {
           role: 8,
           username: checkOut.contact.email,
           active: false,
+          country_iso: checkOut?.buyer?.document.nationality,
+          address: checkOut.contact.address.address,
+          postal_code: checkOut.contact.address.postalCode,
+          province: checkOut.contact.address.city,
+          type_document_name: checkOut.buyer.document.documentType,
         })
         .catch((error) => {
-          logger.error(`[BookingService] [getOrCreateClient] ${error.stack}`);
+          logger.error(`[BookingService] [createExternalClient] ${error.stack}`);
           throw error;
         });
+
       return createdClient?.client;
     }
+    logger.info(`[BookingService] [updateExternalClient] update client`);
+    const data: ClientRequestPatchDTO = {
+      id: client.id,
+      address: checkOut.contact.address.address,
+      country: checkOut.buyer.document.nationality,
+      province: checkOut.contact.address.city,
+      postal_code: checkOut.contact.address.postalCode,
+
+      dni: checkOut.buyer.document.documentNumber,
+      type_document: getCodeTypeDocument(checkOut.buyer.document.documentType),
+    };
+
+    await this.externalClientService.patchClient(data).catch((error) => {
+      logger.error(`[BookingService] [updateExternalClient] ${error.stack}`);
+      throw error;
+    });
+
     return client.id;
   }
 
