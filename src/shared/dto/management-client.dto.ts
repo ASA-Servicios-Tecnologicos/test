@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { NumericDictionary } from 'lodash';
 
 export class ManagementClientDTO {
   @ApiProperty({ example: 822 })
@@ -185,4 +186,20 @@ export interface IntegrationClientDTO {
   email: string;
   logo: null;
   client: null;
+}
+
+export interface ClientRequestPatchDTO {
+  id: number;
+  address?: string;
+  country?: string;
+  province?: string;
+  postal_code?: string;
+
+  dni?: string;
+  type_document?: number;
+}
+
+export enum TypeDocument {
+  'DNI' = 'DNI',
+  'NIE' = 'NIE',
 }

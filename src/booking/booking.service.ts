@@ -25,9 +25,9 @@ import { DossierDto } from '../shared/dto/dossier.dto';
 import { CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 import { OtaClientDTO } from '../shared/dto/ota-client.dto';
-import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
+import { ClientRequestPatchDTO, GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
-import { getCodeMethodType } from '../utils/utils';
+import { getCodeMethodType, getCodeTypeDocument } from '../utils/utils';
 
 @Injectable()
 export class BookingService {
@@ -469,6 +469,22 @@ export class BookingService {
 
       return createdClient?.client;
     }
+    logger.info(`[BookingService] [updateExternalClient] update client`);
+    const data: ClientRequestPatchDTO = {
+      id: client.id,
+      address: checkOut.contact.address.address,
+      country: checkOut.buyer.document.nationality,
+      province: checkOut.contact.address.city,
+      postal_code: checkOut.contact.address.postalCode,
+
+      dni: checkOut.buyer.document.documentNumber,
+      type_document: getCodeTypeDocument(checkOut.buyer.document.documentType),
+    };
+
+    await this.externalClientService.patchClient(data).catch((error) => {
+      logger.error(`[BookingService] [updateExternalClient] ${error.stack}`);
+      throw error;
+    });
 
     return client.id;
   }
