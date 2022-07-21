@@ -13,6 +13,13 @@ export class CallCenterBookingFilterParamsDTO {
   check_in?: string;
   check_out?: string;
   product_code?: string;
+
+  client_email?: string;
+  client_phone?: string;
+  check_in_from?: string;
+  check_in_to?: string;
+  check_out_from?: string;
+  check_out_to?: string;
 }
 
 export class GetDossiersByClientDTO {
@@ -176,6 +183,4 @@ export class CreateTransferDTO {
   transfer_type: any;
 }
 
-export class TransferDTO {
-
-}
+export class TransferDTO {}
