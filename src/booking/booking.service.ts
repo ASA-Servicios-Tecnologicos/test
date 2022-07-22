@@ -290,7 +290,7 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
-    logger.info(`[BookingService] [processBooking] init method`);
+    logger.info(`[BookingService] [processBooking] init method --locator ${bookId}`);
     if (bookingManagement) {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
