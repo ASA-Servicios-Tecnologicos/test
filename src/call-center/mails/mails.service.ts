@@ -1,4 +1,5 @@
-import { EmailFiltersDTO } from './../../shared/dto/email.dto';
+import { formatFullDate } from 'src/utils/utils';
+import { EmailFiltersDTO, EmailObservationDTO } from './../../shared/dto/email.dto';
 import { BookingService } from './../../booking/booking.service';
 import { BookingServicesService } from './../../management/services/booking-services.service';
 import { CheckoutService } from './../../checkout/services/checkout.service';
@@ -53,34 +54,35 @@ export class MailsService {
 
       //aca se ponen las variables que se mostraran en el mensaje
       const contentInfo: any = {
-        buyerName: dossier.client.name,
         locator: dossier.services[0].locator,
         code: dossier.code,
+
+        buyerName: dossier.client.name,
         ...buildPayments(priceHistory, dossier.dossier_payments, dossier.services[0]),
         packageName: booking.packageName,
-        cancellationPollicies: buildCancellationPollicies(dossier.services[0].cancellation_policies),
         ...buildFlight(dossier.services[0].flight),
+        cancellationPollicies: buildCancellationPollicies(dossier.services[0].cancellation_policies),
         ...buildPassengers(checkout.passengers),
       };
 
       const confimation = await this.notificationService.sendCancelation(dossier.client.email, contentInfo);
 
       console.log('confimation ', confimation.data);
-      return response.status(HttpStatus.OK).send();
+      return response.sendStatus(HttpStatus.OK);
     } catch (error) {
       logger.error(`[MailsService] [sendCancelation] ${error.stack}`);
-      return response.status(HttpStatus.CONFLICT).send();
+      return response.sendStatus(HttpStatus.CONFLICT);
     }
   }
 
-  async sendObservation(data: any, response: Response) {
+  async sendObservation(data: EmailObservationDTO, response: Response) {
     try {
       const dossier = await this.dossiersService.findDossierById(data.dossierId);
-      console.log('dossier ', dossier);
-      // const booking = await this.bookingService.findByDossier(data.dossierId);
+      // console.log('dossier ', dossier);
+      const booking = await this.bookingService.findByDossier(data.dossierId);
       // console.log('booking ', booking);
-      // const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
-      // console.log('checkout ', checkout);
+      const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+      //console.log('checkout ', checkout);
       // const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
       // console.log('dataContentApi ', dataContentApi);
 
@@ -89,20 +91,21 @@ export class MailsService {
 
       //aca se ponen las variables que se mostraran en el mensaje
       const contentInfo: any = {
-        buyerName: dossier.client.name,
-        observation: data.observation,
         locator: dossier.services[0].locator,
         code: dossier.code,
+        buyerName: dossier.client.name,
+        observation: data.observation,
+        dateSend: formatFullDate(new Date().toString()),
+        packageName: booking.packageName,
+        ...buildFlight(dossier.services[0].flight),
+        ...buildPassengers(checkout.passengers),
       };
-      console.log('contentInfo ', contentInfo);
-
       const confimation = await this.notificationService.sendObservation(dossier.client.email, contentInfo);
-      console.log('confimation ', confimation);
       console.log('confimation.data ', confimation.data);
-      return response.status(HttpStatus.OK).send();
+      return response.sendStatus(HttpStatus.OK);
     } catch (error) {
       logger.error(`[MailsService] [sendObservation] ${error.stack}`);
-      return response.status(HttpStatus.CONFLICT).send();
+      return response.sendStatus(HttpStatus.CONFLICT);
     }
   }
 }

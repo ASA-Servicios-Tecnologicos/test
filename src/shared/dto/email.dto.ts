@@ -25,6 +25,7 @@ export interface Metadata {
   locator?: string;
   number_dossier?: number;
   type?: string;
+  observation_id?: number;
 }
 
 export const HTML_TEMPLATES = {
@@ -66,4 +67,9 @@ export interface EmailPaginationDTO {
   collectionSize?: number;
   sortOrder?: string;
   sortField?: string;
+}
+export interface EmailObservationDTO {
+  dossierId?: string;
+  observation?: string;
+  observation_id?: number;
 }
