@@ -43,7 +43,11 @@ export class MailsService {
     try {
       const dossier = await this.dossiersService.findDossierById(data.dossierId);
 
-      const priceHistory = await this.bookingServicesService.getPriceHistory({ booking_service: dossier.services[0].id }); //387
+      if (dossier.services[0].provider_status !== 'CANCELLED') {
+        return response.status(HttpStatus.CONFLICT).send('the reservation is not canceled.');
+      }
+
+      const priceHistory = await this.bookingServicesService.getPriceHistory({ booking_service: dossier.services[0].id });
       // console.log('dossier ', dossier);
       const booking = await this.bookingService.findByDossier(data.dossierId);
       // console.log('booking ', booking);
@@ -68,10 +72,10 @@ export class MailsService {
       const confimation = await this.notificationService.sendCancelation(dossier.client.email, contentInfo);
 
       console.log('confimation ', confimation.data);
-      return response.sendStatus(HttpStatus.OK);
+      return response.status(HttpStatus.OK).send('Email sent.');
     } catch (error) {
       logger.error(`[MailsService] [sendCancelation] ${error.stack}`);
-      return response.sendStatus(HttpStatus.CONFLICT);
+      return response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -92,6 +96,7 @@ export class MailsService {
       //aca se ponen las variables que se mostraran en el mensaje
       const contentInfo: any = {
         locator: dossier.services[0].locator,
+        status: dossier.services[0].provider_status === 'CANCELLED' ? true : false,
         code: dossier.code,
         buyerName: dossier.client.name,
         observation: data.observation,
@@ -102,10 +107,10 @@ export class MailsService {
       };
       const confimation = await this.notificationService.sendObservation(dossier.client.email, contentInfo);
       console.log('confimation.data ', confimation.data);
-      return response.sendStatus(HttpStatus.OK);
+      return response.status(HttpStatus.OK).send('Email sent.');
     } catch (error) {
       logger.error(`[MailsService] [sendObservation] ${error.stack}`);
-      return response.sendStatus(HttpStatus.CONFLICT);
+      return response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

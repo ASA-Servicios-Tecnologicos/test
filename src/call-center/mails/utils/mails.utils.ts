@@ -41,14 +41,14 @@ export function buildPassengers(data: any[]) {
   return infoPassengers;
 }
 
-export function buildPayments(priceHistory: any[], data: any[], bookingServise: any) {
+export function buildPayments(priceHistory: any[], data: any[], bookingService: any) {
   const price: any[] = priceHistory
     .filter((x) => x.is_cancellation_policies === false)
     .sort((a, b) => {
       return b.id - a.id;
     });
-  console.log('price[0]', price[0]);
-  const totalBooking = price.length > 0 ? +price[0].amount.toFixed(2) : +bookingServise.total_pvp.toFixed(2);
+
+  const totalBooking = price.length > 0 ? +price[0].amount.toFixed(2) : +bookingService.total_pvp.toFixed(2);
 
   const totalPaymentsPaid = +data
     .filter((x) => {
@@ -57,14 +57,18 @@ export function buildPayments(priceHistory: any[], data: any[], bookingServise: 
     .reduce((previousValue, currentValue) => previousValue + currentValue.paid_amount, 0)
     .toFixed(2);
 
-  const cancellationFees = price.length > 0 ? +bookingServise.total_pvp.toFixed(2) : 0;
-  const totalReimbursed = totalPaymentsPaid - cancellationFees;
+  const cancellationFees = price.length > 0 ? +bookingService.total_pvp.toFixed(2) : 0;
+
+  const diference = totalPaymentsPaid - cancellationFees;
+  const reimbursedOrPaid = diference > 0 ? 'reembolsar' : 'pagar';
+  const totalReimbursedOrPaid = diference > 0 ? diference : -diference;
 
   const infoPayments: any = {
     totalBooking,
     totalPaymentsPaid,
     cancellationFees,
-    totalReimbursed,
+    reimbursedOrPaid,
+    totalReimbursedOrPaid,
   };
   return infoPayments;
 }

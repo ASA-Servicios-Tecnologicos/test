@@ -315,19 +315,23 @@
                               padding-bottom: 20px;
                             '
                           >
-                            <table cellpadding='15px' style='border-radius: 20px; font-size: 16px; background-color: #f2f4f6; width: 100%'>
-                              <tr>
-                                <td style='padding: 15px'>
-                                  <img
-                                    src='https://dstatic.w2m.com/assets/flowo/dist/img/emails/calendar-cancel.png'
-                                    alt='cancel'
-                                    style='margin-top: 5px'
-                                  />
-                                  <span>Reserva cancelada</span>
-                                </td>
-                              </tr>
-                            </table>
-
+                            {{#if status}}
+                              <table
+                                cellpadding='15px'
+                                style='border-radius: 20px; font-size: 16px; background-color: #f2f4f6; width: 100%'
+                              >
+                                <tr>
+                                  <td style='padding: 15px'>
+                                    <img
+                                      src='https://dstatic.w2m.com/assets/flowo/dist/img/emails/calendar-cancel.png'
+                                      alt='cancel'
+                                      style='margin-top: 5px'
+                                    />
+                                    <span>Reserva cancelada</span>
+                                  </td>
+                                </tr>
+                              </table>
+                            {{/if}}
                             <p
                               style='
                                 margin: 0;

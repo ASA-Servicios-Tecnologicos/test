@@ -171,6 +171,7 @@
                                     totalBooking
                                     €
                                   }}
+                                  €
                                 </span></span></p>
                             <hr
                               style='border: 0;background-color: transparent; border-top: 1px dashed #EBEBEB; margin: 9px 0; color: transparent;'
@@ -178,7 +179,7 @@
                             <p
                               style='margin: 0; font-weight:bold; font-size: 14px; word-break: break-word; text-align: right; mso-line-height-alt: 29px; margin-top: 0; margin-bottom: 0;'
                             ><span style='font-size: 16px;'>Total gastos pagados
-                                <span style='font-size: 16px; font-weight: bold; '>{{formatPrice totalPaymentsPaid €}} </span></span></p>
+                                <span style='font-size: 16px; font-weight: bold; '>{{formatPrice totalPaymentsPaid €}} €</span></span></p>
                             <hr
                               style='border: 0;background-color: transparent; border-top: 1px dashed #EBEBEB; margin: 9px 0; color: transparent;'
                             />
@@ -192,8 +193,9 @@
                             />
                             <p
                               style='margin: 0; font-size: 14px;  font-weight:bold;  word-break: break-word; text-align: right; mso-line-height-alt: 29px; margin-top: 0; margin-bottom: 0;'
-                            ><span style='font-size: 16px;'>Total a reembolsar
-                                <span style='font-size: 16px; font-weight: bold; font-size: 16px'>{{formatPrice totalReimbursed €}}
+                            ><span style='font-size: 16px;'>Total a
+                                {{reimbursedOrPaid}}
+                                <span style='font-size: 16px; font-weight: bold; font-size: 16px'>{{formatPrice totalReimbursedOrPaid €}}
                                   €</span></span></p>
 
                             <hr
