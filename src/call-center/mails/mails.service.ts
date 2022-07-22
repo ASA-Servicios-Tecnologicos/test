@@ -8,6 +8,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { logger } from '../../logger';
 import { ObservationsService } from '../observations/observations.service';
 import { Response } from 'express';
+import { buildPayments, buildCancellationPollicies, buildFlight, buildPassengers } from './utils/mails.utils';
 @Injectable()
 export class MailsService {
   constructor(
@@ -40,10 +41,12 @@ export class MailsService {
   async sendCancelation(data: any, response: Response) {
     try {
       const dossier = await this.dossiersService.findDossierById(data.dossierId);
-      console.log('dossier ', dossier);
-      // const booking = await this.bookingService.findByDossier(data.dossierId);
+
+      const priceHistory = await this.bookingServicesService.getPriceHistory({ booking_service: dossier.services[0].id }); //387
+      // console.log('dossier ', dossier);
+      const booking = await this.bookingService.findByDossier(data.dossierId);
       // console.log('booking ', booking);
-      // const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
+      const checkout = await this.checkoutService.getCheckout(booking.checkoutId);
       // console.log('checkout ', checkout);
       // const dataContentApi = await this.bookingServicesService.getInformationContentApi(booking.hotelCode);
       // console.log('dataContentApi ', dataContentApi);
@@ -53,6 +56,11 @@ export class MailsService {
         buyerName: dossier.client.name,
         locator: dossier.services[0].locator,
         code: dossier.code,
+        ...buildPayments(priceHistory, dossier.dossier_payments, dossier.services[0]),
+        packageName: booking.packageName,
+        cancellationPollicies: buildCancellationPollicies(dossier.services[0].cancellation_policies),
+        ...buildFlight(dossier.services[0].flight),
+        ...buildPassengers(checkout.passengers),
       };
 
       const confimation = await this.notificationService.sendCancelation(dossier.client.email, contentInfo);
