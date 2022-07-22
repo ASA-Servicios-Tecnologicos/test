@@ -48,7 +48,7 @@ export class BookingService {
   ) {}
 
   async create(booking: BookingDTO) {
-    logger.info(`[BookingService] [create] init method`);
+    logger.info(`[BookingService] [create] init method --booking ${JSON.stringify(booking)}`);
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       logger.error(`[BookingService] [create] the prebookingData from the cache has no status ok`);
@@ -143,7 +143,12 @@ export class BookingService {
   }
 
   private async saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO, headers?: HeadersDTO) {
-    logger.info(`[BookingService] [saveBooking] init method`);
+    logger.info(
+      `[BookingService] [saveBooking] init method --infoRequirements ${JSON.stringify(
+        prebookingData.data.infoRequirements,
+      )}  --checkout ${JSON.stringify(checkout)}`,
+    );
+
     const bookingManagement = await this.createBookingInManagement(prebookingData, booking, checkout);
 
     let dossier: DossierDto;
@@ -155,10 +160,11 @@ export class BookingService {
     const paxes = this.buildPaxesReserveV2(checkout.passengers);
     const agencyInfo = { clientReference: dossier?.code, agent: 'flowo.com' };
     const bookingRequest = buildBookingRequest(
-      agencyInfo,
       prebookingData.data.productTokenNewblue,
+      agencyInfo,
       prebookingData.data.distributionRooms,
-      paxes,
+      checkout.passengers,
+      prebookingData.data.infoRequirements,
     );
     const body = {
       requestToken: prebookingData.data.requestToken,
@@ -203,7 +209,6 @@ export class BookingService {
   }
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
-    logger.info(`[BookingService] [createBookingInManagement] init method`);
     const client = await this.getOrCreateClient(checkOut).catch((error) => {
       logger.error(`[BookingService] [createBookingInManagement] getOrCreateClient`);
       return error;
@@ -429,7 +434,7 @@ export class BookingService {
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
-    logger.info(`[BookingService] [getOrCreateClient] init method --checkout ${JSON.stringify(checkOut)}`);
+    logger.info(`[BookingService] [getOrCreateClient] init method`);
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
