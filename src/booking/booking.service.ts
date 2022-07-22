@@ -19,15 +19,15 @@ import { DiscountCodeService } from '../management/services/dicount-code.service
 import { NotificationService } from '../notifications/services/notification.service';
 import { BookingDocumentsService } from '../booking-documents/services/booking-documents.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
-import { CreateCheckoutDTO } from '../shared/dto/checkout.dto';
 import { PrebookingDTO } from '../shared/dto/pre-booking.dto';
 import { DossierDto } from '../shared/dto/dossier.dto';
-import { CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
+import { CreateCheckoutDTO, CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 import { OtaClientDTO } from '../shared/dto/ota-client.dto';
 import { ClientRequestPatchDTO, GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
 import { getCodeMethodType, getCodeTypeDocument } from '../utils/utils';
+import { buildBookingRequest } from './utils/booking.util';
 
 @Injectable()
 export class BookingService {
@@ -152,10 +152,18 @@ export class BookingService {
       dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
     }
 
+    const paxes = this.buildPaxesReserveV2(checkout.passengers);
+    const agencyInfo = { clientReference: dossier?.code, agent: 'flowo.com' };
+    const bookingRequest = buildBookingRequest(
+      agencyInfo,
+      prebookingData.data.productTokenNewblue,
+      prebookingData.data.distributionRooms,
+      paxes,
+    );
     const body = {
       requestToken: prebookingData.data.requestToken,
       providerToken: prebookingData.data.providerToken,
-      paxes: this.buildPaxesReserveV2(checkout.passengers),
+      paxes,
       packageClient: {
         bookingData: {
           hashPrebooking: booking.hashPrebooking,
@@ -174,9 +182,11 @@ export class BookingService {
           detailedPricing: prebookingData.data.detailedPricing,
         },
       },
-      agencyInfo: { clientReference: dossier?.code, agent: 'flowo.com' },
+      agencyInfo,
+      bookingRequest,
     };
 
+    //Booking newblue
     return this.managementHttpService
       .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, {
         timeout: 120000,
@@ -271,14 +281,12 @@ export class BookingService {
       client: client,
     };
 
-    const bookingManagement = await this.managementHttpService
+    return this.managementHttpService
       .post<Array<ManagementBookDTO>>(`${this.appConfigService.BASE_URL}/management/api/v1/booking/`, createBookDTO)
       .catch((error) => {
         logger.error(`[BookingService] [createBookingInManagement] POST booking ${error.stack}`);
         return null;
       });
-
-    return bookingManagement;
   }
 
   private async processBooking(
