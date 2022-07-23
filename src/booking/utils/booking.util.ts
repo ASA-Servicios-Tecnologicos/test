@@ -1,3 +1,4 @@
+import { map } from 'rxjs';
 import * as moment from 'moment';
 import { logger } from '../../logger';
 export function buildBookingRequest(
@@ -11,7 +12,7 @@ export function buildBookingRequest(
   //{ clientReference: '123456', agent: 'Tecnoturis' };
 
   const passengers = buildPassengers(passengersCheckout);
-  const distributions = JSON.stringify(buildDistributions(distributionRooms, passengers)); //se cambia paxes por passengers
+  const distributions = JSON.stringify(buildDistributions(distributionRooms, passengers, infoRequirements)); //se cambia paxes por passengers
 
   return `{
       "token":"${productTokenNewblue}",
@@ -21,49 +22,26 @@ export function buildBookingRequest(
   }`;
 }
 
-export function buildDistributions(distributionRooms: any, paxes: any[]) {
+export function buildDistributions(distributionRooms: any, passengers: any[], infoRequirements: any[]) {
   return distributionRooms.map((distributionRoom: any) => {
     const newPaxes = distributionRoom.passengers.map((item: any) => {
-      const mappedPax = paxes.find((fly) => fly.code === Number(item.code));
+      const passengerFound = passengers.find((passenger) => passenger.code == item.code);
 
-      const years = buildYears(mappedPax);
-      const dateBirth = buildDateBirth(mappedPax);
-      const expiredDocument = buildExpiredDocument(dateBirth);
+      // const years = buildYears(mappedPax);
+      // const dateBirth = buildDateBirth(mappedPax);
+      // const expiredDocument = buildExpiredDocument(dateBirth);
 
-      const dataExtra = [
-        {
-          code: 'MAIL',
-          value: mappedPax.email,
-        },
-        {
-          code: 'EXPIRATION_DATE',
-          value: expiredDocument,
-        },
-        {
-          code: 'DOCUMENT_VALUE',
-          value: mappedPax.documentNumber,
-        },
-        {
-          code: 'NATIONALITY',
-          value: mappedPax.nationality,
-        },
-        {
-          code: 'PHONE',
-          value: mappedPax.phone,
-        },
-      ];
-
-      const dataExtraPax = dataExtra.filter((f) => f.value != '');
+      const dataExtra = buildExtraData(passengerFound, infoRequirements);
 
       return {
         holder: false,
-        code: `${mappedPax.code}`,
-        age: mappedPax.type == 'Adult' ? years : mappedPax.ages,
-        gender: mappedPax.abbreviation == 'Mr' ? 'MALE' : 'FEMALE',
-        name: mappedPax.name || 'p',
-        surname: mappedPax.lastname || 'p',
-        dateOfBirth: `${dateBirth}`,
-        extraData: dataExtraPax,
+        code: passengerFound.extCode,
+        age: passengerFound.age,
+        gender: passengerFound.gender || '',
+        name: passengerFound.name || '',
+        surname: passengerFound.lastname || '',
+        dateOfBirth: passengerFound.dateBirth,
+        extraData: dataExtra,
       };
     });
 
@@ -96,6 +74,68 @@ export function buildPassengers(passengersCheckout: any[]) {
   });
 }
 
+export function buildExtraData(passengerFound: any, infoRequirements: any[]) {
+  const extraDatas: any[] = [
+    {
+      code: 'GENDER',
+      value: passengerFound.gender,
+    },
+    {
+      code: 'NAME',
+      value: passengerFound.name,
+    },
+    {
+      code: 'SURNAME',
+      value: passengerFound.lastname,
+    },
+    {
+      code: 'DATEOFBIRTH',
+      value: passengerFound.dob,
+    },
+    {
+      code: 'DOCUMENT_TYPE',
+      value: passengerFound.documentType,
+    },
+    {
+      code: 'DOCUMENT_VALUE',
+      value: passengerFound.documentNumber,
+    },
+    {
+      code: 'ISSUE_DATE',
+      value: null,
+    },
+    {
+      code: 'ISSUE_COUNTRY',
+      value: null,
+    },
+    {
+      code: 'EXPIRATION_DATE',
+      value: passengerFound.expirationDate,
+    },
+    {
+      code: 'NATIONALITY',
+      value: passengerFound.nationality,
+    },
+    {
+      code: 'ADDRESS',
+      value: null,
+    },
+
+    {
+      code: 'PHONE',
+      value: null,
+    },
+
+    {
+      code: 'MAIL',
+      value: null,
+    },
+  ];
+
+  const codesFilter: string[] = infoRequirements[0].fields.filter((field: any) => field.mandatory).map((field: any) => field.code);
+
+  return extraDatas.filter((extra) => codesFilter.includes(extra.code));
+}
 export function buildExpiredDocument(mappedPax: any) {
   let expiredDocument = '';
 

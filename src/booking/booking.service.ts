@@ -515,6 +515,7 @@ export class BookingService {
     return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
   }
 
+  //For save managment and booking(new blue)
   private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>, formatBirthdate = true) {
     return passengers.map((passenger) => {
       return {
