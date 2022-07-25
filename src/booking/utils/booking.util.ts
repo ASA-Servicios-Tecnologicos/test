@@ -42,6 +42,7 @@ export function buildDistributions(distributionRooms: any, passengers: any[], in
         name: passengerFound.name || '',
         surname: passengerFound.lastname || '',
         dateOfBirth: passengerFound.dob || '',
+        documentType: passengerFound.documentType || '',
         extraData: dataExtra || [],
       };
     });
