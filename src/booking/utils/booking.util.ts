@@ -12,7 +12,7 @@ export function buildBookingRequest(
   //{ clientReference: '123456', agent: 'Tecnoturis' };
 
   const passengers = buildPassengers(passengersCheckout);
-  const distributions = JSON.stringify(buildDistributions(distributionRooms, passengers, infoRequirements)); //se cambia paxes por passengers
+  const distributions = JSON.stringify(buildDistributions(distributionRooms, passengers, infoRequirements));
 
   return `{
       "token":"${productTokenNewblue}",
@@ -42,8 +42,6 @@ export function buildDistributions(distributionRooms: any, passengers: any[], in
         name: passengerFound.name || '',
         surname: passengerFound.lastname || '',
         dateOfBirth: passengerFound.dob || '',
-        documentType: passengerFound.documentType || '',
-        documentValue: passengerFound.documentNumber || '',
         extraData: dataExtra || [],
       };
     });
@@ -82,22 +80,23 @@ export function buildPassengers(passengersCheckout: any[]) {
 export function buildExtraData(passengerFound: any, infoRequirements: any[]) {
   logger.info(`[buildBookingRequest] [buildExtraData] init method --passengerFound ${JSON.stringify(passengerFound)}`);
   const extraDatas: any[] = [
-    {
-      code: 'GENDER',
-      value: passengerFound.gender,
-    },
-    {
-      code: 'NAME',
-      value: passengerFound.name,
-    },
-    {
-      code: 'SURNAME',
-      value: passengerFound.lastname,
-    },
-    {
-      code: 'DATEOFBIRTH',
-      value: passengerFound.dob,
-    },
+    //Fijos not sent
+    // {
+    //   code: 'GENDER',
+    //   value: passengerFound.gender,
+    // },
+    // {
+    //   code: 'NAME',
+    //   value: passengerFound.name,
+    // },
+    // {
+    //   code: 'SURNAME',
+    //   value: passengerFound.lastname,
+    // },
+    // {
+    //   code: 'DATEOFBIRTH',
+    //   value: passengerFound.dob,
+    // },
     {
       code: 'DOCUMENT_TYPE',
       value: passengerFound.documentType,
@@ -138,12 +137,11 @@ export function buildExtraData(passengerFound: any, infoRequirements: any[]) {
     },
   ];
 
-  const codesFilter: string[] = infoRequirements[0].fields
-    .filter((field: any) => field.mandatory === false)
-    .map((field: any) => field.code);
+  const codesFilter: string[] = infoRequirements[0].fields.filter((field: any) => field.mandatory).map((field: any) => field.code);
 
   return extraDatas.filter((extra) => extra.value && codesFilter.includes(extra.code));
 }
+
 export function buildExpiredDocument(mappedPax: any) {
   let expiredDocument = '';
 
