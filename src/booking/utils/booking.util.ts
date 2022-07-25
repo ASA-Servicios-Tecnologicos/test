@@ -23,9 +23,10 @@ export function buildBookingRequest(
 }
 
 export function buildDistributions(distributionRooms: any, passengers: any[], infoRequirements: any[]) {
+  logger.info(`[buildBookingRequest] [buildDistributions] init method --distributionRooms ${JSON.stringify(distributionRooms)}`);
   return distributionRooms.map((distributionRoom: any) => {
-    const newPaxes = distributionRoom.passengers.map((item: any) => {
-      const passengerFound = passengers.find((passenger) => passenger.code == item.code);
+    const newPassengers = distributionRoom.passengers.map((item: any) => {
+      const passengerFound = passengers.find((passenger) => passenger.extCode == item.code);
 
       // const years = buildYears(mappedPax);
       // const dateBirth = buildDateBirth(mappedPax);
@@ -35,24 +36,25 @@ export function buildDistributions(distributionRooms: any, passengers: any[], in
 
       return {
         holder: false,
-        code: passengerFound.extCode,
-        age: passengerFound.age,
+        code: passengerFound.extCode || '',
+        age: passengerFound.age || 0,
         gender: passengerFound.gender || '',
         name: passengerFound.name || '',
         surname: passengerFound.lastname || '',
-        dateOfBirth: passengerFound.dateBirth,
-        extraData: dataExtra,
+        dateOfBirth: passengerFound.dob || '',
+        extraData: dataExtra || [],
       };
     });
 
     return {
       code: distributionRoom.code,
-      passengers: newPaxes,
+      passengers: newPassengers,
     };
   });
 }
 
 export function buildPassengers(passengersCheckout: any[]) {
+  logger.info(`[buildBookingRequest] [buildPassengers] init method --passengersCheckout ${JSON.stringify(passengersCheckout)}`);
   return passengersCheckout.map((passenger) => {
     return {
       passengerId: passenger.passengerId,
@@ -74,7 +76,9 @@ export function buildPassengers(passengersCheckout: any[]) {
   });
 }
 
+//En el campo extraData solo valos los campos que no son requeridos, y extradata parece ser opcional.
 export function buildExtraData(passengerFound: any, infoRequirements: any[]) {
+  logger.info(`[buildBookingRequest] [buildExtraData] init method --passengerFound ${JSON.stringify(passengerFound)}`);
   const extraDatas: any[] = [
     {
       code: 'GENDER',
@@ -132,9 +136,11 @@ export function buildExtraData(passengerFound: any, infoRequirements: any[]) {
     },
   ];
 
-  const codesFilter: string[] = infoRequirements[0].fields.filter((field: any) => field.mandatory).map((field: any) => field.code);
+  const codesFilter: string[] = infoRequirements[0].fields
+    .filter((field: any) => field.mandatory === false)
+    .map((field: any) => field.code);
 
-  return extraDatas.filter((extra) => codesFilter.includes(extra.code));
+  return extraDatas.filter((extra) => extra.value && codesFilter.includes(extra.code));
 }
 export function buildExpiredDocument(mappedPax: any) {
   let expiredDocument = '';
