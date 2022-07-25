@@ -1,4 +1,3 @@
-import { map } from 'rxjs';
 import * as moment from 'moment';
 import { logger } from '../../logger';
 export function buildBookingRequest(
@@ -28,14 +27,10 @@ export function buildDistributions(distributionRooms: any, passengers: any[], in
     const newPassengers = distributionRoom.passengers.map((item: any) => {
       const passengerFound = passengers.find((passenger) => passenger.extCode == item.code);
 
-      // const years = buildYears(mappedPax);
-      // const dateBirth = buildDateBirth(mappedPax);
-      // const expiredDocument = buildExpiredDocument(dateBirth);
-
       const dataExtra = buildExtraData(passengerFound, infoRequirements);
 
       return {
-        holder: false,
+        holder: passengerFound.extCode == 1 ? true : false,
         code: passengerFound.extCode || '',
         age: passengerFound.age || 0,
         gender: passengerFound.gender || '',
@@ -53,6 +48,10 @@ export function buildDistributions(distributionRooms: any, passengers: any[], in
   });
 }
 
+// const years = buildYears(mappedPax);
+// const dateBirth = buildDateBirth(mappedPax);
+// const expiredDocument = buildExpiredDocument(dateBirth);
+
 export function buildPassengers(passengersCheckout: any[]) {
   logger.info(`[buildBookingRequest] [buildPassengers] init method --passengersCheckout ${JSON.stringify(passengersCheckout)}`);
   return passengersCheckout.map((passenger) => {
@@ -67,9 +66,9 @@ export function buildPassengers(passengersCheckout: any[]) {
       documentNumber: passenger.document.documentNumber,
       expirationDate: passenger.document.expirationDate,
       nationality: passenger.document.nationality,
-      country: passenger.lastname,
+      country: passenger.country,
       room: passenger.room,
-      age: passenger.age,
+      age: buildYears(passenger.dob), //passenger.age,
       extCode: passenger.extCode,
       type: passenger.type,
     };
@@ -142,6 +141,10 @@ export function buildExtraData(passengerFound: any, infoRequirements: any[]) {
   return extraDatas.filter((extra) => extra.value && codesFilter.includes(extra.code));
 }
 
+export function buildYears(dateBirth: any) {
+  return moment().diff(dateBirth, 'years');
+}
+
 export function buildExpiredDocument(mappedPax: any) {
   let expiredDocument = '';
 
@@ -156,7 +159,4 @@ export function buildExpiredDocument(mappedPax: any) {
 export function buildDateBirth(mappedPax: any) {
   const [dd, mm, yyyy] = mappedPax.birthdate.split('/');
   return yyyy + '-' + mm + '-' + dd;
-}
-export function buildYears(dateBirth: any) {
-  return moment().diff(dateBirth, 'years');
 }
