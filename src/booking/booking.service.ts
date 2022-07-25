@@ -27,7 +27,7 @@ import { OtaClientDTO } from '../shared/dto/ota-client.dto';
 import { ClientRequestPatchDTO, GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
 import { getCodeMethodType, getCodeTypeDocument } from '../utils/utils';
-import { buildBookingRequest } from './utils/booking.util';
+import { buildBookingRequest, buildYears } from './utils/booking.util';
 
 @Injectable()
 export class BookingService {
@@ -522,7 +522,7 @@ export class BookingService {
         abbreviation: passenger.title,
         name: passenger.name,
         code: parseInt(passenger.extCode),
-        ages: passenger.age,
+        ages: formatBirthdate ? passenger.age : buildYears(passenger.dob),
         lastname: passenger.lastname,
         phone: '',
         email: '',
@@ -536,7 +536,7 @@ export class BookingService {
           : '',
         nationality: passenger.country,
         nationality_of_id: passenger.document.nationality,
-        gender: passenger.gender.includes('MALE') ? 2 : 1,
+        gender: passenger.gender == 'MALE' ? 2 : 1,
         phoneNumberCode: 34,
         type: passenger.type,
       };
