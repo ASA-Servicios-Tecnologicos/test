@@ -19,15 +19,15 @@ import { DiscountCodeService } from '../management/services/dicount-code.service
 import { NotificationService } from '../notifications/services/notification.service';
 import { BookingDocumentsService } from '../booking-documents/services/booking-documents.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
-import { CreateCheckoutDTO } from '../shared/dto/checkout.dto';
 import { PrebookingDTO } from '../shared/dto/pre-booking.dto';
 import { DossierDto } from '../shared/dto/dossier.dto';
-import { CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
+import { CreateCheckoutDTO, CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 import { OtaClientDTO } from '../shared/dto/ota-client.dto';
 import { ClientRequestPatchDTO, GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
 import { getCodeMethodType, getCodeTypeDocument } from '../utils/utils';
+import { buildBookingRequest, buildYears } from './utils/booking.util';
 
 @Injectable()
 export class BookingService {
@@ -48,7 +48,7 @@ export class BookingService {
   ) {}
 
   async create(booking: BookingDTO) {
-    logger.info(`[BookingService] [create] init method`);
+    logger.info(`[BookingService] [create] init method --booking ${JSON.stringify(booking)}`);
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       logger.error(`[BookingService] [create] the prebookingData from the cache has no status ok`);
@@ -143,7 +143,12 @@ export class BookingService {
   }
 
   private async saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO, headers?: HeadersDTO) {
-    logger.info(`[BookingService] [saveBooking] init method`);
+    logger.info(
+      `[BookingService] [saveBooking] init method --infoRequirements ${JSON.stringify(
+        prebookingData.data.infoRequirements,
+      )}  --checkout ${JSON.stringify(checkout)}`,
+    );
+
     const bookingManagement = await this.createBookingInManagement(prebookingData, booking, checkout);
 
     let dossier: DossierDto;
@@ -152,10 +157,19 @@ export class BookingService {
       dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
     }
 
+    const paxes = this.buildPaxesReserveV2(checkout.passengers);
+    const agencyInfo = { clientReference: dossier?.code, agent: 'flowo.com' };
+    const bookingRequest = buildBookingRequest(
+      prebookingData.data.productTokenNewblue,
+      agencyInfo,
+      prebookingData.data.distributionRooms,
+      checkout.passengers,
+      prebookingData.data.infoRequirements,
+    );
     const body = {
       requestToken: prebookingData.data.requestToken,
       providerToken: prebookingData.data.providerToken,
-      paxes: this.buildPaxesReserveV2(checkout.passengers),
+      paxes,
       packageClient: {
         bookingData: {
           hashPrebooking: booking.hashPrebooking,
@@ -174,9 +188,11 @@ export class BookingService {
           detailedPricing: prebookingData.data.detailedPricing,
         },
       },
-      agencyInfo: { clientReference: dossier?.code, agent: 'flowo.com' },
+      agencyInfo,
+      bookingRequest,
     };
 
+    //Booking newblue
     return this.managementHttpService
       .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, {
         timeout: 120000,
@@ -193,7 +209,6 @@ export class BookingService {
   }
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
-    logger.info(`[BookingService] [createBookingInManagement] init method`);
     const client = await this.getOrCreateClient(checkOut).catch((error) => {
       logger.error(`[BookingService] [createBookingInManagement] getOrCreateClient`);
       return error;
@@ -271,14 +286,12 @@ export class BookingService {
       client: client,
     };
 
-    const bookingManagement = await this.managementHttpService
+    return this.managementHttpService
       .post<Array<ManagementBookDTO>>(`${this.appConfigService.BASE_URL}/management/api/v1/booking/`, createBookDTO)
       .catch((error) => {
         logger.error(`[BookingService] [createBookingInManagement] POST booking ${error.stack}`);
         return null;
       });
-
-    return bookingManagement;
   }
 
   private async processBooking(
@@ -421,7 +434,7 @@ export class BookingService {
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
-    logger.info(`[BookingService] [getOrCreateClient] init method --checkout ${JSON.stringify(checkOut)}`);
+    logger.info(`[BookingService] [getOrCreateClient] init method`);
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
@@ -502,13 +515,14 @@ export class BookingService {
     return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
   }
 
+  //For save managment and booking(new blue)
   private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>, formatBirthdate = true) {
     return passengers.map((passenger) => {
       return {
         abbreviation: passenger.title,
         name: passenger.name,
         code: parseInt(passenger.extCode),
-        ages: passenger.age,
+        ages: formatBirthdate ? passenger.age : buildYears(passenger.dob),
         lastname: passenger.lastname,
         phone: '',
         email: '',
@@ -522,7 +536,7 @@ export class BookingService {
           : '',
         nationality: passenger.country,
         nationality_of_id: passenger.document.nationality,
-        gender: passenger.gender.includes('MALE') ? 2 : 1,
+        gender: passenger.gender == 'MALE' ? 2 : 1,
         phoneNumberCode: 34,
         type: passenger.type,
       };
