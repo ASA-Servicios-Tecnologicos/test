@@ -25,14 +25,15 @@ export interface Metadata {
   locator?: string;
   number_dossier?: number;
   type?: string;
+  observation_id?: number;
 }
 
 export const HTML_TEMPLATES = {
   CARD: 'src/notifications/templates/flowo_email_confirmation.hbs',
   BANK_TRANSFER: 'src/notifications/templates/flowo_email_confirmation_transfer.hbs',
   CONFIRM_NEWSLETTER: 'src/notifications/templates/subscribed_newsletter.hbs',
-  CANCELATION_BOOKING: 'src/notifications/templates/cancelation_booking.hbs',
-  SEND_OBSERVATION: 'src/notifications/templates/send_observation.hbs',
+  CANCELATION_BOOKING: 'src/notifications/templates/cancelations/flowo_cancel_reservation.hbs',
+  SEND_OBSERVATION: 'src/notifications/templates/notificaciones/flowo_email-call-center.hbs',
   BIZUM: 'src/notifications/templates/flowo_email_confirmation.hbs',
 };
 
@@ -66,4 +67,9 @@ export interface EmailPaginationDTO {
   collectionSize?: number;
   sortOrder?: string;
   sortField?: string;
+}
+export interface EmailObservationDTO {
+  dossierId?: string;
+  observation?: string;
+  observation_id?: number;
 }

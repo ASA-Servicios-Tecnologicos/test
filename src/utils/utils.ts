@@ -40,3 +40,24 @@ export function getCodeTypeDocument(typeDocument: string) {
   }
   return id;
 }
+
+export function formatDate(date: string) {
+  return date.replace(/^(\d{4})-(\d{2})-(\d{2})$/g, '$3/$2/$1');
+}
+
+export function formatFullDate(date: string) {
+  if (!isNaN(Date.parse(date))) {
+    const newDate = new Date(date);
+    return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(newDate);
+  }
+}
+
+export function mapFilterParamsToQueryParams(filterParams: any): string {
+  let result = '?';
+
+  Object.keys(filterParams).forEach((key, index) => {
+    result += `${key}=${filterParams[key]}${Object.keys(filterParams)[index + 1] ? '&' : ''}`;
+  });
+
+  return encodeURI(result);
+}

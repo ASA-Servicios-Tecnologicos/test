@@ -1,3 +1,4 @@
+import { PriceHistoryDto, PriceHistoryFilterParamsDTO } from './../../shared/dto/booking-service.dto';
 import { HeadersDTO } from './../../shared/dto/header.dto';
 import { Injectable } from '@nestjs/common';
 import { ContentAPI } from '../../shared/dto/content-api.dto';
@@ -8,16 +9,21 @@ import {
   ManagementBookingServiceDTO,
   ManagementBookingServicesByDossierDTO,
 } from '../../shared/dto/booking-service.dto';
-import { CreateTransferDTO, CreateUpdateBookingServicePax, Pax, TransferDTO } from '../../shared/dto/call-center.dto';
-import { CreateFlightDTO, FlightDTO } from '../../shared/dto/call-center.dto';
+import {
+  CreateFlightDTO,
+  FlightDTO,
+  CreateTransferDTO,
+  CreateUpdateBookingServicePax,
+  Pax,
+  TransferDTO,
+} from '../../shared/dto/call-center.dto';
 import { ManagementHttpService } from './management-http.service';
-
+import { pickBy } from 'lodash';
+import { mapFilterParamsToQueryParams } from 'src/utils/utils';
 
 @Injectable()
 export class BookingServicesService {
-  constructor(private readonly managementHttpService: ManagementHttpService, 
-    private readonly appConfigService: AppConfigService,
-    ) {}
+  constructor(private readonly managementHttpService: ManagementHttpService, private readonly appConfigService: AppConfigService) {}
 
   getBookingServicesByDossierId(dossierId: string): Promise<ManagementBookingServicesByDossierDTO[]> {
     return this.managementHttpService.get<ManagementBookingServicesByDossierDTO[]>(
@@ -26,9 +32,10 @@ export class BookingServicesService {
   }
 
   async getBookingServiceById(id: string, force: string = 'false', headers?: HeadersDTO): Promise<ManagementBookingServiceDTO> {
-     return await this.managementHttpService.get<ManagementBookingServiceDTO>(
-       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`, { headers }
-     );
+    return await this.managementHttpService.get<ManagementBookingServiceDTO>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/?force=${force}`,
+      { headers },
+    );
   }
 
   createBookingService(createBookingServiceDTO) {
@@ -41,11 +48,12 @@ export class BookingServicesService {
   patchBookingServiceById(
     id: number,
     managementDossierServiceDTO: Partial<ManagementBookingServiceDTO>,
-    headers?: HeadersDTO
+    headers?: HeadersDTO,
   ): Promise<ManagementBookingServiceDTO> {
     return this.managementHttpService.patch<ManagementBookingServiceDTO>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`,
-      managementDossierServiceDTO, { headers }
+      managementDossierServiceDTO,
+      { headers },
     );
   }
 
@@ -53,20 +61,27 @@ export class BookingServicesService {
     return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/${id}/`);
   }
 
-  createBookingServicePax(serviceId: string, createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>, headers?: HeadersDTO): Promise<Pax> {
+  createBookingServicePax(
+    serviceId: string,
+    createBookingServicePaxDTO: Partial<CreateUpdateBookingServicePax>,
+    headers?: HeadersDTO,
+  ): Promise<Pax> {
     return this.managementHttpService.post<Pax>(
       `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/`,
 
-      { ...createBookingServicePaxDTO, booking_service: +serviceId }, { headers }
+      { ...createBookingServicePaxDTO, booking_service: +serviceId },
+      { headers },
     );
   }
 
   deleteBookingServicePaxById(paxId: number, headers?: HeadersDTO): Promise<void> {
-    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`, { headers });
+    return this.managementHttpService.delete(`${this.appConfigService.BASE_URL}/management/api/v1/booking-service/pax/${paxId}/`, {
+      headers,
+    });
   }
 
   putBookingServiceByServiceAndPaxId(paxId: string, newPax: Partial<CreateUpdateBookingServicePax>, headers?: HeadersDTO): Promise<void> {
-    return this.managementHttpService.put(`${this.appConfigService.BASE_URL}/management/api/v1/pax/${paxId}/`, newPax, { headers } );
+    return this.managementHttpService.put(`${this.appConfigService.BASE_URL}/management/api/v1/pax/${paxId}/`, newPax, { headers });
   }
 
   createFlightBookingService(flightBookingServiceId: number, createFlightDTO: CreateFlightDTO): Promise<FlightDTO> {
@@ -135,6 +150,15 @@ export class BookingServicesService {
   getInformationContentApi(hotelCode: string): Promise<ContentAPI> {
     return this.managementHttpService.get<ContentAPI>(
       `${this.appConfigService.CONTENT_URL}/hotels/${hotelCode}?codeType=JP&locale=es&origin=JP&path=flowo&imgSize=fullHd`,
+    );
+  }
+
+  getPriceHistory(filterParams: PriceHistoryFilterParamsDTO, headers?: HeadersDTO) {
+    return this.managementHttpService.get<PriceHistoryDto[]>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/booking-service/price-history/${mapFilterParamsToQueryParams(
+        pickBy(filterParams),
+      )}`,
+      { headers },
     );
   }
 }
