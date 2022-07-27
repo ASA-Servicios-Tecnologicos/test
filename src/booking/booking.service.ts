@@ -105,9 +105,11 @@ export class BookingService {
         amount: booking.discount?.amount,
         amountCurrency: booking.discount?.amountCurrency,
       },
+      prebooking: prebookingData,
     };
     const createdBooking = new this.bookingModel(prebooking);
     await createdBooking.save();
+    logger.info(`[BookingService] [create] save booking ${prebooking.bookingId}`);
     return { checkoutUrl: checkout.checkoutURL };
   }
 
