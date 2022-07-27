@@ -1,6 +1,7 @@
+import { InfoRequirementsDTO } from './../shared/dto/booking.dto';
 import { DossierPaymentInstallment } from './../shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BookingDTO, BookPackageProviderDTO, CreateManagementBookDto, ManagementBookDTO } from '../shared/dto/booking.dto';
@@ -113,8 +114,18 @@ export class BookingService {
     return { checkoutUrl: checkout.checkoutURL };
   }
 
-  findById(id: string) {
-    return this.bookingModel.findOne({ bookingId: id }).exec();
+  async findById(id: string) {
+    const data: Booking = await this.bookingModel.findOne({ bookingId: id }).exec();
+
+    if (!data) {
+      throw new ConflictException('Not found bookingId');
+    }
+
+    const response: any = {
+      infoRequirements: data?.infoRequirements,
+    };
+
+    return response;
   }
 
   findByDossier(dossier: string) {
