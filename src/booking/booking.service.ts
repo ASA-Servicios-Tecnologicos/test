@@ -31,6 +31,7 @@ import { buildBookingRequest, buildYears } from './utils/booking.util';
 
 @Injectable()
 export class BookingService {
+  private CLIENT_GENERAL = null;
   constructor(
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
@@ -45,7 +46,9 @@ export class BookingService {
     private notificationsService: NotificationService,
     private bookingDocumentsService: BookingDocumentsService,
     private readonly bookingServicesService: BookingServicesService,
-  ) {}
+  ) {
+    this.CLIENT_GENERAL = this.appConfigService.CLIENT_GENERAL;
+  }
 
   async create(booking: BookingDTO) {
     logger.info(`[BookingService] [create] init method --booking ${JSON.stringify(booking)}`);
@@ -209,15 +212,11 @@ export class BookingService {
   }
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
-    const client = await this.getOrCreateClient(checkOut).catch((error) => {
-      logger.error(`[BookingService] [createBookingInManagement] getOrCreateClient`);
-      return error;
+    logger.info(`[BookingService] [createBookingInManagement] init method`);
+    let client = await this.getOrCreateClient(checkOut).catch(() => {
+      logger.warn(`[BookingService] [createBookingInManagement] use client general ${this.CLIENT_GENERAL}`);
+      return this.CLIENT_GENERAL;
     });
-
-    if (isNaN(client)) {
-      logger.error(`[BookingService] [createBookingInManagement] client not found`);
-      throw new HttpException(client, HttpStatus.NOT_FOUND);
-    }
 
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
@@ -438,12 +437,12 @@ export class BookingService {
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
-        logger.error(`[BookingService] [getOrCreateClient] for email ${error.stack}`);
+        logger.warn(`[BookingService] [getOrCreateClient] not found client for email ${error.stack}`);
         if (error.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
             .catch((e) => {
-              logger.error(`[BookingService] [getOrCreateClient] for phone ${e.stack}`);
+              logger.warn(`[BookingService] [getOrCreateClient] not found client for phone ${e.stack}`);
               if (e.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
@@ -478,7 +477,7 @@ export class BookingService {
           type_document_name: checkOut.buyer.document.documentType,
         })
         .catch((error) => {
-          logger.error(`[BookingService] [createExternalClient] ${error.stack}`);
+          logger.warning(`[BookingService] [createExternalClient] not create client ${error.stack}`);
           throw error;
         });
 
@@ -497,7 +496,7 @@ export class BookingService {
     };
 
     await this.externalClientService.patchClient(data).catch((error) => {
-      logger.error(`[BookingService] [updateExternalClient] ${error.stack}`);
+      logger.warning(`[BookingService] [updateExternalClient] not update client ${error.stack}`);
       throw error;
     });
 

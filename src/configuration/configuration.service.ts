@@ -91,4 +91,8 @@ export class AppConfigService {
     }
     return [];
   }
+
+  get CLIENT_GENERAL(): number {
+    return Number(this.configService.get<number>('tecnoturis-app.CLIENT_GENERAL'));
+  }
 }
