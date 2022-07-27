@@ -67,7 +67,7 @@ export class BookingService {
     }
     if (!this.verifyBooking(prebookingData, booking) || netAmount !== booking.amount) {
       logger.error(`[BookingService] [create] booking and prebooking does not match --netAmount ${netAmount} --amount ${booking.amount}`);
-      throw new HttpException('La información del booking no coincide con el prebooking', 400);
+      // throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
     const amountCheckout = Math.round(netAmount * 100) / 100;
