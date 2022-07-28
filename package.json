@@ -38,6 +38,7 @@
     "dotenv": "^10.0.0",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
+    "moment": "2.24",
     "mongoose": "^6.1.1",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.7",

@@ -1,4 +1,4 @@
-import { EmailFiltersDTO } from './../../shared/dto/email.dto';
+import { EmailFiltersDTO, EmailObservationDTO } from './../../shared/dto/email.dto';
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { MailsService } from './mails.service';
 import { Response } from 'express';
@@ -17,7 +17,7 @@ export class MailsController {
   }
 
   @Post('/send-observation')
-  sendObservation(@Body() data: { dossierId: string; observation: string }, @Res() response: Response) {
+  sendObservation(@Body() data: EmailObservationDTO, @Res() response: Response) {
     return this.mailsService.sendObservation(data, response);
   }
 }

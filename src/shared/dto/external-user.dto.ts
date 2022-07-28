@@ -11,6 +11,11 @@ export class CreateExternalUserDTO {
   phone: string;
   username: string;
   active: boolean;
+  country_iso?: string;
+  address?: string;
+  postal_code?: string;
+  province?: string;
+  type_document_name?: string;
   /* Role equal to 8 means cliente-usuario */
   role: number = 8;
 }

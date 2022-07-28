@@ -55,6 +55,7 @@ export interface PrebookingDTO {
       destination: string;
       providerService: number;
     };
+    infoRequirements: any;
   };
   status: number;
 }

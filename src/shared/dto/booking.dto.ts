@@ -56,6 +56,26 @@ export enum PolicyType {
   'PERCENTAGE',
 }
 
+export enum applyTOEnum {
+  'PASSENGER',
+}
+
+export class InfoRequirementsDTO {
+  @ApiProperty()
+  applyTO?: applyTOEnum;
+  @ApiProperty()
+  codes?: Array<string>;
+  @ApiProperty()
+  fields?: Array<any>;
+}
+
+export class PrebookingDTO {
+  @ApiProperty()
+  data?: any;
+  @ApiProperty()
+  status?: number;
+}
+
 export class BookingDTO {
   @ApiProperty()
   @Optional()
@@ -115,6 +135,10 @@ export class BookingDTO {
   @ApiProperty()
   packageDestination: string;
   //TODO: Puede llegar un codigo de descuento, es nullable. Comprobar que existe y cuanto descuento hace y con ello amount
+  @ApiProperty()
+  infoRequirements: Array<InfoRequirementsDTO>;
+  @ApiProperty()
+  prebooking: PrebookingDTO;
 }
 
 export class CreateManagementBookDto extends CreateManagementBudgetDto {

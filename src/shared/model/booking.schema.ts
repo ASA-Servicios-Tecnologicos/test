@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { DiscountDTO, DistributionDTO } from '../dto/booking.dto';
+import { DiscountDTO, DistributionDTO, InfoRequirementsDTO, PrebookingDTO } from '../dto/booking.dto';
 
 export type BookingDocument = Booking & Document;
 
@@ -91,6 +91,12 @@ export class Booking {
 
   @Prop()
   packageDestination: string;
+
+  @Prop()
+  infoRequirements: Array<InfoRequirementsDTO>;
+
+  @Prop()
+  prebooking: PrebookingDTO;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
