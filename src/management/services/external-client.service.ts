@@ -1,11 +1,12 @@
+import { ClientRequestPatchDTO } from './../../shared/dto/management-client.dto';
+import { HeadersDTO } from './../../shared/dto/header.dto';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { CLIENT_NOT_ACTIVE_ERROR } from '../management.constants';
 import { ClientService } from './client.service';
 import { ManagementHttpService } from './management-http.service';
 import { logger } from '../../logger';
 import { AppConfigService } from '../../configuration/configuration.service';
-import { CreateExternalUserDTO } from '../../shared/dto/external-user.dto';
-import { ExternalUserDTO } from '../../shared/dto/external-user.dto';
+import { CreateExternalUserDTO, ExternalUserDTO } from '../../shared/dto/external-user.dto';
 @Injectable()
 export class ExternalClientService {
   constructor(
@@ -16,7 +17,7 @@ export class ExternalClientService {
 
   // TODO: Pending testing
   async createExternalClient(user: CreateExternalUserDTO) {
-    logger.info(`[ExternalClientService] [createExternalClient] init method`)
+    logger.info(`[ExternalClientService] [createExternalClient] init method`);
     return this.managementHttpService
       .post<ExternalUserDTO>(`${this.appConfigService.BASE_URL}/management/api/v1/client/external/flowo/`, user)
       .catch(async (err) => {
@@ -31,13 +32,21 @@ export class ExternalClientService {
             accept_privacy_policy: new Date().toISOString(),
             active: true,
           });
-          logger.warn(`[ExternalClientService] [createExternalClient] activated user --user ${userActive} `)
+          logger.warn(`[ExternalClientService] [createExternalClient] activated user --user ${userActive} `);
           return {
             client: userActive.id,
           };
         }
-        logger.error(`[ExternalClientService] [createExternalClient] ${err.stack} `)
+        logger.error(`[ExternalClientService] [createExternalClient] ${err.stack} `);
         throw err;
       });
+  }
+
+  patchClient(clientRequestPatchDTO: ClientRequestPatchDTO, headers?: HeadersDTO) {
+    return this.managementHttpService.patch<any>(
+      `${this.appConfigService.BASE_URL}/management/api/v1/clients/${clientRequestPatchDTO.id}/`,
+      clientRequestPatchDTO,
+      { headers },
+    );
   }
 }

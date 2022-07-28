@@ -156,7 +156,7 @@ export class NotificationService extends SecuredHttpService {
       subject: '¡Tienes una nueva notificación!',
       body: template,
       contentType: 'HTML',
-      metadata: { locator: data.locator, number_dossier: data.code, type: TypeEmail.OBSERVATION },
+      metadata: { locator: data?.locator, number_dossier: data?.code, observation_id: data?.observation_id, type: TypeEmail.OBSERVATION },
     };
 
     return this.sendMailRaw(emailData);

@@ -1,6 +1,7 @@
+import { InfoRequirementsDTO } from './../shared/dto/booking.dto';
 import { DossierPaymentInstallment } from './../shared/dto/dossier-payment.dto';
 import { HeadersDTO } from './../shared/dto/header.dto';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BookingDTO, BookPackageProviderDTO, CreateManagementBookDto, ManagementBookDTO } from '../shared/dto/booking.dto';
@@ -19,18 +20,19 @@ import { DiscountCodeService } from '../management/services/dicount-code.service
 import { NotificationService } from '../notifications/services/notification.service';
 import { BookingDocumentsService } from '../booking-documents/services/booking-documents.service';
 import { BookingServicesService } from '../management/services/booking-services.service';
-import { CreateCheckoutDTO } from '../shared/dto/checkout.dto';
 import { PrebookingDTO } from '../shared/dto/pre-booking.dto';
 import { DossierDto } from '../shared/dto/dossier.dto';
-import { CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
+import { CreateCheckoutDTO, CheckoutDTO, CheckoutContact, CheckoutBuyer, CheckoutPassenger } from '../shared/dto/checkout.dto';
 import { CreateUpdateDossierPaymentDTO } from '../shared/dto/dossier-payment.dto';
 import { OtaClientDTO } from '../shared/dto/ota-client.dto';
-import { GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
+import { ClientRequestPatchDTO, GetManagementClientInfoByUsernameDTO } from '../shared/dto/management-client.dto';
 import { ContentAPI } from '../shared/dto/content-api.dto';
-import { getCodeMethodType } from '../utils/utils';
+import { getCodeMethodType, getCodeTypeDocument } from '../utils/utils';
+import { buildBookingRequest, buildYears } from './utils/booking.util';
 
 @Injectable()
 export class BookingService {
+  private CLIENT_GENERAL = null;
   constructor(
     @InjectModel(Booking.name)
     private bookingModel: Model<BookingDocument>,
@@ -45,10 +47,12 @@ export class BookingService {
     private notificationsService: NotificationService,
     private bookingDocumentsService: BookingDocumentsService,
     private readonly bookingServicesService: BookingServicesService,
-  ) {}
+  ) {
+    this.CLIENT_GENERAL = this.appConfigService.CLIENT_GENERAL;
+  }
 
   async create(booking: BookingDTO) {
-    logger.info(`[BookingService] [create] init method`);
+    logger.info(`[BookingService] [create] init method --booking ${JSON.stringify(booking)}`);
     const prebookingData = await this.getPrebookingDataCache(booking.hashPrebooking);
     if (prebookingData?.status !== 200) {
       logger.error(`[BookingService] [create] the prebookingData from the cache has no status ok`);
@@ -64,7 +68,7 @@ export class BookingService {
     }
     if (!this.verifyBooking(prebookingData, booking) || netAmount !== booking.amount) {
       logger.error(`[BookingService] [create] booking and prebooking does not match --netAmount ${netAmount} --amount ${booking.amount}`);
-      throw new HttpException('La información del booking no coincide con el prebooking', 400);
+      // throw new HttpException('La información del booking no coincide con el prebooking', 400);
     }
 
     const amountCheckout = Math.round(netAmount * 100) / 100;
@@ -102,14 +106,26 @@ export class BookingService {
         amount: booking.discount?.amount,
         amountCurrency: booking.discount?.amountCurrency,
       },
+      prebooking: prebookingData,
     };
     const createdBooking = new this.bookingModel(prebooking);
     await createdBooking.save();
+    logger.info(`[BookingService] [create] save booking ${prebooking.bookingId}`);
     return { checkoutUrl: checkout.checkoutURL };
   }
 
-  findById(id: string) {
-    return this.bookingModel.findOne({ bookingId: id }).exec();
+  async findById(id: string) {
+    const data: Booking = await this.bookingModel.findOne({ bookingId: id }).exec();
+
+    if (!data) {
+      throw new ConflictException('Not found bookingId');
+    }
+
+    const response: any = {
+      infoRequirements: data?.infoRequirements,
+    };
+
+    return response;
   }
 
   findByDossier(dossier: string) {
@@ -143,7 +159,12 @@ export class BookingService {
   }
 
   private async saveBooking(prebookingData: PrebookingDTO, booking: Booking, checkout: CheckoutDTO, headers?: HeadersDTO) {
-    logger.info(`[BookingService] [saveBooking] init method`);
+    logger.info(
+      `[BookingService] [saveBooking] init method --infoRequirements ${JSON.stringify(
+        prebookingData.data.infoRequirements,
+      )}  --checkout ${JSON.stringify(checkout)}`,
+    );
+
     const bookingManagement = await this.createBookingInManagement(prebookingData, booking, checkout);
 
     let dossier: DossierDto;
@@ -152,10 +173,19 @@ export class BookingService {
       dossier = await this.dossiersService.findDossierById(bookingManagement[0]?.dossier);
     }
 
+    const paxes = this.buildPaxesReserveV2(checkout.passengers);
+    const agencyInfo = { clientReference: dossier?.code, agent: 'flowo.com' };
+    const bookingRequest = buildBookingRequest(
+      prebookingData.data.productTokenNewblue,
+      agencyInfo,
+      prebookingData.data.distributionRooms,
+      checkout.passengers,
+      prebookingData.data.infoRequirements,
+    );
     const body = {
       requestToken: prebookingData.data.requestToken,
       providerToken: prebookingData.data.providerToken,
-      paxes: this.buildPaxesReserveV2(checkout.passengers),
+      paxes,
       packageClient: {
         bookingData: {
           hashPrebooking: booking.hashPrebooking,
@@ -174,9 +204,11 @@ export class BookingService {
           detailedPricing: prebookingData.data.detailedPricing,
         },
       },
-      agencyInfo: { clientReference: dossier?.code, agent: 'flowo.com' },
+      agencyInfo,
+      bookingRequest,
     };
 
+    //Booking newblue
     return this.managementHttpService
       .post<BookPackageProviderDTO>(`${this.appConfigService.BASE_URL}/packages-providers/api/v1/bookings/`, body, {
         timeout: 120000,
@@ -194,15 +226,10 @@ export class BookingService {
 
   private async createBookingInManagement(prebookingData: PrebookingDTO, booking: Booking, checkOut: CheckoutDTO) {
     logger.info(`[BookingService] [createBookingInManagement] init method`);
-    const client = await this.getOrCreateClient(checkOut).catch((error) => {
-      logger.error(`[BookingService] [createBookingInManagement] getOrCreateClient`);
-      return error;
+    let client = await this.getOrCreateClient(checkOut).catch(() => {
+      logger.warn(`[BookingService] [createBookingInManagement] use client general ${this.CLIENT_GENERAL}`);
+      return this.CLIENT_GENERAL;
     });
-
-    if (isNaN(client)) {
-      logger.error(`[BookingService] [createBookingInManagement] client not found`);
-      throw new HttpException(client, HttpStatus.NOT_FOUND);
-    }
 
     const createBookDTO: CreateManagementBookDto = {
       packageData: [
@@ -271,14 +298,12 @@ export class BookingService {
       client: client,
     };
 
-    const bookingManagement = await this.managementHttpService
+    return this.managementHttpService
       .post<Array<ManagementBookDTO>>(`${this.appConfigService.BASE_URL}/management/api/v1/booking/`, createBookDTO)
       .catch((error) => {
         logger.error(`[BookingService] [createBookingInManagement] POST booking ${error.stack}`);
         return null;
       });
-
-    return bookingManagement;
   }
 
   private async processBooking(
@@ -290,7 +315,7 @@ export class BookingService {
     bookId: string,
     status: string,
   ) {
-    logger.info(`[BookingService] [processBooking] init method`);
+    logger.info(`[BookingService] [processBooking] init method --locator ${bookId}`);
     if (bookingManagement) {
       const dossierPayments: CreateUpdateDossierPaymentDTO = {
         dossier: bookingManagement[0].dossier,
@@ -421,15 +446,16 @@ export class BookingService {
   }
 
   private async getOrCreateClient(checkOut: CheckoutDTO) {
-    logger.error(`[BookingService] [getOrCreateClient] init method`);
+    logger.info(`[BookingService] [getOrCreateClient] init method`);
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
       .catch((error) => {
-        logger.error(`[BookingService] [getOrCreateClient] ${error.stack}`);
+        logger.warn(`[BookingService] [getOrCreateClient] not found client for email ${error.stack}`);
         if (error.status === HttpStatus.BAD_REQUEST) {
           return this.clientService
             .getClientInfoByUsername(`${checkOut.contact.phone.prefix}${checkOut.contact.phone.phone}`)
             .catch((e) => {
+              logger.warn(`[BookingService] [getOrCreateClient] not found client for phone ${e.stack}`);
               if (e.status === HttpStatus.BAD_REQUEST) {
                 return null;
               }
@@ -441,6 +467,7 @@ export class BookingService {
       });
 
     if (!client) {
+      logger.info(`[BookingService] [createExternalClient] create client`);
       const integrationClient = await this.clientService.getIntegrationClient();
       const createdClient = await this.externalClientService
         .createExternalClient({
@@ -456,13 +483,36 @@ export class BookingService {
           role: 8,
           username: checkOut.contact.email,
           active: false,
+          country_iso: checkOut?.buyer?.document.nationality,
+          address: checkOut.contact.address.address,
+          postal_code: checkOut.contact.address.postalCode,
+          province: checkOut.contact.address.city,
+          type_document_name: checkOut.buyer.document.documentType,
         })
         .catch((error) => {
-          logger.error(`[BookingService] [getOrCreateClient] ${error.stack}`);
+          logger.warning(`[BookingService] [createExternalClient] not create client ${error.stack}`);
           throw error;
         });
+
       return createdClient?.client;
     }
+    logger.info(`[BookingService] [updateExternalClient] update client`);
+    const data: ClientRequestPatchDTO = {
+      id: client.id,
+      address: checkOut.contact.address.address,
+      country: checkOut.buyer.document.nationality,
+      province: checkOut.contact.address.city,
+      postal_code: checkOut.contact.address.postalCode,
+
+      dni: checkOut.buyer.document.documentNumber,
+      type_document: getCodeTypeDocument(checkOut.buyer.document.documentType),
+    };
+
+    await this.externalClientService.patchClient(data).catch((error) => {
+      logger.warning(`[BookingService] [updateExternalClient] not update client ${error.stack}`);
+      throw error;
+    });
+
     return client.id;
   }
 
@@ -477,13 +527,14 @@ export class BookingService {
     return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
   }
 
+  //For save managment and booking(new blue)
   private buildPaxesReserveV2(passengers: Array<CheckoutPassenger>, formatBirthdate = true) {
     return passengers.map((passenger) => {
       return {
         abbreviation: passenger.title,
         name: passenger.name,
         code: parseInt(passenger.extCode),
-        ages: passenger.age,
+        ages: formatBirthdate ? passenger.age : buildYears(passenger.dob),
         lastname: passenger.lastname,
         phone: '',
         email: '',
@@ -497,7 +548,7 @@ export class BookingService {
           : '',
         nationality: passenger.country,
         nationality_of_id: passenger.document.nationality,
-        gender: passenger.gender.includes('MALE') ? 2 : 1,
+        gender: passenger.gender == 'MALE' ? 2 : 1,
         phoneNumberCode: 34,
         type: passenger.type,
       };

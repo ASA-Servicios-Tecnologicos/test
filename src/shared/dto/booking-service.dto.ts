@@ -180,5 +180,5 @@ export class CreatePriceHistoryDto {
 }
 
 export class PriceHistoryFilterParamsDTO {
-  booking_service?: string;
+  booking_service?: number;
 }

@@ -20,4 +20,5 @@ export default registerAs('tecnoturis-app', () => ({
   W2M_URL: process.env.W2M_URL,
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   CONTENT_URL: process.env.CONTENT_URL,
+  CLIENT_GENERAL: process.env.CLIENT_GENERAL,
 }));
