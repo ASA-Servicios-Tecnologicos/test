@@ -442,10 +442,10 @@ export class BookingService {
       contact: checkoutContact,
     };
 
-    return this.getOrCreateClient(checkOut);
+    return this.getOrCreateClient(checkOut, true);
   }
 
-  private async getOrCreateClient(checkOut: CheckoutDTO) {
+  private async getOrCreateClient(checkOut: CheckoutDTO, isBudget = false) {
     logger.info(`[BookingService] [getOrCreateClient] init method`);
     const client: GetManagementClientInfoByUsernameDTO = await this.clientService
       .getClientInfoByUsername(checkOut.contact.email)
@@ -496,23 +496,24 @@ export class BookingService {
 
       return createdClient?.client;
     }
-    logger.info(`[BookingService] [updateExternalClient] update client`);
-    const data: ClientRequestPatchDTO = {
-      id: client.id,
-      address: checkOut.contact.address.address,
-      country: checkOut.buyer.document.nationality,
-      province: checkOut.contact.address.city,
-      postal_code: checkOut.contact.address.postalCode,
+    if (!isBudget) {
+      logger.info(`[BookingService] [updateExternalClient] update client`);
+      const data: ClientRequestPatchDTO = {
+        id: client.id,
+        address: checkOut.contact.address.address,
+        country: checkOut.buyer.document.nationality,
+        province: checkOut.contact.address.city,
+        postal_code: checkOut.contact.address.postalCode,
 
-      dni: checkOut.buyer.document.documentNumber,
-      type_document: getCodeTypeDocument(checkOut.buyer.document.documentType),
-    };
+        dni: checkOut.buyer.document.documentNumber,
+        type_document: getCodeTypeDocument(checkOut.buyer.document.documentType),
+      };
 
-    await this.externalClientService.patchClient(data).catch((error) => {
-      logger.warning(`[BookingService] [updateExternalClient] not update client ${error.stack}`);
-      throw error;
-    });
-
+      await this.externalClientService.patchClient(data).catch((error) => {
+        logger.warning(`[BookingService] [updateExternalClient] not update client ${error.stack}`);
+        throw error;
+      });
+    }
     return client.id;
   }
 
