@@ -483,11 +483,11 @@ export class BookingService {
           role: 8,
           username: checkOut.contact.email,
           active: false,
-          country_iso: checkOut?.buyer?.document.nationality,
-          address: checkOut.contact.address.address,
-          postal_code: checkOut.contact.address.postalCode,
-          province: checkOut.contact.address.city,
-          type_document_name: checkOut.buyer.document.documentType,
+          country_iso: checkOut.buyer.document?.nationality,
+          address: checkOut.contact.address?.address,
+          postal_code: checkOut.contact.address?.postalCode,
+          province: checkOut.contact.address?.city,
+          type_document_name: checkOut.buyer.document?.documentType,
         })
         .catch((error) => {
           logger.warning(`[BookingService] [createExternalClient] not create client ${error.stack}`);
